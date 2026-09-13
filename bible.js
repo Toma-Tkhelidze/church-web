@@ -593,7 +593,7 @@
   }
 
   function verseClip(n) {
-    return '„' + verseText(n) + '" — ' + verseRef(n) + ' (' + state.version.short + ')';
+    return '„' + verseText(n) + '" — ' + verseRef(n);
   }
 
   function openSheet(n) {
