@@ -41,6 +41,7 @@
     version: root.querySelector('#bibleVersion'),
     book: root.querySelector('#bibleBook'),
     chapter: root.querySelector('#bibleChapter'),
+    verse: root.querySelector('#bibleVerse'),
     prev: root.querySelector('#biblePrev'),
     next: root.querySelector('#bibleNext'),
     prevBottom: root.querySelector('#biblePrevBottom'),
@@ -57,7 +58,7 @@
   };
 
   const memo = new Map();
-  const state = { version: VERSIONS[0], books: [], book: 1, chapter: 1, chapters: 1, spread: 0, spreads: 1 };
+  const state = { version: VERSIONS[0], books: [], book: 1, chapter: 1, chapters: 1, verse: null, spread: 0, spreads: 1 };
   let loadSeq = 0;
 
   async function fetchChapter(version, book, chapter) {
@@ -164,7 +165,8 @@
     return {
       version: params.get('v') || null,
       book: Number(p[0]) || null,
-      chapter: Number(p[1]) || null
+      chapter: Number(p[1]) || null,
+      verse: Number(p[2]) || null
     };
   }
 
@@ -173,7 +175,8 @@
   }
 
   function savePosition() {
-    const hash = '#v=' + state.version.id + '&p=' + state.book + '.' + state.chapter;
+    const hash = '#v=' + state.version.id + '&p=' + state.book + '.' + state.chapter
+      + (state.verse ? '.' + state.verse : '');
     if (location.hash !== hash) history.replaceState(null, '', hash);
     try {
       localStorage.setItem(POS_KEY, JSON.stringify({
@@ -196,6 +199,37 @@
       p.appendChild(document.createTextNode(v.text));
       els.text.appendChild(p);
     });
+  }
+
+  function fillVerses(verses) {
+    const items = [{ value: '', label: 'მუხლი' }];
+    verses.forEach(function (v) {
+      if (v.text) items.push({ value: String(v.n), label: String(v.n) });
+    });
+    fill(els.verse, items, state.verse ? String(state.verse) : '');
+    els.verse.disabled = items.length < 2;
+  }
+
+  // არჩეული მუხლი ოქროსფრად გამოიყოფა; წიგნის რეჟიმში მისი გვერდი
+  // იშლება, ტელეფონზე ეკრანი მასზე მიდის — აქ ეს განზრახ არის.
+  function highlightVerse(n, scroll) {
+    Array.prototype.forEach.call(els.text.querySelectorAll('.is-highlight'), function (el) {
+      el.classList.remove('is-highlight');
+    });
+    state.verse = n || null;
+    els.verse.value = state.verse ? String(state.verse) : '';
+    if (!state.verse) return;
+    const el = els.text.querySelector('#v' + state.verse);
+    if (!el) return;
+    el.classList.add('is-highlight');
+    if (isBook()) {
+      const colW = parseFloat(els.text.style.getPropertyValue('--bb-col-w')) || 0;
+      const x = el.getBoundingClientRect().left - els.text.getBoundingClientRect().left - PAGE_PAD;
+      const col = Math.max(0, Math.round(x / (colW + COL_GAP)));
+      goSpread(Math.floor(col / 2));
+    } else if (scroll) {
+      el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }
   }
 
   function scrollToReader() {
@@ -344,6 +378,8 @@
     state.spread = 0;
     layoutBook();
     if (opts.toEnd) goSpread(state.spreads - 1, true);
+    fillVerses(data.verses);
+    if (state.verse) highlightVerse(state.verse, !isBook());
     savePosition();
     syncDropdowns();
     root.classList.remove('is-loading');
@@ -351,6 +387,7 @@
   }
 
   function stepChapter(delta, opts) {
+    state.verse = null;
     const next = state.chapter + delta;
     if (next >= 1 && next <= state.chapters) {
       state.chapter = next;
@@ -441,7 +478,7 @@
           head.textContent = node.label.replace(/^—\s*|\s*—$/g, '');
           panel.appendChild(head);
           Array.prototype.forEach.call(node.children, addOption);
-        } else if (!node.disabled) {
+        } else if (!node.disabled && node.value !== '') {
           addOption(node);
         }
       });
@@ -527,17 +564,24 @@
       if (state.version.ntOnly && state.book < NT_START) {
         state.book = NT_START;
         state.chapter = 1;
+        state.verse = null;
       }
       load();
     });
     els.book.addEventListener('change', function () {
       state.book = Number(els.book.value) || 1;
       state.chapter = 1;
+      state.verse = null;
       load();
     });
     els.chapter.addEventListener('change', function () {
       state.chapter = Number(els.chapter.value) || 1;
+      state.verse = null;
       load();
+    });
+    els.verse.addEventListener('change', function () {
+      highlightVerse(Number(els.verse.value) || null, true);
+      savePosition();
     });
     els.prev.addEventListener('click', function () { stepChapter(-1); });
     els.next.addEventListener('click', function () { stepChapter(1); });
@@ -575,6 +619,7 @@
       state.version = VERSIONS.find(function (v) { return v.id === h.version; }) || state.version;
       state.book = Math.min(Math.max(h.book, 1), 66);
       state.chapter = h.chapter || 1;
+      state.verse = h.verse || null;
       load();
     });
   }
@@ -587,6 +632,7 @@
     makeDropdown(els.version, { name: 'version', label: 'თარგმანი' });
     makeDropdown(els.book, { name: 'book', label: 'წიგნი' });
     makeDropdown(els.chapter, { name: 'chapter', label: 'თავი', grid: true });
+    makeDropdown(els.verse, { name: 'verse', label: 'მუხლი', grid: true });
     bind();
 
     const h = readHash();
@@ -595,6 +641,7 @@
     // პირველად მოსულს იოანეს სახარება ხვდება.
     state.book = Math.min(Math.max(h.book || saved.book || 43, 1), 66);
     state.chapter = h.chapter || (h.book ? 1 : saved.chapter) || 1;
+    state.verse = h.verse || null;
     setStatus('იტვირთება…');
     load();
   }

@@ -46,6 +46,7 @@
             --bb-ctrl-border: #cfc2a4;
             --bb-shadow: rgba(60, 40, 10, 0.18);
             --bb-spine: rgba(60, 40, 10, 0.22);
+            --bb-hl: #f3dfa4;
             padding: 34px 20px 70px;
             background: var(--bb-bg);
             color: var(--bb-text);
@@ -64,6 +65,7 @@
             --bb-ctrl-border: #3a3a3a;
             --bb-shadow: rgba(0, 0, 0, 0.6);
             --bb-spine: rgba(0, 0, 0, 0.7);
+            --bb-hl: #3d3418;
         }
         .bible-section[data-theme="light"] {
             --bb-bg: #fafafa;
@@ -78,6 +80,7 @@
             --bb-ctrl-border: #ddd5c0;
             --bb-shadow: rgba(0, 0, 0, 0.08);
             --bb-spine: rgba(0, 0, 0, 0.12);
+            --bb-hl: #fff1bd;
         }
 
         .bible-reader {
@@ -131,10 +134,12 @@
         #bibleVersion { flex: 1 1 100%; }
         #bibleBook { flex: 1 1 180px; }
         #bibleChapter { flex: 0 0 96px; }
+        #bibleVerse { flex: 0 0 104px; }
         .bible-dd { position: relative; min-width: 0; }
         .bible-dd--version { flex: 1 1 100%; }
         .bible-dd--book { flex: 1 1 180px; }
         .bible-dd--chapter { flex: 0 0 96px; }
+        .bible-dd--verse { flex: 0 0 104px; }
         .bible-dd select { width: 100%; }
         .bible-dd__btn { display: none; }
         .bible-dd__panel { display: none; }
@@ -327,7 +332,15 @@
             transition: opacity 0.2s ease;
         }
         .bible-reader.is-loading .bible-text { opacity: 0.35; }
-        .bible-verse { margin: 0 0 0.55em; }
+        .bible-verse { margin: 0 0 0.55em; border-radius: 8px; transition: background 0.3s ease; }
+        /* არჩეული მუხლი: ოქროსფერი ფონი და ზოლი მარცხნივ; სიგანე არ იცვლება */
+        .bible-verse.is-highlight {
+            background: var(--bb-hl);
+            box-shadow: inset 4px 0 0 var(--gold);
+            padding: 4px 10px 4px 12px;
+            margin-left: -12px;
+            margin-right: -10px;
+        }
         .bible-verse__num {
             display: inline-block;
             min-width: 1.6em;
@@ -427,6 +440,7 @@
             .bible-toolbar { padding: 12px; gap: 8px; }
             #bibleBook, .bible-dd--book { flex-basis: 100%; }
             #bibleChapter, .bible-dd--chapter { flex: 1 1 80px; }
+            #bibleVerse, .bible-dd--verse { flex: 1 1 80px; }
             .bible-themes { margin-right: 2px; padding-right: 6px; }
             .bible-hint { display: none; }
         }
@@ -559,6 +573,9 @@
 
                     <label class="visually-hidden" for="bibleChapter">თავი</label>
                     <select id="bibleChapter" disabled><option>თავი</option></select>
+
+                    <label class="visually-hidden" for="bibleVerse">მუხლი</label>
+                    <select id="bibleVerse" disabled><option value="">მუხლი</option></select>
 
                     <div class="bible-toolbar__nav">
                         <div class="bible-themes" role="group" aria-label="ფონის ფერი">
