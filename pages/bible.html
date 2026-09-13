@@ -332,7 +332,16 @@
             transition: opacity 0.2s ease;
         }
         .bible-reader.is-loading .bible-text { opacity: 0.35; }
-        .bible-verse { margin: 0 0 0.55em; border-radius: 8px; transition: background 0.3s ease; }
+        .bible-verse { margin: 0 0 0.55em; border-radius: 8px; transition: background 0.6s ease, box-shadow 0.6s ease; }
+        /* ჩამქრალი გამოყოფა: მხოლოდ ნომერი რჩება ოქროსფერ წრეში */
+        .bible-verse.is-marked .bible-verse__num {
+            color: var(--bb-paper);
+            background: var(--gold);
+            border-radius: 999px;
+            padding: 0 5px;
+            min-width: 1.2em;
+            text-align: center;
+        }
         /* არჩეული მუხლი: ოქროსფერი ფონი და ზოლი მარცხნივ; სიგანე არ იცვლება */
         .bible-verse.is-highlight {
             background: var(--bb-hl);

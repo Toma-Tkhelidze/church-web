@@ -212,9 +212,16 @@
 
   // არჩეული მუხლი ოქროსფრად გამოიყოფა; წიგნის რეჟიმში მისი გვერდი
   // იშლება, ტელეფონზე ეკრანი მასზე მიდის — აქ ეს განზრახ არის.
+  // გამოყოფა რამდენიმე წამში ჩუმდება: რჩება მხოლოდ ოქროსფერი ნიშანი
+  // ნომერთან, რომ კითხვისას თვალი აღარ ეჭიდებოდეს.
+  const HIGHLIGHT_MS = 5000;
+  let fadeTimer = 0;
+
   function highlightVerse(n, scroll) {
-    Array.prototype.forEach.call(els.text.querySelectorAll('.is-highlight'), function (el) {
+    clearTimeout(fadeTimer);
+    Array.prototype.forEach.call(els.text.querySelectorAll('.is-highlight, .is-marked'), function (el) {
       el.classList.remove('is-highlight');
+      el.classList.remove('is-marked');
     });
     state.verse = n || null;
     els.verse.value = state.verse ? String(state.verse) : '';
@@ -222,6 +229,10 @@
     const el = els.text.querySelector('#v' + state.verse);
     if (!el) return;
     el.classList.add('is-highlight');
+    fadeTimer = setTimeout(function () {
+      el.classList.remove('is-highlight');
+      el.classList.add('is-marked');
+    }, HIGHLIGHT_MS);
     if (isBook()) {
       const colW = parseFloat(els.text.style.getPropertyValue('--bb-col-w')) || 0;
       const x = el.getBoundingClientRect().left - els.text.getBoundingClientRect().left - PAGE_PAD;
@@ -414,7 +425,18 @@
     els.text.style.fontSize = size + 'px';
     try { localStorage.setItem(FONT_KEY, String(size)); } catch (e) { /* ignore */ }
     layoutBook();
+    if (state.verse) goToVerse(state.verse);
     return size;
+  }
+
+  // მუხლის გვერდზე გადასვლა გამოყოფის გარეშე (მაგ. შრიფტის ან ფანჯრის ცვლილების შემდეგ)
+  function goToVerse(n) {
+    const el = els.text.querySelector('#v' + n);
+    if (!el || !isBook()) return;
+    const colW = parseFloat(els.text.style.getPropertyValue('--bb-col-w')) || 0;
+    const x = el.getBoundingClientRect().left - els.text.getBoundingClientRect().left - PAGE_PAD;
+    const col = Math.max(0, Math.round(x / (colW + COL_GAP)));
+    goSpread(Math.floor(col / 2), true);
   }
 
   function applyTheme(name) {
@@ -494,7 +516,7 @@
       el.textContent = o.textContent;
       el.addEventListener('click', function () {
         close();
-        if (select.value !== o.value) {
+        if (select.value !== o.value || opts.reselect) {
           select.value = o.value;
           select.dispatchEvent(new Event('change'));
         }
@@ -759,7 +781,10 @@
     let resizeTimer = 0;
     window.addEventListener('resize', function () {
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(layoutBook, 150);
+      resizeTimer = setTimeout(function () {
+        layoutBook();
+        if (state.verse) goToVerse(state.verse);
+      }, 150);
     });
     // ტელეფონსა და დესკტოპს შორის გადასვლისას (მაგ. ეკრანის მობრუნება) დაუყოვნებლივ.
     if (BOOK_MQ.addEventListener) BOOK_MQ.addEventListener('change', layoutBook);
@@ -784,7 +809,7 @@
     makeDropdown(els.version, { name: 'version', label: 'თარგმანი' });
     makeDropdown(els.book, { name: 'book', label: 'წიგნი' });
     makeDropdown(els.chapter, { name: 'chapter', label: 'თავი', grid: true });
-    makeDropdown(els.verse, { name: 'verse', label: 'მუხლი', grid: true });
+    makeDropdown(els.verse, { name: 'verse', label: 'მუხლი', grid: true, reselect: true });
     bind();
     bindSheet();
 
