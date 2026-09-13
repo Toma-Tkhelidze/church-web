@@ -306,6 +306,7 @@
       }
       root.classList.remove('is-loading');
       els.text.innerHTML = '';
+      syncDropdowns();
       setStatus(navigator.onLine === false
         ? 'ინტერნეტი არ არის — ამ თავის წაკითხვა ვერ მოხერხდა.'
         : 'ტექსტი ამჟამად ვერ ჩაიტვირთა. სცადე თავიდან ან წაიკითხე ეს თავი holybible.ge-ზე.', true, [
@@ -344,6 +345,7 @@
     layoutBook();
     if (opts.toEnd) goSpread(state.spreads - 1, true);
     savePosition();
+    syncDropdowns();
     root.classList.remove('is-loading');
     if (opts.scroll) scrollToReader();
   }
@@ -388,6 +390,136 @@
     });
     try { localStorage.setItem(THEME_KEY, name); } catch (e) { /* ignore */ }
   }
+
+  /* ===== საკუთარი ჩამოსაშლელი (დესკტოპი) =====
+     ბრაუზერის სია იქ იხსნება, სადაც თვითონ უნდა — ხშირად ზემოთ — და
+     სტილს არ ემორჩილება. ფართო ეკრანზე ველის ქვეშ ჩვენი პანელი იხსნება;
+     ტელეფონზე ისევ სისტემური ამრჩევია, ის იქ საუკეთესოა.
+     <select> ადგილზე რჩება და მდგომარეობას ინახავს — პანელი მის სარკეა. */
+  const dropdowns = [];
+  let openDropdown = null;
+
+  function makeDropdown(select, opts) {
+    opts = opts || {};
+    const wrap = document.createElement('div');
+    wrap.className = 'bible-dd bible-dd--' + opts.name;
+    select.parentNode.insertBefore(wrap, select);
+    wrap.appendChild(select);
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'bible-dd__btn';
+    btn.setAttribute('aria-haspopup', 'listbox');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-label', opts.label);
+    const btnText = document.createElement('span');
+    btn.appendChild(btnText);
+    wrap.appendChild(btn);
+
+    const panel = document.createElement('div');
+    panel.className = 'bible-dd__panel' + (opts.grid ? ' bible-dd__panel--grid' : '');
+    panel.setAttribute('role', 'listbox');
+    panel.setAttribute('aria-label', opts.label);
+    panel.hidden = true;
+    wrap.appendChild(panel);
+
+    const dd = { select: select, wrap: wrap, btn: btn, panel: panel, opts: opts };
+
+    function options() {
+      return Array.prototype.slice.call(panel.querySelectorAll('.bible-dd__opt'));
+    }
+
+    function sync() {
+      const current = select.options[select.selectedIndex];
+      btnText.textContent = current ? current.textContent : '';
+      btn.disabled = select.disabled;
+      panel.innerHTML = '';
+      Array.prototype.forEach.call(select.children, function (node) {
+        if (node.tagName === 'OPTGROUP') {
+          const head = document.createElement('div');
+          head.className = 'bible-dd__group';
+          head.textContent = node.label.replace(/^—\s*|\s*—$/g, '');
+          panel.appendChild(head);
+          Array.prototype.forEach.call(node.children, addOption);
+        } else if (!node.disabled) {
+          addOption(node);
+        }
+      });
+    }
+
+    function addOption(o) {
+      const el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'bible-dd__opt' + (o.selected ? ' is-selected' : '');
+      el.setAttribute('role', 'option');
+      el.setAttribute('aria-selected', o.selected ? 'true' : 'false');
+      el.dataset.value = o.value;
+      el.textContent = o.textContent;
+      el.addEventListener('click', function () {
+        close();
+        if (select.value !== o.value) {
+          select.value = o.value;
+          select.dispatchEvent(new Event('change'));
+        }
+        sync();
+      });
+      panel.appendChild(el);
+    }
+
+    function open() {
+      if (openDropdown && openDropdown !== dd) openDropdown.close();
+      sync();
+      panel.hidden = false;
+      btn.setAttribute('aria-expanded', 'true');
+      openDropdown = dd;
+      const sel = panel.querySelector('.is-selected');
+      if (sel) {
+        // არჩეული პანელის შუაში — გვერდი კი ადგილზე რჩება
+        panel.scrollTop = Math.max(0, sel.offsetTop - panel.clientHeight / 2 + sel.offsetHeight / 2);
+        sel.focus({ preventScroll: true });
+      }
+    }
+
+    function close(refocus) {
+      if (panel.hidden) return;
+      panel.hidden = true;
+      btn.setAttribute('aria-expanded', 'false');
+      if (openDropdown === dd) openDropdown = null;
+      if (refocus) btn.focus({ preventScroll: true });
+    }
+
+    btn.addEventListener('click', function () {
+      if (panel.hidden) open(); else close();
+    });
+    btn.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); open(); }
+    });
+    panel.addEventListener('keydown', function (e) {
+      const list = options();
+      const i = list.indexOf(document.activeElement);
+      if (e.key === 'Escape') { e.preventDefault(); close(true); }
+      else if (e.key === 'ArrowDown') { e.preventDefault(); (list[i + 1] || list[0]).focus({ preventScroll: true }); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); (list[i - 1] || list[list.length - 1]).focus({ preventScroll: true }); }
+      else if (e.key === 'Tab') { close(); }
+    });
+
+    dd.sync = sync;
+    dd.close = close;
+    dropdowns.push(dd);
+    sync();
+    return dd;
+  }
+
+  function syncDropdowns() {
+    dropdowns.forEach(function (d) { d.sync(); });
+  }
+
+  document.addEventListener('mousedown', function (e) {
+    if (openDropdown && !openDropdown.wrap.contains(e.target)) openDropdown.close();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && openDropdown) openDropdown.close(true);
+  });
 
   function bind() {
     els.version.addEventListener('change', function () {
@@ -452,6 +584,9 @@
       return { value: v.id, label: v.short };
     }), VERSIONS[0].id);
     applyTheme((function () { try { return localStorage.getItem(THEME_KEY); } catch (e) { return null; } })());
+    makeDropdown(els.version, { name: 'version', label: 'თარგმანი' });
+    makeDropdown(els.book, { name: 'book', label: 'წიგნი' });
+    makeDropdown(els.chapter, { name: 'chapter', label: 'თავი', grid: true });
     bind();
 
     const h = readHash();
