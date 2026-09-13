@@ -3418,6 +3418,25 @@ a.next-service .ns-where, .next-service a.ns-where {
     letter-spacing: 1px;
 }
 
+/* მთელი თავის ბმული ბიბლიის გვერდზე */
+.verse-open {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    align-self: flex-start;
+    margin-top: 12px;
+    color: var(--gold);
+    text-decoration: none;
+    font-size: 0.88rem;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid rgba(170, 149, 79, 0.4);
+    padding-bottom: 2px;
+    transition: color 0.3s, border-color 0.3s;
+}
+
+.verse-open:hover { color: var(--gold-light); border-color: var(--gold-light); }
+.verse-open[hidden] { display: none; }
+
 /* წაკითხვის ღილაკი და ზედიზედ დღეების მთვლელი */
 .verse-progress {
     display: flex;
