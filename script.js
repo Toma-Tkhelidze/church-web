@@ -1387,7 +1387,7 @@ window.unlockBodyScroll = function() {
         const items = [
             { href: root + 'index.html', icon: 'fa-house', label: 'მთავარი' },
             { href: sub + 'sermons.html', icon: 'fa-play', label: 'ქადაგებები' },
-            { href: sub + 'give.html', icon: 'fa-hand-holding-heart', label: 'გაეცი' },
+            { href: sub + 'bible.html', icon: 'fa-book-bible', label: 'ბიბლია' },
             { href: sub + 'contact.html', icon: 'fa-envelope', label: 'კონტაქტი' }
         ];
 
