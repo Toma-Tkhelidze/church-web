@@ -17,7 +17,7 @@
 // ქვემოთ fetch-ის ლოგიკა სხვა დომენებს ისედაც არ ეხება.
 importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
 
-const VERSION = 'v2';
+const VERSION = 'v3';
 const SHELL_CACHE = 'efck-shell-' + VERSION;
 const RUNTIME_CACHE = 'efck-runtime-' + VERSION;
 
@@ -33,6 +33,8 @@ const SHELL_FILES = [
   'script.js',
   'sanity-fetch.js',
   'registration-modal.js',
+  'bible.js',
+  'pages/bible.html',
   'icons/icon-192.png',
   'pages/images/logo.svg'
 ].map(file => new URL(file, BASE).href);
