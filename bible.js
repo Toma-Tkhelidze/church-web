@@ -136,9 +136,17 @@
       { label: 'ძველი აღთქმა', from: 1, to: NT_START - 1 },
       { label: 'ახალი აღთქმა', from: NT_START, to: 66 }
     ];
-    groups.forEach(function (g) {
+    groups.forEach(function (g, i) {
+      if (i > 0) {
+        // ხაზი ორ აღთქმას შორის — ბრაუზერის სიაშიც კარგად ჩანს
+        const sep = document.createElement('option');
+        sep.disabled = true;
+        sep.className = 'bible-book-sep';
+        sep.textContent = '────────────────';
+        els.book.appendChild(sep);
+      }
       const group = document.createElement('optgroup');
-      group.label = g.label;
+      group.label = '— ' + g.label.toUpperCase() + ' —';
       for (let n = g.from; n <= g.to && n <= books.length; n++) {
         const opt = document.createElement('option');
         opt.value = String(n);
@@ -337,7 +345,7 @@
     if (opts.toEnd) goSpread(state.spreads - 1, true);
     savePosition();
     root.classList.remove('is-loading');
-    if (!opts.silent) scrollToReader();
+    if (opts.scroll) scrollToReader();
   }
 
   function stepChapter(delta, opts) {
@@ -356,7 +364,7 @@
   // ქვედა ღილაკები და ისრები: წიგნის რეჟიმში ჯერ გვერდი იფურცლება,
   // თავი მხოლოდ ბოლო/პირველ გვერდზე იცვლება.
   function stepPage(delta) {
-    if (!isBook()) return stepChapter(delta);
+    if (!isBook()) return stepChapter(delta, { scroll: true });
     const target = state.spread + delta;
     if (target >= 0 && target < state.spreads) return goSpread(target);
     stepChapter(delta, { toEnd: delta < 0 });
@@ -453,7 +461,7 @@
     state.book = Math.min(Math.max(h.book || saved.book || 43, 1), 66);
     state.chapter = h.chapter || (h.book ? 1 : saved.chapter) || 1;
     setStatus('იტვირთება…');
-    load({ silent: true });
+    load();
   }
 
   init();

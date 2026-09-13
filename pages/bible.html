@@ -114,6 +114,20 @@
         }
         .bible-toolbar select:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
         .bible-toolbar select:disabled { opacity: 0.5; cursor: default; }
+        /* წიგნების სია: აღთქმების სათაურები ოქროსფერი და მსხვილი, შუაში ხაზი */
+        #bibleBook optgroup {
+            font-family: 'FiraGO-SemiBold', 'Noto Sans Georgian', sans-serif;
+            font-weight: 700;
+            font-style: normal;
+            color: var(--gold);
+        }
+        #bibleBook optgroup option {
+            font-family: 'Noto Sans Georgian', sans-serif;
+            font-weight: 400;
+            color: var(--bb-text);
+            padding-left: 14px;
+        }
+        #bibleBook .bible-book-sep { color: var(--bb-ctrl-border); font-size: 0.7em; text-align: center; }
         #bibleVersion { flex: 1 1 100%; }
         #bibleBook { flex: 1 1 180px; }
         #bibleChapter { flex: 0 0 96px; }
