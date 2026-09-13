@@ -558,6 +558,158 @@
     if (e.key === 'Escape' && openDropdown) openDropdown.close(true);
   });
 
+  /* ===== მუხლის მენიუ: კოპირება და გაზიარება =====
+     ტელეფონზე მუხლზე ხანგრძლივი დაჭერა (500 მწ, თითი ადგილზე), დესკტოპზე
+     მარჯვენა ღილაკი. ქვედა კიდიდან პატარა ფურცელი ამოდის. */
+  const LONG_PRESS = 500;
+  const MOVE_TOLERANCE = 10;
+  const sheet = {
+    root: document.getElementById('bibleSheet'),
+    ref: document.getElementById('bibleSheetRef'),
+    text: document.getElementById('bibleSheetText'),
+    copy: document.getElementById('bibleSheetCopy'),
+    share: document.getElementById('bibleSheetShare'),
+    cancel: document.getElementById('bibleSheetCancel'),
+    backdrop: document.getElementById('bibleSheetBackdrop'),
+    toast: document.getElementById('bibleToast')
+  };
+  let sheetVerse = null;
+  let toastTimer = 0;
+
+  function verseRef(n) {
+    return (state.books[state.book - 1] || '') + ' ' + state.chapter + ':' + n;
+  }
+
+  function verseText(n) {
+    const el = els.text.querySelector('#v' + n);
+    if (!el) return '';
+    const num = el.querySelector('.bible-verse__num');
+    return (el.textContent.slice(num ? num.textContent.length : 0) || '').trim();
+  }
+
+  function verseLink(n) {
+    return location.origin + location.pathname + '#v=' + state.version.id
+      + '&p=' + state.book + '.' + state.chapter + '.' + n;
+  }
+
+  function verseClip(n) {
+    return '„' + verseText(n) + '" — ' + verseRef(n) + ' (' + state.version.short + ')';
+  }
+
+  function openSheet(n) {
+    if (!sheet.root || !verseText(n)) return;
+    if (sheet.root.classList.contains('is-open')) return;
+    sheetVerse = n;
+    highlightVerse(n, false);
+    savePosition();
+    syncDropdowns();
+    sheet.ref.textContent = verseRef(n);
+    sheet.text.textContent = verseText(n);
+    sheet.share.hidden = !navigator.share;
+    sheet.root.hidden = false;
+    // ერთი კადრი — რომ ამოსვლის ანიმაცია იმუშაოს
+    requestAnimationFrame(function () { sheet.root.classList.add('is-open'); });
+    sheet.copy.focus({ preventScroll: true });
+  }
+
+  function closeSheet() {
+    if (!sheet.root || sheet.root.hidden) return;
+    sheet.root.classList.remove('is-open');
+    setTimeout(function () { sheet.root.hidden = true; }, 220);
+  }
+
+  function toast(msg) {
+    if (!sheet.toast) return;
+    sheet.toast.textContent = msg;
+    sheet.toast.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { sheet.toast.hidden = true; }, 1800);
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    // ძველი ბრაუზერები: უხილავი ველი + execCommand
+    return new Promise(function (resolve, reject) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand && document.execCommand('copy');
+      document.body.removeChild(ta);
+      ok ? resolve() : reject(new Error('copy failed'));
+    });
+  }
+
+  function bindSheet() {
+    if (!sheet.root) return;
+
+    sheet.copy.addEventListener('click', function () {
+      const n = sheetVerse;
+      copyText(verseClip(n)).then(function () {
+        closeSheet();
+        toast('დაკოპირდა ✓');
+      }, function () {
+        toast('ვერ დაკოპირდა — მონიშნე ტექსტი ხელით.');
+      });
+    });
+    sheet.share.addEventListener('click', function () {
+      const n = sheetVerse;
+      navigator.share({ title: verseRef(n), text: verseClip(n), url: verseLink(n) })
+        .then(closeSheet, function () { /* გაუქმება ჩვეულებრივია */ });
+    });
+    sheet.cancel.addEventListener('click', closeSheet);
+    sheet.backdrop.addEventListener('click', closeSheet);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeSheet();
+    });
+
+    // ხანგრძლივი დაჭერა — pointer-ივენთებით, რომ თითსაც და მაუსსაც ერთნაირად მოერგოს
+    let pressTimer = 0;
+    let startX = 0;
+    let startY = 0;
+    let pressVerse = null;
+
+    function cancelPress() {
+      clearTimeout(pressTimer);
+      pressTimer = 0;
+      pressVerse = null;
+    }
+
+    els.text.addEventListener('pointerdown', function (e) {
+      if (e.pointerType === 'mouse') return; // მაუსს მარჯვენა ღილაკი აქვს
+      const verse = e.target.closest('.bible-verse');
+      if (!verse) return;
+      startX = e.clientX;
+      startY = e.clientY;
+      pressVerse = Number(verse.id.slice(1));
+      clearTimeout(pressTimer);
+      pressTimer = setTimeout(function () {
+        const n = pressVerse;
+        cancelPress();
+        if (navigator.vibrate) navigator.vibrate(15);
+        openSheet(n);
+      }, LONG_PRESS);
+    });
+    els.text.addEventListener('pointermove', function (e) {
+      if (!pressTimer) return;
+      if (Math.abs(e.clientX - startX) > MOVE_TOLERANCE || Math.abs(e.clientY - startY) > MOVE_TOLERANCE) cancelPress();
+    });
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) {
+      els.text.addEventListener(ev, cancelPress);
+    });
+    // ტელეფონის საკუთარი მენიუ მუხლებზე არ გვინდა
+    els.text.addEventListener('contextmenu', function (e) {
+      const verse = e.target.closest('.bible-verse');
+      if (!verse) return;
+      e.preventDefault();
+      openSheet(Number(verse.id.slice(1)));
+    });
+  }
+
   function bind() {
     els.version.addEventListener('change', function () {
       state.version = VERSIONS.find(function (v) { return v.id === els.version.value; }) || VERSIONS[0];
@@ -634,6 +786,7 @@
     makeDropdown(els.chapter, { name: 'chapter', label: 'თავი', grid: true });
     makeDropdown(els.verse, { name: 'verse', label: 'მუხლი', grid: true });
     bind();
+    bindSheet();
 
     const h = readHash();
     const saved = readSaved();
