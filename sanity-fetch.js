@@ -371,7 +371,11 @@ function renderTeam(members) {
     if (email && pastor.email) email.href = 'mailto:' + pastor.email;
   }
 
-  const elders = members.filter(m => m.memberRole === 'elder');
+  // გარდაცვლილი მსახურები საბჭოს სიაში აღარ ჩანან — მათ team.html-ის
+  // ხსოვნის ბლოკი იხსენიებს. Sanity-ში ჩანაწერი ჯერ ისევ არსებობს, ამიტომ
+  // აქ ვფილტრავთ, სანამ Studio-ში არ გაუქმდება.
+  const memorialized = ['F5YQWIMseZg5bENUqhXa3G'];
+  const elders = members.filter(m => m.memberRole === 'elder' && !memorialized.includes(m._id));
   const eldersWrap = document.getElementById('sanity-elders-wrap');
   if (eldersWrap && elders.length > 0) {
     // ორ სვეტად, ისევე როგორც სტატიკურ ვერსიაში.
@@ -476,6 +480,7 @@ function updatePageContent() {
       "imageAssetUrl": image.asset->url
     },
     "teamMembers": *[_type == "teamMember"] | order(order asc) {
+      _id,
       name,
       memberRole,
       roleLabel,
