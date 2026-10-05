@@ -1,9 +1,9 @@
 /**
  * აუდიო ქადაგებები — ქადაგებების გვერდის „აუდიო“ ჩანართი.
  *
- * ეპიზოდები პოდკასტის RSS ლენტიდან მოდის. ლენტას იმავე გზით
- * ვკითხულობთ, რითაც YouTube-ის ლენტას (sanity-fetch.js) — rss2json-ის
- * გავლით, რადგან პირდაპირ წაკითხვას CORS უშლის ხელს.
+ * ეპიზოდები პოდკასტის RSS ლენტიდან მოდის. Spotify-ის (anchor.fm) ლენტა
+ * CORS-ს უშვებს, ამიტომ პირდაპირ ვკითხულობთ — rss2json-ის უფასო გეგმა
+ * მხოლოდ ბოლო 10 ეპიზოდს აბრუნებს, არქივი კი ბევრად დიდია.
  *
  * ლენტას ყოველ შესვლაზე ვკითხულობთ, რომ ახალი ეპიზოდი გამოქვეყნებისთანავე
  * ჩანდეს. ბოლო ნაცნობი სია localStorage-შია — ის მაშინვე იხატება, ლენტის
@@ -16,16 +16,15 @@
 // ── შესავსები ───────────────────────────────────────────────────
 // პოდკასტის RSS მისამართი (Spotify for Creators → Settings → RSS).
 // გარეკანსა და პლატფორმების ბმულებს ლენტიდანვე ვიღებთ.
-const PODCAST_FEED = '';
+const PODCAST_FEED = 'https://anchor.fm/s/118253064/podcast/rss';
 
 const PODCAST_LINKS = {
-  spotify: '',
+  spotify: 'https://open.spotify.com/show/57yggrMA1rr8OcxzfYbAdj',
   apple: ''
 };
 
-const FEED_PROXY = 'https://api.rss2json.com/v1/api.json?rss_url=';
 const FEED_TIMEOUT_MS = 8000;
-const FEED_CACHE_KEY = 'efc:podcast:v1';
+const FEED_CACHE_KEY = 'efc:podcast:v2';
 
 // მოსმენის ადგილი — იმავე პრინციპით, რაც ვიდეოს პროგრესს აქვს.
 const AUDIO_KEY = 'efc:listen:v1';
@@ -114,7 +113,7 @@ function esc(value) {
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
-// rss2json ხანგრძლივობას სხვადასხვანაირად აბრუნებს: „38:12“, „2292“
+// itunes:duration სხვადასხვანაირად მოდის: „38:12“, „2292“
 // ან „01:38:12“. სამივეს წამებად ვაქცევთ.
 function toSeconds(value) {
   if (value == null) return 0;
@@ -126,21 +125,49 @@ function toSeconds(value) {
   return parts.reduce((total, part) => total * 60 + part, 0);
 }
 
-function normalise(data) {
-  const items = (data && data.items) || [];
-  return items.map(item => {
-    const audio = (item.enclosure && item.enclosure.link) || '';
+// ეპიზოდის სათაური YouTube-ისას იმეორებს: „თემა | 6 თებერვალი, 2022“.
+// ლენტის pubDate ატვირთვის დღეა და არა ქადაგებისა — ძველი ქადაგებები
+// ერთად აიტვირთა — ამიტომ თარიღს სათაურიდან ვიღებთ და სათაურს ვაჭრით.
+const TITLE_DATE = /\s*\|\s*(\d{1,2})\s+(\S+?),?\s+(\d{4})\s*$/;
+
+function splitTitle(raw, fallbackDate) {
+  const m = raw.match(TITLE_DATE);
+  const month = m ? GE_MONTHS.indexOf(m[2]) : -1;
+  if (month < 0) return { title: raw, date: fallbackDate };
+  const pad = n => String(n).padStart(2, '0');
+  return {
+    title: raw.slice(0, m.index).trim(),
+    date: m[3] + '-' + pad(month + 1) + '-' + pad(m[1]) + 'T11:00:00'
+  };
+}
+
+function tagText(node, name) {
+  const found = node.getElementsByTagName(name)[0];
+  return found ? found.textContent.trim() : '';
+}
+
+function tagAttr(node, name, attr) {
+  const found = node.getElementsByTagName(name)[0];
+  return found ? (found.getAttribute(attr) || '') : '';
+}
+
+function normalise(xml) {
+  return Array.from(xml.getElementsByTagName('item')).map(item => {
+    const audio = tagAttr(item, 'enclosure', 'url');
+    const pub = new Date(tagText(item, 'pubDate'));
+    const parts = splitTitle(tagText(item, 'title'), isNaN(pub) ? '' : pub.toISOString());
     return {
-      id: item.guid || audio || item.link || item.title,
-      title: (item.title || '').trim(),
+      id: tagText(item, 'guid') || audio,
+      title: parts.title,
       url: audio,
-      date: item.pubDate || '',
+      date: parts.date,
       // ეპიზოდს შეიძლება თავისი გარეკანი ჰქონდეს, შეიძლება — არა.
       // თუ არაა, შოუს საერთო გარეკანზე გადავდივართ.
-      image: item.thumbnail || '',
-      duration: toSeconds(item.enclosure && item.enclosure.duration)
+      image: tagAttr(item, 'itunes:image', 'href'),
+      duration: toSeconds(tagText(item, 'itunes:duration'))
     };
-  }).filter(ep => ep.url && ep.title);
+  }).filter(ep => ep.url && ep.title)
+    .sort((a, b) => String(b.date).localeCompare(String(a.date)));
 }
 
 function fetchFeed() {
@@ -148,14 +175,17 @@ function fetchFeed() {
   const controller = typeof AbortController === 'function' ? new AbortController() : null;
   const timer = controller ? setTimeout(() => controller.abort(), FEED_TIMEOUT_MS) : null;
 
-  return fetch(FEED_PROXY + encodeURIComponent(PODCAST_FEED),
-    controller ? { signal: controller.signal } : undefined)
-    .then(res => (res.ok ? res.json() : null))
-    .then(data => {
-      const items = normalise(data);
+  return fetch(PODCAST_FEED, controller ? { signal: controller.signal } : undefined)
+    .then(res => (res.ok ? res.text() : ''))
+    .then(text => {
+      const xml = text ? new DOMParser().parseFromString(text, 'application/xml') : null;
+      const items = xml ? normalise(xml) : [];
       if (!items.length) return cached ? cached.items : [];
-      // გარეკანს ლენტიდან ვიღებთ, თუ იქ არის.
-      if (data && data.feed && data.feed.image) coverUrl = data.feed.image;
+      // გარეკანს ლენტიდან ვიღებთ (არხის itunes:image).
+      const channel = xml.getElementsByTagName('channel')[0];
+      const showArt = channel && Array.from(channel.children)
+        .find(n => n.tagName === 'itunes:image');
+      if (showArt) coverUrl = showArt.getAttribute('href') || coverUrl;
       writeFeedCache(items, coverUrl);
       return items;
     })
