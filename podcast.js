@@ -24,7 +24,7 @@ const PODCAST_LINKS = {
 };
 
 const FEED_TIMEOUT_MS = 8000;
-const FEED_CACHE_KEY = 'efc:podcast:v2';
+const FEED_CACHE_KEY = 'efc:podcast:v3';          // v3: ეპიზოდს preacher ველი დაემატა
 
 // მოსმენის ადგილი — იმავე პრინციპით, რაც ვიდეოს პროგრესს აქვს.
 const AUDIO_KEY = 'efc:listen:v1';
@@ -38,10 +38,10 @@ const SPEEDS = [1, 1.25, 1.5, 2];
 // მუშაობს — რომ დიზაინი ადგილზე ჩანდეს. PODCAST_FEED-ის შევსებისთანავე
 // მათ ნამდვილი ეპიზოდები ჩაანაცვლებს.
 const PREVIEW_EPISODES = [
-  { id: 'p1', title: 'ჩემი ეკლესია', url: '', date: '2026-08-30 11:00:00', duration: 2292 },
-  { id: 'p2', title: 'უკეთესობა ვაქციოთ ნორმად', url: '', date: '2026-08-23 11:00:00', duration: 2465 },
-  { id: 'p3', title: 'როგორი ეკლესიისთვის დაბრუნდება ქრისტე', url: '', date: '2026-08-16 11:00:00', duration: 2140 },
-  { id: 'p4', title: 'სამი რამ, რაც უფალს მოსწონს ჩვენში', url: '', date: '2026-08-09 11:00:00', duration: 2010 }
+  { id: 'p1', title: 'ჩემი ეკლესია', preacher: 'სპარტაკ ჭანკვეტაძე', url: '', date: '2026-08-30 11:00:00', duration: 2292 },
+  { id: 'p2', title: 'უკეთესობა ვაქციოთ ნორმად', preacher: 'სპარტაკ ჭანკვეტაძე', url: '', date: '2026-08-23 11:00:00', duration: 2465 },
+  { id: 'p3', title: 'როგორი ეკლესიისთვის დაბრუნდება ქრისტე', preacher: 'სპარტაკ ჭანკვეტაძე', url: '', date: '2026-08-16 11:00:00', duration: 2140 },
+  { id: 'p4', title: 'სამი რამ, რაც უფალს მოსწონს ჩვენში', preacher: 'სპარტაკ ჭანკვეტაძე', url: '', date: '2022-10-16 11:00:00', duration: 2010 }
 ];
 
 function previewMode() {
@@ -141,6 +141,17 @@ function splitTitle(raw, fallbackDate) {
   };
 }
 
+// მქადაგებელი ეპიზოდის აღწერაშია: „…<br>მქადაგებელი - სახელი გვარი</p>“.
+function findPreacher(description) {
+  const m = String(description || '').match(/მქადაგებელი\s*[-–—:]\s*([^<\n]+)/);
+  return m ? m[1].trim() : '';
+}
+
+function yearOf(ep) {
+  const d = new Date(ep.date);
+  return isNaN(d) ? '' : String(d.getFullYear());
+}
+
 function tagText(node, name) {
   const found = node.getElementsByTagName(name)[0];
   return found ? found.textContent.trim() : '';
@@ -159,6 +170,7 @@ function normalise(xml) {
     return {
       id: tagText(item, 'guid') || audio,
       title: parts.title,
+      preacher: findPreacher(tagText(item, 'description')),
       url: audio,
       date: parts.date,
       // ეპიზოდს შეიძლება თავისი გარეკანი ჰქონდეს, შეიძლება — არა.
@@ -214,7 +226,10 @@ let coverUrl = '';
   const el = {
     cover: document.getElementById('audioCover'),
     title: document.getElementById('audioTitle'),
+    preacher: document.getElementById('audioPreacher'),
+    year: document.getElementById('audioYear'),
     meta: document.getElementById('audioMeta'),
+    years: document.getElementById('audioYears'),
     bar: document.getElementById('audioBar'),
     fill: document.getElementById('audioFill'),
     dot: document.getElementById('audioDot'),
@@ -245,6 +260,7 @@ let coverUrl = '';
 
   let episodes = [];
   let shown = [];
+  let activeYear = '';
   let current = null;
   let speedIdx = 0;
   let miniDismissed = false;
@@ -286,7 +302,9 @@ let coverUrl = '';
       + badge
       + '<span class="audio-item-body">'
       + '<span class="audio-item-title">' + esc(ep.title) + '</span>'
-      + '<span class="audio-item-date">' + esc(geoDate(ep.date)) + note + '</span>'
+      + '<span class="audio-item-date">'
+      + (ep.preacher ? '<span class="audio-item-preacher">' + esc(ep.preacher) + '</span> · ' : '')
+      + esc(geoDate(ep.date)) + note + '</span>'
       + '</span>'
       + '<span class="audio-item-dur">' + (ep.duration ? clock(ep.duration) : '') + '</span>'
       + '</button>';
@@ -300,13 +318,47 @@ let coverUrl = '';
     el.list.innerHTML = shown.map(card).join('');
   }
 
+  // ── წლები — ვიდეოების მსგავსად, თითო წელს თავისი ჩანართი ──────
+  function paintYears() {
+    const counts = {};
+    episodes.forEach(ep => {
+      const y = yearOf(ep);
+      if (y) counts[y] = (counts[y] || 0) + 1;
+    });
+    const years = Object.keys(counts).sort((a, b) => b.localeCompare(a));
+    if (!years.includes(activeYear)) activeYear = years[0] || '';
+    el.years.hidden = years.length < 2;
+    el.years.innerHTML = years.map(y =>
+      '<button type="button" class="year-tab' + (y === activeYear ? ' is-active' : '') + '"'
+      + ' role="tab" aria-selected="' + (y === activeYear) + '" data-year="' + y + '">'
+      + y + '<span class="year-tab-count">' + counts[y] + '</span></button>'
+    ).join('');
+  }
+
+  el.years.addEventListener('click', e => {
+    const btn = e.target.closest('.year-tab');
+    if (!btn) return;
+    activeYear = btn.getAttribute('data-year');
+    el.years.querySelectorAll('.year-tab').forEach(b => {
+      const on = b === btn;
+      b.classList.toggle('is-active', on);
+      b.setAttribute('aria-selected', String(on));
+    });
+    // წლის არჩევა ძებნიდან გამოსვლას ნიშნავს — ისევე, როგორც ვიდეოებში.
+    el.search.value = '';
+    filter('');
+  });
+
+  // ძებნა ყველა წელში ეძებს — სახელით, მქადაგებლით ან თარიღით.
   function filter(query) {
     const q = (query || '').trim().toLowerCase();
     shown = q
       ? episodes.filter(ep =>
           ep.title.toLowerCase().indexOf(q) > -1 ||
+          (ep.preacher || '').toLowerCase().indexOf(q) > -1 ||
           geoDate(ep.date).toLowerCase().indexOf(q) > -1)
-      : episodes.slice();
+      : episodes.filter(ep => !activeYear || yearOf(ep) === activeYear);
+    el.years.classList.toggle('is-searching', !!q);
 
     if (q) {
       el.found.textContent = shown.length
@@ -343,6 +395,11 @@ let coverUrl = '';
     // რჩება. ორივე ერთი და იგივე უნდა იყოს.
     sound.playbackRate = SPEEDS[speedIdx];
     el.title.textContent = ep.title;
+    el.preacher.innerHTML = ep.preacher
+      ? '<i class="fa-solid fa-microphone" aria-hidden="true"></i>' + esc(ep.preacher) : '';
+    el.preacher.hidden = !ep.preacher;
+    el.year.textContent = yearOf(ep);
+    el.year.hidden = !yearOf(ep);
     el.meta.textContent = [geoDate(ep.date), ep.duration ? clock(ep.duration) : '']
       .filter(Boolean).join(' · ');
     el.miniTitle.textContent = ep.title;
@@ -466,10 +523,11 @@ let coverUrl = '';
   // ── ჩაკეტილი ეკრანი ───────────────────────────────────────────
   function mediaSession(ep) {
     if (!('mediaSession' in navigator)) return;
-    const art = coverUrl ? [{ src: coverUrl, sizes: '512x512', type: 'image/png' }] : [];
+    const src = ep.image || coverUrl;
+    const art = src ? [{ src: src, sizes: '512x512' }] : [];
     navigator.mediaSession.metadata = new MediaMetadata({
       title: ep.title,
-      artist: 'ქუთაისის სახარების რწმენის ეკლესია',
+      artist: ep.preacher || 'ქუთაისის სახარების რწმენის ეკლესია',
       album: 'ქადაგებები',
       artwork: art
     });
@@ -558,6 +616,7 @@ let coverUrl = '';
     if (episodes.length && !changed) return;
 
     episodes = items;
+    paintYears();
     filter(el.search.value);
 
     tab.hidden = false;
