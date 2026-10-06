@@ -494,20 +494,97 @@ let coverUrl = '';
     return (current && current.duration) || 0;
   }
 
+  // ── „ჩუმი პაუზა“ — iPhone-ის დაყენებული აპისთვის ───────────────
+  // WebKit-ის შეცდომა: მთავარ ეკრანზე დამატებულ აპში ჩაკეტილ ეკრანზე
+  // დაპაუზებული ხმა ხელახლა ჩართვისას ჩუმად უკრავს (დრო მიდის, ხმა
+  // არა) — სანამ აპს არ გახსნი. Safari-ში ეს არ ხდება. ამიტომ აქ
+  // ჩაკეტილი ეკრანის პაუზა ფაილს არ აჩერებს: ხმას აჩუმებს და წამს
+  // იმახსოვრებს. ჩართვისას იმავე წამზე ვბრუნდებით და ხმას ვაბრუნებთ —
+  // iOS-ს დაკვრის შეწყვეტის საბაბი არ ეძლევა. 15 წუთის შემდეგ ან აპის
+  // გახსნისას ჩვეულებრივ პაუზაზე გადავდივართ (წინა პლანზე ჩართვა მუშაობს).
+  const IOS_APP = navigator.standalone === true;
+  const SOFT_PAUSE_MAX_MS = 15 * 60 * 1000;
+  let soft = null;                                 // { at, wasMuted, timer }
+
+  function isPaused() {
+    return sound.paused || !!soft;
+  }
+
+  function position() {
+    return soft ? soft.at : sound.currentTime;
+  }
+
+  function softPause() {
+    soft = {
+      at: sound.currentTime,
+      wasMuted: sound.muted,
+      timer: setTimeout(hardenSoftPause, SOFT_PAUSE_MAX_MS)
+    };
+    sound.muted = true;
+    clearTimeout(stuckTimer);
+    pausedAt = Date.now();
+    setPlaybackState('paused');
+    save(); paintProgress(); paintPlayState();
+  }
+
+  // ჩუმი პაუზიდან გამოსვლა — at-ზე ვბრუნდებით და ხმას ვუბრუნებთ.
+  function endSoft() {
+    if (!soft) return null;
+    const s = soft;
+    clearTimeout(s.timer);
+    soft = null;
+    sound.muted = s.wasMuted;
+    return s;
+  }
+
+  function softResume() {
+    const s = endSoft();
+    if (!s) return;
+    sound.currentTime = s.at;
+    if (sound.paused) { resume(); return; }        // iOS-მა მაინც გააჩერა
+    pausedAt = 0;
+    setPlaybackState('playing');
+    paintPlayState();
+  }
+
+  // ჩუმი პაუზა ნამდვილ პაუზად იქცევა (დრო გავიდა ან აპი გაიხსნა).
+  function hardenSoftPause() {
+    const s = endSoft();
+    if (!s) return;
+    sound.currentTime = s.at;                      // ჯერ წამი, რომ pause-მა ის შეინახოს
+    sound.pause();
+  }
+
+  function lockScreenPause() {
+    if (soft) { softResume(); return; }            // ზოგჯერ ღილაკი „პაუზას“ აჩვენებს
+    if (IOS_APP && document.hidden && !sound.paused) softPause();
+    else sound.pause();
+  }
+
+  function lockScreenPlay() {
+    if (soft) softResume();
+    else resume();
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && soft) hardenSoftPause();
+  });
+
   function paintProgress() {
     const total = duration();
-    const pct = total ? (sound.currentTime / total) * 100 : 0;
+    const at = position();
+    const pct = total ? (at / total) * 100 : 0;
     el.fill.style.width = pct + '%';
     el.dot.style.left = pct + '%';
     el.miniFill.style.width = pct + '%';
-    el.cur.textContent = clock(sound.currentTime);
-    el.left.textContent = total ? '-' + clock(total - sound.currentTime) : '';
+    el.cur.textContent = clock(at);
+    el.left.textContent = total ? '-' + clock(total - at) : '';
     el.bar.setAttribute('aria-valuenow', String(Math.round(pct)));
   }
 
   function paintPlayState() {
-    const icon = sound.paused ? 'fa-play' : 'fa-pause';
-    const label = sound.paused ? 'დაკვრა' : 'პაუზა';
+    const icon = isPaused() ? 'fa-play' : 'fa-pause';
+    const label = isPaused() ? 'დაკვრა' : 'პაუზა';
     el.play.querySelector('i').className = 'fa-solid ' + icon;
     el.play.setAttribute('aria-label', label);
     el.miniPlay.querySelector('i').className = 'fa-solid ' + icon;
@@ -517,7 +594,9 @@ let coverUrl = '';
 
   el.play.addEventListener('click', () => {
     if (!current || !current.url) return;
-    if (sound.paused) {
+    if (soft) {
+      softResume();
+    } else if (sound.paused) {
       try { localStorage.setItem(LAST_KEY, String(current.id)); } catch (e) { /* private mode */ }
       resume();
     } else {
@@ -635,6 +714,15 @@ let coverUrl = '';
   sound.addEventListener('seeked', positionState);
   sound.addEventListener('ratechange', positionState);
   sound.addEventListener('ended', () => {
+    // ჩუმი პაუზის დროს ეპიზოდი ბოლომდე „ჩაიკრა“ — ეს მოსმენა არ არის.
+    // ვიზიტორი იქ რჩება, სადაც დააპაუზა.
+    const s = endSoft();
+    if (s) {
+      sound.currentTime = s.at;
+      setPlaybackState('paused');
+      save(); paintProgress(); paintPlayState();
+      return;
+    }
     pausedAt = 0;
     clearTimeout(stuckTimer);
     setPlaybackState('none');
@@ -644,16 +732,17 @@ let coverUrl = '';
 
   // პროგრესს პერიოდულადაც ვინახავთ — ჩანართის დახურვა pause-ს
   // ყოველთვის არ იწვევს.
-  setInterval(() => { if (!sound.paused) save(); }, 10000);
+  setInterval(() => { if (!isPaused()) save(); }, 10000);
   window.addEventListener('pagehide', save);
 
   function save() {
     const total = duration();
-    if (!current || !total || sound.currentTime < AUDIO_MIN_SECONDS) return;
+    const at = position();
+    if (!current || !total || at < AUDIO_MIN_SECONDS) return;
     const map = readListened();
-    const done = sound.currentTime >= total * AUDIO_DONE_RATIO;
+    const done = at >= total * AUDIO_DONE_RATIO;
     map[current.id] = {
-      t: done ? 0 : Math.floor(sound.currentTime),
+      t: done ? 0 : Math.floor(at),
       d: Math.floor(total),
       done: done,
       at: Date.now()
@@ -676,10 +765,17 @@ let coverUrl = '';
       try { navigator.mediaSession.setActionHandler(action, handler); } catch (e) { /* ბრაუზერს არ აქვს */ }
     };
     // ჩაკეტილი ეკრანის „დაკვრაც“ აღდგენით მიდის — იქ კავშირი ყველაზე ხშირად წყდება.
-    set('play', resume);
-    set('pause', () => sound.pause());
-    set('seekbackward', () => { sound.currentTime = Math.max(0, sound.currentTime - 15); });
-    set('seekforward', () => { sound.currentTime += 15; });
+    set('play', lockScreenPlay);
+    set('pause', lockScreenPause);
+    // ჩუმ პაუზაში გადახვევა დამახსოვრებულ წამს ცვლის და არა ფაილს.
+    set('seekbackward', () => {
+      if (soft) { soft.at = Math.max(0, soft.at - 15); positionState(); return; }
+      sound.currentTime = Math.max(0, sound.currentTime - 15);
+    });
+    set('seekforward', () => {
+      if (soft) { soft.at = Math.min(duration() || soft.at + 15, soft.at + 15); positionState(); return; }
+      sound.currentTime += 15;
+    });
     set('previoustrack', () => step(-1));
     set('nexttrack', () => step(1));
   }
@@ -700,7 +796,7 @@ let coverUrl = '';
       navigator.mediaSession.setPositionState({
         duration: total,
         playbackRate: sound.playbackRate || 1,
-        position: Math.min(sound.currentTime, total)
+        position: Math.min(position(), total)
       });
     } catch (e) { /* არასწორი მნიშვნელობები */ }
   }
