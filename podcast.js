@@ -275,6 +275,71 @@ let coverUrl = '';
   }
   claimAudioSession();
 
+  // ── დიაგნოსტიკის ჟურნალი ──────────────────────────────────────
+  // iPhone-ის აპში ჩაკეტილი ეკრანის ქცევა აქედან ვერ ჩანს. ბოლო 80
+  // მოვლენა ტელეფონშივე ინახება (არსად იგზავნება). სანახავად: პლეერში
+  // თარიღის ხაზზე სამჯერ ზედიზედ დაჭერა.
+  const LOG_KEY = 'efc:audiolog:v1';
+  const LOG_BUILD = '2026-10-06c';
+
+  function dlog(what) {
+    let isSoft = false;
+    try { isSoft = !!soft; } catch (e) { /* ჯერ არ არის გამოცხადებული */ }
+    const d = new Date();
+    const row = [
+      d.toTimeString().slice(0, 8), what,
+      document.hidden ? 'ფონი' : 'ეკრანი',
+      sound.paused ? 'paused' : 'playing',
+      sound.muted ? 'muted' : 'ხმა',
+      'შ=' + (sound.currentTime || 0).toFixed(1),
+      isSoft ? 'SOFT' : '',
+      'rs' + sound.readyState + '/ns' + sound.networkState
+    ].filter(Boolean).join(' ');
+    try {
+      const list = JSON.parse(localStorage.getItem(LOG_KEY) || '[]');
+      list.push(row);
+      localStorage.setItem(LOG_KEY, JSON.stringify(list.slice(-80)));
+    } catch (e) { /* private mode */ }
+  }
+
+  dlog('ჩატვირთვა ' + LOG_BUILD + (navigator.standalone ? ' აპი' : ' ბრაუზერი')
+    + (navigator.audioSession ? ' session=' + navigator.audioSession.type : ' session=არა'));
+  ['play', 'playing', 'pause', 'waiting', 'stalled', 'suspend', 'error', 'ended', 'emptied']
+    .forEach(name => sound.addEventListener(name, () => dlog('ev:' + name)));
+  document.addEventListener('visibilitychange', () => dlog('ხილვადობა'));
+
+  // სამი სწრაფი დაჭერა თარიღის ხაზზე → ჟურნალის ფანჯარა.
+  let taps = [];
+  el.meta.addEventListener('click', () => {
+    const now = Date.now();
+    taps = taps.filter(t => now - t < 800).concat(now);
+    if (taps.length >= 3) { taps = []; showLog(); }
+  });
+
+  function showLog() {
+    let rows = [];
+    try { rows = JSON.parse(localStorage.getItem(LOG_KEY) || '[]'); } catch (e) { /* — */ }
+    const box = document.createElement('div');
+    box.setAttribute('role', 'dialog');
+    box.style.cssText = 'position:fixed;inset:12px;z-index:10000;display:flex;flex-direction:column;'
+      + 'background:#111;color:#eee;border:1px solid #aa954f;border-radius:12px;padding:12px;font-size:12px;';
+    const text = rows.join('\n') || '(ცარიელია)';
+    box.innerHTML = '<div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">'
+      + '<b style="flex:1;color:#d5bf7c">აუდიოს ჟურნალი</b>'
+      + '<button type="button" data-act="copy">კოპირება</button>'
+      + '<button type="button" data-act="clear">გასუფთავება</button>'
+      + '<button type="button" data-act="close">დახურვა</button></div>'
+      + '<pre style="flex:1;overflow:auto;margin:0;white-space:pre-wrap;font-size:11px;line-height:1.5"></pre>';
+    box.querySelector('pre').textContent = text;
+    box.addEventListener('click', e => {
+      const act = e.target.getAttribute('data-act');
+      if (act === 'copy' && navigator.clipboard) navigator.clipboard.writeText(text).catch(() => {});
+      if (act === 'clear') { try { localStorage.removeItem(LOG_KEY); } catch (err) { /* — */ } box.remove(); }
+      if (act === 'close') box.remove();
+    });
+    document.body.appendChild(box);
+  }
+
   // script.js დიდი პაუზის შემდეგ გვერდს თავიდან ტვირთავს — მიმდინარე
   // მოსმენა ამას არ უნდა შეეწიროს.
   // დაპაუზებული მოსმენაც ითვლება: გადატვირთვა ჩაკეტილი ეკრანის პლეერს
@@ -457,6 +522,7 @@ let coverUrl = '';
 
   function reattach() {
     if (!current || !current.url) return;
+    dlog('ხელახლა მიბმა');
     pendingSeek = sound.currentTime || pendingSeek;
     sound.src = current.url;
     sound.load();
@@ -468,6 +534,7 @@ let coverUrl = '';
     const from = sound.currentTime;
     stuckTimer = setTimeout(() => {
       if (sound.paused || sound.currentTime !== from) return;
+      dlog('გაჭედვა' + (retried ? ' (მეორედ)' : ''));
       if (retried) return;                       // მეორედ აღარ ვცდით — ალბათ ქსელი არ არის
       reattach();
       sound.play().then(() => watchStuck(true)).catch(() => {});
@@ -477,10 +544,12 @@ let coverUrl = '';
   function resume() {
     if (!current || !current.url) return;
     claimAudioSession();
+    dlog('resume()');
     if (sound.error) reattach();
     sound.play()
-      .then(() => watchStuck(false))
+      .then(() => { dlog('play() ok'); watchStuck(false); })
       .catch(err => {
+        dlog('play() შეცდომა: ' + (err && err.name));
         // ბრაუზერმა თავად აკრძალა (მომხმარებლის დაჭერის გარეშე) — არაფერს ვცვლით.
         if (err && err.name === 'NotAllowedError') return;
         reattach();
@@ -515,6 +584,7 @@ let coverUrl = '';
   }
 
   function softPause() {
+    dlog('ჩუმი პაუზა');
     soft = {
       at: sound.currentTime,
       wasMuted: sound.muted,
@@ -540,6 +610,7 @@ let coverUrl = '';
   function softResume() {
     const s = endSoft();
     if (!s) return;
+    dlog('ჩუმიდან გამოსვლა → ' + s.at.toFixed(1));
     sound.currentTime = s.at;
     if (sound.paused) { resume(); return; }        // iOS-მა მაინც გააჩერა
     pausedAt = 0;
@@ -551,17 +622,20 @@ let coverUrl = '';
   function hardenSoftPause() {
     const s = endSoft();
     if (!s) return;
+    dlog('ჩუმი → ნამდვილი პაუზა');
     sound.currentTime = s.at;                      // ჯერ წამი, რომ pause-მა ის შეინახოს
     sound.pause();
   }
 
   function lockScreenPause() {
+    dlog('ჩაკეტილი ეკრანი: პაუზა');
     if (soft) { softResume(); return; }            // ზოგჯერ ღილაკი „პაუზას“ აჩვენებს
     if (IOS_APP && document.hidden && !sound.paused) softPause();
     else sound.pause();
   }
 
   function lockScreenPlay() {
+    dlog('ჩაკეტილი ეკრანი: დაკვრა');
     if (soft) softResume();
     else resume();
   }
@@ -594,6 +668,7 @@ let coverUrl = '';
 
   el.play.addEventListener('click', () => {
     if (!current || !current.url) return;
+    dlog('ღილაკი: ' + (isPaused() ? 'დაკვრა' : 'პაუზა'));
     if (soft) {
       softResume();
     } else if (sound.paused) {
