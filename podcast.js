@@ -175,12 +175,18 @@ function fetchFeed() {
   const controller = typeof AbortController === 'function' ? new AbortController() : null;
   const timer = controller ? setTimeout(() => controller.abort(), FEED_TIMEOUT_MS) : null;
 
-  return fetch(PODCAST_FEED, controller ? { signal: controller.signal } : undefined)
+  // anchor.fm-ის CDN ლენტას ~7 დღით ინახავს (s-maxage), ამიტომ საათობრივი
+  // პარამეტრით ახალ ეპიზოდებს მაქსიმუმ ერთ საათში ვხედავთ.
+  const url = PODCAST_FEED + '?v=' + Math.floor(Date.now() / 3600000);
+  return fetch(url, controller ? { signal: controller.signal } : undefined)
     .then(res => (res.ok ? res.text() : ''))
     .then(text => {
       const xml = text ? new DOMParser().parseFromString(text, 'application/xml') : null;
       const items = xml ? normalise(xml) : [];
       if (!items.length) return cached ? cached.items : [];
+      // anchor.fm ხანდახან ძველ ასლს აბრუნებს (9 ეპიზოდით) — შემცირებულ
+      // ლენტას ბოლო ნაცნობ, უფრო სრულ სიას არ ვაჩანაცვლებინებთ.
+      if (cached && cached.items.length > items.length) return cached.items;
       // გარეკანს ლენტიდან ვიღებთ (არხის itunes:image).
       const channel = xml.getElementsByTagName('channel')[0];
       const showArt = channel && Array.from(channel.children)
