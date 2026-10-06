@@ -38,6 +38,7 @@ const LAST_KEY = 'efc:listen:last';        // ბოლოს ჩართულ
 const VOLUME_KEY = 'efc:volume:v1';
 const PAUSE_KEEP_MS = 3 * 60 * 60 * 1000;  // ამდენ ხანს გვერდს თავიდან არ ვტვირთავთ
 const STUCK_MS = 6000;                     // ამდენ ხანს უძრავი დაკვრა = გაწყვეტილი კავშირი
+const STUCK_HIDDEN_MS = 2500;              // იგივე ჩაკეტილ ეკრანზე — ვიზიტორი ხმას ელოდება
 
 // სანამ ნამდვილი ლენტა არ დაემატება, ჩანართი ამ სანიმუშო ეპიზოდებით
 // მუშაობს — რომ დიზაინი ადგილზე ჩანდეს. PODCAST_FEED-ის შევსებისთანავე
@@ -280,7 +281,7 @@ let coverUrl = '';
   // მოვლენა ტელეფონშივე ინახება (არსად იგზავნება). სანახავად: პლეერში
   // თარიღის ხაზზე სამჯერ ზედიზედ დაჭერა.
   const LOG_KEY = 'efc:audiolog:v1';
-  const LOG_BUILD = '2026-10-06d';
+  const LOG_BUILD = '2026-10-06e';
 
   function dlog(what) {
     const d = new Date();
@@ -526,16 +527,32 @@ let coverUrl = '';
     sound.playbackRate = SPEEDS[speedIdx];
   }
 
-  function watchStuck(retried) {
+  // გაჭედვის კიბე. iPhone-ის აპში ჩაკეტილი ეკრანიდან ჩართვისას iOS
+  // „უკრავს“-ს პასუხობს, მაგრამ წამი ადგილზე დგას, სანამ აპს არ გახსნი
+  // (ჟურნალი, 2026-10-06). ფონზე ამიტომ უფრო ადრე ვამოწმებთ და ჯერ
+  // მსუბუქად ვცდით (პაუზა+დაკვრა), მერე ფაილს თავიდან ვაბამთ.
+  // ეტაპები: 0 — პირველი შემოწმება, 1 — პაუზა+დაკვრის შემდეგ,
+  // 2 — ხელახლა მიბმის შემდეგ (ბოლო).
+  function watchStuck(stage) {
+    stage = stage || 0;
     clearTimeout(stuckTimer);
     const from = sound.currentTime;
+    const wait = document.hidden ? STUCK_HIDDEN_MS : STUCK_MS;
     stuckTimer = setTimeout(() => {
-      if (sound.paused || sound.currentTime !== from) return;
-      dlog('გაჭედვა' + (retried ? ' (მეორედ)' : ''));
-      if (retried) return;                       // მეორედ აღარ ვცდით — ალბათ ქსელი არ არის
-      reattach();
-      sound.play().then(() => watchStuck(true)).catch(() => {});
-    }, STUCK_MS);
+      if (sound.paused || sound.currentTime !== from) {
+        if (stage) dlog('გაჭედვიდან გამოვიდა (ეტაპი ' + stage + ')');
+        return;
+      }
+      dlog('გაჭედვა, ეტაპი ' + stage);
+      if (stage === 0) {
+        sound.pause();
+        sound.play().then(() => watchStuck(1)).catch(err => dlog('play() შეცდომა: ' + (err && err.name)));
+      } else if (stage === 1) {
+        reattach();
+        sound.play().then(() => watchStuck(2)).catch(err => dlog('play() შეცდომა: ' + (err && err.name)));
+      }
+      // stage 2: მეტს აღარ ვცდით — ალბათ ქსელი არ არის ან iOS არ გვიშვებს
+    }, wait);
   }
 
   function resume() {
@@ -544,13 +561,13 @@ let coverUrl = '';
     dlog('resume()');
     if (sound.error) reattach();
     sound.play()
-      .then(() => { dlog('play() ok'); watchStuck(false); })
+      .then(() => { dlog('play() ok'); watchStuck(0); })
       .catch(err => {
         dlog('play() შეცდომა: ' + (err && err.name));
         // ბრაუზერმა თავად აკრძალა (მომხმარებლის დაჭერის გარეშე) — არაფერს ვცვლით.
         if (err && err.name === 'NotAllowedError') return;
         reattach();
-        sound.play().then(() => watchStuck(true)).catch(() => {});
+        sound.play().then(() => watchStuck(2)).catch(() => {});
       });
   }
 
