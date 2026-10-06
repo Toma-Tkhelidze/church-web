@@ -1807,43 +1807,6 @@
         <div class="resume-bar" id="resumeBar" hidden></div>
     </section>
 
-    <section class="series-section">
-        <div style="width: 100%; box-sizing: border-box; text-align: center; max-width: 600px; margin: 0 auto;">
-            <span class="grid-uppertitle">თემატური სწავლებები</span>
-            <h2 style="font-size: 2.2rem; font-weight: 700; color: var(--dark-900); font-family: 'BPGNinoMtavruliBold', 'Noto Sans Georgian', sans-serif !important;">სერიული ქადაგებები</h2>
-        </div>
-
-        <!-- საძიებო სისტემა და კატეგორიები -->
-        <div class="search-filter-container">
-            <div class="search-box-wrapper">
-                <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" id="sermonSearch" placeholder="მოძებნე ქადაგების სერია სათაურით ან აღწერით...">
-            </div>
-            <div class="filter-buttons">
-                <button class="filter-btn active" data-filter="all">ყველა</button>
-                <button class="filter-btn" data-filter="spiritual">სულიერი ზრდა</button>
-                <button class="filter-btn" data-filter="family">ოჯახი & ცხოვრება</button>
-                <button class="filter-btn" data-filter="biblical">ბიბლიური სწავლებები</button>
-            </div>
-        </div>
-
-        <!-- ქადაგებების სია მთლიანად Sanity-დან მოდის (sanity-fetch.js).
-             აქ ადრე იმავე სერიების ხელით ჩაწერილი ასლები იდო. ისინი
-             პრობლემას ქმნიდა: კოდი სტატიკურ ბარათს მხოლოდ მაშინ შლის,
-             თუ იგივე სათაური Sanity-შიც არსებობს — ამიტომ Studio-ში
-             წაშლილი სერია აქედან ისევ ჩნდებოდა. ერთი წყარო ჯობს ორს. -->
-        <div class="series-grid">
-        </div>
-
-        <!-- ჩანს მხოლოდ მაშინ, თუ სია ვერ ჩამოიტვირთა ან ცარიელია.
-             ნაგულისხმევად დამალულია, რომ ჩვეულებრივ ჩატვირთვაზე არ აციმციმდეს. -->
-        <div class="series-fallback" id="seriesFallback" hidden>
-            <i class="fa-solid fa-cloud-arrow-down" aria-hidden="true"></i>
-            <p class="series-fallback-text" id="seriesFallbackText"></p>
-            <button type="button" class="series-fallback-btn" id="seriesFallbackBtn">განაახლე გვერდი</button>
-        </div>
-    </section>
-
     <!-- ცალკეული ყოველკვირეული ქადაგებები — YouTube-ის წლიური
          დასაკრავი სიებიდან. სია და წლების ღილაკები JS-ით ივსება
          (sanity-fetch.js → renderWeeklySermons). -->
@@ -1942,6 +1905,43 @@
                 <a id="audioSpotify" href="#" target="_blank" rel="noopener noreferrer" hidden>Spotify</a>
                 <a id="audioApple" href="#" target="_blank" rel="noopener noreferrer" hidden>Apple Podcasts</a>
             </div>
+        </div>
+    </section>
+
+    <section class="series-section">
+        <div style="width: 100%; box-sizing: border-box; text-align: center; max-width: 600px; margin: 0 auto;">
+            <span class="grid-uppertitle">თემატური სწავლებები</span>
+            <h2 style="font-size: 2.2rem; font-weight: 700; color: var(--dark-900); font-family: 'BPGNinoMtavruliBold', 'Noto Sans Georgian', sans-serif !important;">სერიული ქადაგებები</h2>
+        </div>
+
+        <!-- საძიებო სისტემა და კატეგორიები -->
+        <div class="search-filter-container">
+            <div class="search-box-wrapper">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="sermonSearch" placeholder="მოძებნე ქადაგების სერია სათაურით ან აღწერით...">
+            </div>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">ყველა</button>
+                <button class="filter-btn" data-filter="spiritual">სულიერი ზრდა</button>
+                <button class="filter-btn" data-filter="family">ოჯახი & ცხოვრება</button>
+                <button class="filter-btn" data-filter="biblical">ბიბლიური სწავლებები</button>
+            </div>
+        </div>
+
+        <!-- ქადაგებების სია მთლიანად Sanity-დან მოდის (sanity-fetch.js).
+             აქ ადრე იმავე სერიების ხელით ჩაწერილი ასლები იდო. ისინი
+             პრობლემას ქმნიდა: კოდი სტატიკურ ბარათს მხოლოდ მაშინ შლის,
+             თუ იგივე სათაური Sanity-შიც არსებობს — ამიტომ Studio-ში
+             წაშლილი სერია აქედან ისევ ჩნდებოდა. ერთი წყარო ჯობს ორს. -->
+        <div class="series-grid">
+        </div>
+
+        <!-- ჩანს მხოლოდ მაშინ, თუ სია ვერ ჩამოიტვირთა ან ცარიელია.
+             ნაგულისხმევად დამალულია, რომ ჩვეულებრივ ჩატვირთვაზე არ აციმციმდეს. -->
+        <div class="series-fallback" id="seriesFallback" hidden>
+            <i class="fa-solid fa-cloud-arrow-down" aria-hidden="true"></i>
+            <p class="series-fallback-text" id="seriesFallbackText"></p>
+            <button type="button" class="series-fallback-btn" id="seriesFallbackBtn">განაახლე გვერდი</button>
         </div>
     </section>
 
