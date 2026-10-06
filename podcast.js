@@ -39,6 +39,7 @@ const VOLUME_KEY = 'efc:volume:v1';
 const PAUSE_KEEP_MS = 3 * 60 * 60 * 1000;  // ამდენ ხანს გვერდს თავიდან არ ვტვირთავთ
 const STUCK_MS = 6000;                     // ამდენ ხანს უძრავი დაკვრა = გაწყვეტილი კავშირი
 const STUCK_HIDDEN_MS = 2500;              // იგივე ჩაკეტილ ეკრანზე — ვიზიტორი ხმას ელოდება
+const LOADING_MAX_MS = 30000;              // ფაილი ჯერ მოდის — ამდენ ხანს არ ვერევით
 
 // სანამ ნამდვილი ლენტა არ დაემატება, ჩანართი ამ სანიმუშო ეპიზოდებით
 // მუშაობს — რომ დიზაინი ადგილზე ჩანდეს. PODCAST_FEED-ის შევსებისთანავე
@@ -151,6 +152,15 @@ function splitTitle(raw, fallbackDate) {
 function findPreacher(description) {
   const m = String(description || '').match(/მქადაგებელი\s*[-–—:]\s*([^<\n]+)/);
   return m ? m[1].trim() : '';
+}
+
+// ლენტის სურათები 3000×3000-ია (~1 მბ თითო). სია ათობით ასეთს ერთად
+// იწერდა და ქადაგების ფაილს ინტერნეტს ართმევდა — ნელ ქსელზე ხმა 10-15
+// წამს აგვიანებდა. wsrv.nl სურათს საჭირო ზომაზე ამცირებს (~2 კბ).
+function smallImage(url, px) {
+  if (!url || !/^https?:/.test(url)) return url;   // ლოკალური ლოგო — როგორც არის
+  return 'https://wsrv.nl/?url=' + encodeURIComponent(url)
+    + '&w=' + px + '&h=' + px + '&fit=cover&output=webp';
 }
 
 function yearOf(ep) {
@@ -281,7 +291,7 @@ let coverUrl = '';
   // მოვლენა ტელეფონშივე ინახება (არსად იგზავნება). სანახავად: პლეერში
   // თარიღის ხაზზე სამჯერ ზედიზედ დაჭერა.
   const LOG_KEY = 'efc:audiolog:v1';
-  const LOG_BUILD = '2026-10-06e';
+  const LOG_BUILD = '2026-10-06f';
 
   function dlog(what) {
     const d = new Date();
@@ -382,7 +392,7 @@ let coverUrl = '';
       : (started ? '<span class="audio-item-done"> · გაგრძელება ' + clock(state.t) + '</span>' : '');
 
     const badge = ep.image
-      ? '<span class="audio-item-thumb" style="background-image:url(&quot;' + esc(ep.image) + '&quot;)">'
+      ? '<span class="audio-item-thumb" style="background-image:url(&quot;' + esc(smallImage(ep.image, 120)) + '&quot;)">'
           + '<i class="fa-solid fa-play" aria-hidden="true"></i></span>'
       : '<span class="audio-item-icon"><i class="fa-solid fa-play" aria-hidden="true"></i></span>';
 
@@ -505,7 +515,7 @@ let coverUrl = '';
     el.miniPreacher.textContent = ep.preacher || '';
     el.miniPreacher.hidden = !ep.preacher;
 
-    const art = ep.image || coverUrl;
+    const art = smallImage(ep.image || coverUrl, 360);
     el.cover.style.backgroundImage = art ? 'url("' + art + '")' : '';
 
     // სად გაჩერდა — იმ ადგილიდან ვაგრძელებთ. currentTime-ს src-ის
@@ -528,6 +538,8 @@ let coverUrl = '';
   // შემდეგ play() შეცდომას არ აბრუნებს, მაგრამ ხმა აღარ მოდის — დრო
   // ადგილზე დგას. ასეთ დროს ფაილს თავიდან ვაბამთ იმავე წამიდან.
   let stuckTimer = 0;
+  let lastData = 0;                 // ბოლოს როდის მოვიდა ფაილის ნაწილი
+  sound.addEventListener('progress', () => { lastData = Date.now(); });
 
   function reattach() {
     if (!current || !current.url) return;
@@ -544,7 +556,7 @@ let coverUrl = '';
   // მსუბუქად ვცდით (პაუზა+დაკვრა), მერე ფაილს თავიდან ვაბამთ.
   // ეტაპები: 0 — პირველი შემოწმება, 1 — პაუზა+დაკვრის შემდეგ,
   // 2 — ხელახლა მიბმის შემდეგ (ბოლო).
-  function watchStuck(stage) {
+  function watchStuck(stage, waited) {
     stage = stage || 0;
     clearTimeout(stuckTimer);
     const from = sound.currentTime;
@@ -552,6 +564,17 @@ let coverUrl = '';
     stuckTimer = setTimeout(() => {
       if (sound.paused || sound.currentTime !== from) {
         if (stage) dlog('გაჭედვიდან გამოვიდა (ეტაპი ' + stage + ')');
+        return;
+      }
+      // ფაილი ჯერ კიდევ მოდის (ნელი ინტერნეტი, ან შუა ქადაგებიდან
+      // გაგრძელება) — ეს გაჭედვა არ არის. ადრე აქ ჩამოტვირთვას თავიდან
+      // ვიწყებდით და ნელ ქსელზე ხმა 10-15 წამს აგვიანებდა.
+      // ჩაკეტილ ეკრანზე ძველი კიბე რჩება: იქ iOS ფაილს იწერს, დრო კი დგას.
+      // ლოდინს ზღვარი აქვს, რომ ნამდვილი გაჭედვა სამუდამოდ არ გადაიდოს.
+      waited = waited || 0;
+      if (!document.hidden && waited < LOADING_MAX_MS && Date.now() - lastData < wait) {
+        dlog('ჯერ იტვირთება, ველოდებით');
+        watchStuck(stage, waited + wait);
         return;
       }
       dlog('გაჭედვა, ეტაპი ' + stage);
@@ -774,7 +797,7 @@ let coverUrl = '';
   // ── ჩაკეტილი ეკრანი ───────────────────────────────────────────
   function mediaSession(ep) {
     if (!('mediaSession' in navigator)) return;
-    const src = ep.image || coverUrl;
+    const src = smallImage(ep.image || coverUrl, 512);
     const art = src ? [{ src: src, sizes: '512x512' }] : [];
     navigator.mediaSession.metadata = new MediaMetadata({
       title: ep.title,
@@ -881,7 +904,7 @@ let coverUrl = '';
   function show(items) {
     if (!items.length) return;                    // ჩანართს არ ვაჩენთ
     if (coverUrl && !(current && current.image)) {
-      el.cover.style.backgroundImage = 'url("' + coverUrl + '")';
+      el.cover.style.backgroundImage = 'url("' + smallImage(coverUrl, 360) + '")';
     }
 
     const changed = items.length !== episodes.length
