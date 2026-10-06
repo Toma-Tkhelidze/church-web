@@ -262,6 +262,19 @@ let coverUrl = '';
   const sound = new Audio();
   sound.preload = 'none';                          // ჩატვირთვა მხოლოდ დაკვრისას
 
+  // iPhone-ზე ჩაკეტილ ეკრანზე დაპაუზებული და იქვე ხელახლა ჩართული ხმა
+  // ჩუმად უკრავდა — დრო მიდიოდა, ხმა მხოლოდ აპის გახსნისას ჩნდებოდა.
+  // „playback“ ტიპი iOS-ს ეუბნება, რომ ეს მედია-პლეერია (როგორც
+  // პოდკასტის აპი) და ხმის არხი ფონზეც ღია უნდა დარჩეს. Safari 16.4+.
+  function claimAudioSession() {
+    try {
+      if (navigator.audioSession && navigator.audioSession.type !== 'playback') {
+        navigator.audioSession.type = 'playback';
+      }
+    } catch (e) { /* ძველი iOS — თვისება არ არის */ }
+  }
+  claimAudioSession();
+
   // script.js დიდი პაუზის შემდეგ გვერდს თავიდან ტვირთავს — მიმდინარე
   // მოსმენა ამას არ უნდა შეეწიროს.
   // დაპაუზებული მოსმენაც ითვლება: გადატვირთვა ჩაკეტილი ეკრანის პლეერს
@@ -463,6 +476,7 @@ let coverUrl = '';
 
   function resume() {
     if (!current || !current.url) return;
+    claimAudioSession();
     if (sound.error) reattach();
     sound.play()
       .then(() => watchStuck(false))
@@ -531,10 +545,12 @@ let coverUrl = '';
   // ── ხმის სიმაღლე ──────────────────────────────────────────────
   // iPhone-ზე volume მხოლოდ წასაკითხია (ყოველთვის 1) — იქ სლაიდერს
   // ვმალავთ და მხოლოდ გამორთვის ღილაკი რჩება, რომელიც ყველგან მუშაობს.
+  // მეორე audio ელემენტს არ ვქმნით — iOS-ზე ის ხმის სესიას ერევა.
   const volumeWorks = (() => {
-    const probe = new Audio();
-    probe.volume = 0.5;
-    return probe.volume === 0.5;
+    sound.volume = 0.5;
+    const works = sound.volume === 0.5;
+    sound.volume = 1;
+    return works;
   })();
 
   function readVolume() {
