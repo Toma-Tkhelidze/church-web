@@ -247,6 +247,7 @@ let coverUrl = '';
     mini: document.getElementById('audioMini'),
     miniPlay: document.getElementById('audioMiniPlay'),
     miniTitle: document.getElementById('audioMiniTitle'),
+    miniPreacher: document.getElementById('audioMiniPreacher'),
     miniFill: document.getElementById('audioMiniFill'),
     miniClose: document.getElementById('audioMiniClose')
   };
@@ -331,7 +332,7 @@ let coverUrl = '';
     el.years.innerHTML = years.map(y =>
       '<button type="button" class="year-tab' + (y === activeYear ? ' is-active' : '') + '"'
       + ' role="tab" aria-selected="' + (y === activeYear) + '" data-year="' + y + '">'
-      + y + '<span class="year-tab-count">' + counts[y] + '</span></button>'
+      + y + '</button>'
     ).join('');
   }
 
@@ -403,6 +404,8 @@ let coverUrl = '';
     el.meta.textContent = [geoDate(ep.date), ep.duration ? clock(ep.duration) : '']
       .filter(Boolean).join(' · ');
     el.miniTitle.textContent = ep.title;
+    el.miniPreacher.textContent = ep.preacher || '';
+    el.miniPreacher.hidden = !ep.preacher;
 
     const art = ep.image || coverUrl;
     el.cover.style.backgroundImage = art ? 'url("' + art + '")' : '';

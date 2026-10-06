@@ -592,13 +592,6 @@
 
         .year-tabs[hidden] { display: none; }
 
-        /* წლის ჩანართზე ეპიზოდების რაოდენობა */
-        .year-tab-count {
-            margin-left: 6px;
-            opacity: 0.6;
-            font-size: 0.8em;
-        }
-
         /* ძებნისას სია ყველა წელს მოიცავს — ჩანართი აქტიურად აღარ ჩანს */
         .year-tabs.is-searching .year-tab.is-active {
             background: #ffffff;
@@ -822,6 +815,18 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+
+        .audio-mini-preacher {
+            display: block;
+            margin-top: 1px;
+            color: #d5bf7c;
+            font-size: 0.74rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .audio-mini-preacher[hidden] { display: none; }
 
         .audio-mini-bar {
             display: block;
@@ -1947,6 +1952,7 @@
         </button>
         <div class="audio-mini-body">
             <span class="audio-mini-title" id="audioMiniTitle"></span>
+            <span class="audio-mini-preacher" id="audioMiniPreacher" hidden></span>
             <span class="audio-mini-bar"><i id="audioMiniFill"></i></span>
         </div>
         <button type="button" class="audio-mini-close" id="audioMiniClose" aria-label="დახურვა">
