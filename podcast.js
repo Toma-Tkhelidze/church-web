@@ -471,7 +471,18 @@ let coverUrl = '';
     const btn = e.target.closest('.audio-item');
     if (!btn) return;
     const ep = episodes.find(x => String(x.id) === btn.getAttribute('data-id'));
-    if (ep) load(ep, true);
+    if (!ep) return;
+    load(ep, true);
+    // სია გრძელია — ქადაგების არჩევისას პლეერთან ავდივართ, რომ ჩანდეს
+    // რა უკრავს. თუ პლეერი უკვე მთლიანად ჩანს, ეკრანს არ ვამოძრავებთ.
+    const box = document.getElementById('audioPlayer');
+    const r = box.getBoundingClientRect();
+    // ზედა მენიუს ქვეშ მოქცეულიც დამალულად ითვლება (style.css-ის scroll-padding).
+    const top = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+    if (r.top < top || r.bottom > window.innerHeight) {
+      const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      box.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'start' });
+    }
   });
 
   // ── დაკვრა ────────────────────────────────────────────────────
