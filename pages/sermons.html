@@ -556,8 +556,68 @@
             box-shadow: 0 0 0 6px rgba(170, 149, 79, 0.15);
         }
 
-        .audio-speed {
+        /* ხმის სიმაღლე — iPhone-ზე ბრაუზერი ხმას ვერ ცვლის (მხოლოდ
+           ტელეფონის ღილაკებით), ამიტომ იქ სლაიდერი იმალება და გამორთვა რჩება. */
+        .audio-volume {
             margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .audio-mute {
+            width: 34px;
+            height: 34px;
+            padding: 0;
+            border: 0;
+            border-radius: 50%;
+            background: none;
+            color: rgba(255, 255, 255, 0.72);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: color 0.25s ease;
+        }
+
+        .audio-mute:hover { color: #ffffff; }
+        .audio-mute.is-muted { color: #aa954f; }
+
+        .audio-volume-range {
+            --vol: 100%;
+            width: 96px;
+            height: 4px;
+            margin: 0;
+            border-radius: 2px;
+            appearance: none;
+            -webkit-appearance: none;
+            background: linear-gradient(to right, #aa954f var(--vol), rgba(255, 255, 255, 0.18) var(--vol));
+            cursor: pointer;
+        }
+
+        .audio-volume-range[hidden] { display: none; }
+
+        .audio-volume-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 13px;
+            height: 13px;
+            border: 0;
+            border-radius: 50%;
+            background: #aa954f;
+        }
+
+        .audio-volume-range::-moz-range-thumb {
+            width: 13px;
+            height: 13px;
+            border: 0;
+            border-radius: 50%;
+            background: #aa954f;
+        }
+
+        .audio-volume-range:focus-visible {
+            outline: 2px solid #aa954f;
+            outline-offset: 4px;
+        }
+
+        .audio-speed {
             padding: 6px 13px;
             border: 1px solid rgba(255, 255, 255, 0.14);
             border-radius: 999px;
@@ -891,8 +951,9 @@
             .audio-cover { grid-row: 1; border-radius: 10px; }
             .audio-scrub,
             .audio-transport { grid-column: 1 / -1; }
-            .audio-transport { justify-content: center; gap: 22px; }
-            .audio-speed { margin-left: 0; }
+            .audio-transport { justify-content: center; gap: 12px; }
+            .audio-volume { margin-left: 0; gap: 4px; }
+            .audio-volume-range { width: 56px; }
             .audio-year { margin-bottom: 6px; }
             .audio-title { font-size: 1rem; }
             .audio-preacher { font-size: 0.85rem; }
@@ -1882,6 +1943,13 @@
                     <button type="button" class="audio-skip" data-skip="15" aria-label="15 წამით წინ">
                         <i class="fa-solid fa-rotate-right" aria-hidden="true"></i><span>15</span>
                     </button>
+                    <div class="audio-volume">
+                        <button type="button" class="audio-mute" id="audioMute" aria-label="ხმის გამორთვა">
+                            <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
+                        </button>
+                        <input type="range" class="audio-volume-range" id="audioVolume"
+                               min="0" max="100" step="1" value="100" aria-label="ხმის სიმაღლე">
+                    </div>
                     <button type="button" class="audio-speed" id="audioSpeed" aria-label="დაკვრის სიჩქარე">1×</button>
                 </div>
             </div>

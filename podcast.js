@@ -34,6 +34,11 @@ const AUDIO_MAX_ENTRIES = 300;
 
 const SPEEDS = [1, 1.25, 1.5, 2];
 
+const LAST_KEY = 'efc:listen:last';        // ბოლოს ჩართული ეპიზოდი
+const VOLUME_KEY = 'efc:volume:v1';
+const PAUSE_KEEP_MS = 3 * 60 * 60 * 1000;  // ამდენ ხანს გვერდს თავიდან არ ვტვირთავთ
+const STUCK_MS = 6000;                     // ამდენ ხანს უძრავი დაკვრა = გაწყვეტილი კავშირი
+
 // სანამ ნამდვილი ლენტა არ დაემატება, ჩანართი ამ სანიმუშო ეპიზოდებით
 // მუშაობს — რომ დიზაინი ადგილზე ჩანდეს. PODCAST_FEED-ის შევსებისთანავე
 // მათ ნამდვილი ეპიზოდები ჩაანაცვლებს.
@@ -237,6 +242,8 @@ let coverUrl = '';
     left: document.getElementById('audioLeft'),
     play: document.getElementById('audioPlayBtn'),
     speed: document.getElementById('audioSpeed'),
+    mute: document.getElementById('audioMute'),
+    volume: document.getElementById('audioVolume'),
     list: document.getElementById('audioList'),
     found: document.getElementById('audioFound'),
     search: document.getElementById('audioSearch'),
@@ -257,7 +264,11 @@ let coverUrl = '';
 
   // script.js დიდი პაუზის შემდეგ გვერდს თავიდან ტვირთავს — მიმდინარე
   // მოსმენა ამას არ უნდა შეეწიროს.
-  (window.efcBusyChecks = window.efcBusyChecks || []).push(() => !sound.paused);
+  // დაპაუზებული მოსმენაც ითვლება: გადატვირთვა ჩაკეტილი ეკრანის პლეერს
+  // მოკლავდა და „დაკვრაზე“ დაჭერა აღარაფერს გააკეთებდა.
+  let pausedAt = 0;
+  (window.efcBusyChecks = window.efcBusyChecks || []).push(() =>
+    !sound.paused || (pausedAt && Date.now() - pausedAt < PAUSE_KEEP_MS));
 
   let episodes = [];
   let shown = [];
@@ -419,9 +430,48 @@ let coverUrl = '';
     paintList();
     mediaSession(ep);
     if (autoplay) {
-      sound.play().catch(() => { /* ავტომატური დაკვრა აიკრძალა */ });
+      try { localStorage.setItem(LAST_KEY, String(ep.id)); } catch (e) { /* private mode */ }
+      resume();
       if (window.efcTrack) efcTrack('audio_play', { sermon_title: ep.title, resumed: pendingSeek ? 'yes' : 'no' });
     }
+  }
+
+  // ── დაკვრის აღდგენა ──────────────────────────────────────────
+  // ტელეფონი ჩაკეტილ ეკრანზე დაპაუზებულ ხმას ქსელის კავშირს უწყვეტს.
+  // შემდეგ play() შეცდომას არ აბრუნებს, მაგრამ ხმა აღარ მოდის — დრო
+  // ადგილზე დგას. ასეთ დროს ფაილს თავიდან ვაბამთ იმავე წამიდან.
+  let stuckTimer = 0;
+
+  function reattach() {
+    if (!current || !current.url) return;
+    pendingSeek = sound.currentTime || pendingSeek;
+    sound.src = current.url;
+    sound.load();
+    sound.playbackRate = SPEEDS[speedIdx];
+  }
+
+  function watchStuck(retried) {
+    clearTimeout(stuckTimer);
+    const from = sound.currentTime;
+    stuckTimer = setTimeout(() => {
+      if (sound.paused || sound.currentTime !== from) return;
+      if (retried) return;                       // მეორედ აღარ ვცდით — ალბათ ქსელი არ არის
+      reattach();
+      sound.play().then(() => watchStuck(true)).catch(() => {});
+    }, STUCK_MS);
+  }
+
+  function resume() {
+    if (!current || !current.url) return;
+    if (sound.error) reattach();
+    sound.play()
+      .then(() => watchStuck(false))
+      .catch(err => {
+        // ბრაუზერმა თავად აკრძალა (მომხმარებლის დაჭერის გარეშე) — არაფერს ვცვლით.
+        if (err && err.name === 'NotAllowedError') return;
+        reattach();
+        sound.play().then(() => watchStuck(true)).catch(() => {});
+      });
   }
 
   // ლენტის ხანგრძლივობა სარეზერვოა: ბრაუზერისას ყოველთვის არ ვენდობით.
@@ -453,8 +503,12 @@ let coverUrl = '';
 
   el.play.addEventListener('click', () => {
     if (!current || !current.url) return;
-    if (sound.paused) sound.play().catch(() => {});
-    else sound.pause();
+    if (sound.paused) {
+      try { localStorage.setItem(LAST_KEY, String(current.id)); } catch (e) { /* private mode */ }
+      resume();
+    } else {
+      sound.pause();
+    }
   });
 
   el.miniPlay.addEventListener('click', () => el.play.click());
@@ -472,6 +526,59 @@ let coverUrl = '';
     speedIdx = (speedIdx + 1) % SPEEDS.length;
     sound.playbackRate = SPEEDS[speedIdx];
     el.speed.textContent = SPEEDS[speedIdx] + '×';
+  });
+
+  // ── ხმის სიმაღლე ──────────────────────────────────────────────
+  // iPhone-ზე volume მხოლოდ წასაკითხია (ყოველთვის 1) — იქ სლაიდერს
+  // ვმალავთ და მხოლოდ გამორთვის ღილაკი რჩება, რომელიც ყველგან მუშაობს.
+  const volumeWorks = (() => {
+    const probe = new Audio();
+    probe.volume = 0.5;
+    return probe.volume === 0.5;
+  })();
+
+  function readVolume() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(VOLUME_KEY));
+      if (raw && typeof raw.v === 'number') return { v: Math.min(1, Math.max(0, raw.v)), m: !!raw.m };
+    } catch (e) { /* private mode */ }
+    return { v: 1, m: false };
+  }
+
+  function paintVolume() {
+    const level = sound.muted ? 0 : sound.volume;
+    const icon = level === 0 ? 'fa-volume-xmark' : (level < 0.5 ? 'fa-volume-low' : 'fa-volume-high');
+    el.mute.querySelector('i').className = 'fa-solid ' + icon;
+    el.mute.classList.toggle('is-muted', sound.muted);
+    el.mute.setAttribute('aria-label', sound.muted ? 'ხმის ჩართვა' : 'ხმის გამორთვა');
+    el.volume.value = String(Math.round(level * 100));
+    el.volume.style.setProperty('--vol', Math.round(level * 100) + '%');
+  }
+
+  function storeVolume() {
+    try { localStorage.setItem(VOLUME_KEY, JSON.stringify({ v: sound.volume, m: sound.muted })); } catch (e) { /* private mode */ }
+  }
+
+  const savedVolume = readVolume();
+  if (volumeWorks) sound.volume = savedVolume.v || 1;
+  sound.muted = savedVolume.m;
+  el.volume.hidden = !volumeWorks;
+  paintVolume();
+
+  el.volume.addEventListener('input', () => {
+    const v = Number(el.volume.value) / 100;
+    sound.volume = v;
+    sound.muted = v === 0;
+    paintVolume();
+  });
+  el.volume.addEventListener('change', storeVolume);
+
+  el.mute.addEventListener('click', () => {
+    // ნულამდე დაწეულ ხმას გამორთვის მოხსნისას ნახევარზე ვაბრუნებთ.
+    if (sound.muted && sound.volume === 0) sound.volume = 0.5;
+    sound.muted = !sound.muted;
+    paintVolume();
+    storeVolume();
   });
 
   function seekFromEvent(e) {
@@ -496,10 +603,25 @@ let coverUrl = '';
       pendingSeek = 0;
     }
     paintProgress();
+    positionState();
   });
-  sound.addEventListener('play', paintPlayState);
-  sound.addEventListener('pause', () => { save(); paintPlayState(); });
+  sound.addEventListener('play', () => {
+    pausedAt = 0;
+    setPlaybackState('playing');
+    paintPlayState();
+  });
+  sound.addEventListener('pause', () => {
+    pausedAt = Date.now();
+    clearTimeout(stuckTimer);
+    setPlaybackState('paused');
+    save(); paintPlayState();
+  });
+  sound.addEventListener('seeked', positionState);
+  sound.addEventListener('ratechange', positionState);
   sound.addEventListener('ended', () => {
+    pausedAt = 0;
+    clearTimeout(stuckTimer);
+    setPlaybackState('none');
     save(); paintList(); paintPlayState();
     if (current && window.efcTrack) efcTrack('audio_complete', { sermon_title: current.title });
   });
@@ -537,12 +659,34 @@ let coverUrl = '';
     const set = (action, handler) => {
       try { navigator.mediaSession.setActionHandler(action, handler); } catch (e) { /* ბრაუზერს არ აქვს */ }
     };
-    set('play', () => sound.play());
+    // ჩაკეტილი ეკრანის „დაკვრაც“ აღდგენით მიდის — იქ კავშირი ყველაზე ხშირად წყდება.
+    set('play', resume);
     set('pause', () => sound.pause());
     set('seekbackward', () => { sound.currentTime = Math.max(0, sound.currentTime - 15); });
     set('seekforward', () => { sound.currentTime += 15; });
     set('previoustrack', () => step(-1));
     set('nexttrack', () => step(1));
+  }
+
+  // ჩაკეტილი ეკრანი თავისით ვერ ხვდება, ახლა უკრავს თუ არა. სწორი
+  // მდგომარეობის გარეშე „დაკვრაზე“ დაჭერა iOS-ზე „პაუზად“ იგზავნება.
+  function setPlaybackState(state) {
+    if (!('mediaSession' in navigator)) return;
+    try { navigator.mediaSession.playbackState = state; } catch (e) { /* ძველი ბრაუზერი */ }
+    positionState();
+  }
+
+  function positionState() {
+    if (!('mediaSession' in navigator) || !navigator.mediaSession.setPositionState) return;
+    const total = duration();
+    if (!total) return;
+    try {
+      navigator.mediaSession.setPositionState({
+        duration: total,
+        playbackRate: sound.playbackRate || 1,
+        position: Math.min(sound.currentTime, total)
+      });
+    } catch (e) { /* არასწორი მნიშვნელობები */ }
   }
 
   function step(by) {
@@ -623,12 +767,19 @@ let coverUrl = '';
     filter(el.search.value);
 
     tab.hidden = false;
-    // ბოლო ეპიზოდი პლეერში მზადაა, მაგრამ თავისით არ ირთვება. თუ ლენტამ
-    // ახალი ეპიზოდი მოიტანა და ვიზიტორს ჯერ არაფერი ჩაურთავს, პლეერშიც
-    // ახალი ჩადგება — ძველი (ქეშიდან ჩატვირთული) არ დარჩება.
+    // პლეერში მზადაა ის ეპიზოდი, რომელსაც ვიზიტორი ბოლოს უსმენდა და ჯერ
+    // არ დაუსრულებია (გვერდის გადატვირთვის შემდეგაც), სხვა შემთხვევაში —
+    // უახლესი. თავისით არ ირთვება. თუ ლენტამ ახალი ეპიზოდი მოიტანა და
+    // ვიზიტორს ჯერ არაფერი ჩაურთავს, პლეერშიც ის ჩადგება.
+    let lastId = '';
+    try { lastId = localStorage.getItem(LAST_KEY) || ''; } catch (e) { /* private mode */ }
+    const lastState = readListened()[lastId];
+    const unfinished = lastState && !lastState.done && lastState.t > 0
+      && episodes.find(ep => String(ep.id) === lastId);
+    const pick = unfinished || episodes[0];
     const idle = sound.paused && !sound.currentTime;
-    if (!current || (idle && current.id !== episodes[0].id)) {
-      load(episodes[0], false);
+    if (!current || (idle && current.id !== pick.id)) {
+      load(pick, false);
       paintProgress();
       paintPlayState();
     }
