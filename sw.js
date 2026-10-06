@@ -61,17 +61,19 @@ self.addEventListener('activate', event => {
 });
 
 // ჯერ ქსელი, ჩავარდნისას ქეში. წარმატებულ პასუხს ვინახავთ, რომ
-// ოფლაინში იგივე გვერდი გაიხსნას.
-function networkFirst(request, fallbackUrl) {
+// ოფლაინში იგივე გვერდი გაიხსნას. key — ქეშის სახელი, თუ მისამართში
+// ცვალებადი გასაღებია (?v=…) და ყოველ ვერსიაზე ცალკე ასლი არ გვინდა.
+function networkFirst(request, fallbackUrl, key) {
+  key = key || request;
   return fetch(request)
     .then(response => {
       if (response && response.ok) {
         const copy = response.clone();
-        caches.open(RUNTIME_CACHE).then(cache => cache.put(request, copy));
+        caches.open(RUNTIME_CACHE).then(cache => cache.put(key, copy));
       }
       return response;
     })
-    .catch(() => caches.match(request).then(cached => {
+    .catch(() => caches.match(key).then(cached => {
       if (cached) return cached;
       if (fallbackUrl) return caches.match(fallbackUrl);
       return Response.error();
@@ -110,7 +112,9 @@ self.addEventListener('fetch', event => {
 
   // კოდი და მონაცემები — ყოველთვის ახალი, თუ ინტერნეტია.
   if (/\.(css|js|json)$/i.test(url.pathname)) {
-    event.respondWith(networkFirst(request));
+    // მონაცემთა ფაილი ერთ სახელით ინახება, გასაღების მიუხედავად.
+    const key = url.pathname.indexOf('/data/') !== -1 ? url.origin + url.pathname : request;
+    event.respondWith(networkFirst(request, null, key));
     return;
   }
 

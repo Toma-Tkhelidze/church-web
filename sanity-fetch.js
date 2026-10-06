@@ -147,11 +147,23 @@ function currentSermonPlaylistId() {
     .catch(() => fallback);
 }
 
+// rss2json YouTube-ის ფიდს საათამდე ინახავს, არქივს კი GitHub-ის
+// სამუშაო ყოველ 10 წუთში ავსებს. თუ არქივის უახლესი ქადაგება feed-ში
+// ჯერ არ ჩანს, feed ჩამორჩება და არქივს ვენდობით. თარიღებს ვერ
+// შევადარებთ: არქივში ქადაგების დღეა, feed-ში — ატვირთვისა.
 function fetchLatestPlaylistVideoId() {
-  return currentSermonPlaylistId().then(fetchPlaylistFeed).then(items => {
-    if (!items || !items.length) return null;
+  return currentSermonPlaylistId().then(playlistId => Promise.all([
+    fetchPlaylistFeed(playlistId),
+    fetchSermonArchive()
+  ])).then(([items, archive]) => {
+    const year = archive && archive.playlists && archive.playlists[0] && archive.playlists[0].year;
+    const stored = year && archive.years && archive.years[year];
+    const archived = stored && stored.length ? stored[0].id : null;
+
+    if (!items || !items.length) return archived;
+    if (archived && !items.some(i => i.id === archived)) return archived;
     const latest = items.reduce((a, b) => (new Date(b.pubDate) > new Date(a.pubDate) ? b : a), items[0]);
-    return latest ? latest.id : null;
+    return latest ? latest.id : archived;
   });
 }
 
@@ -1630,7 +1642,9 @@ function initSermonWatch() {
 let archivePromise = null;
 function fetchSermonArchive() {
   if (archivePromise) return archivePromise;
-  archivePromise = fetch(ARCHIVE_URL)
+  // GitHub Pages ფაილს 10 წუთით ინახავს; 5-წუთიანი გასაღებით ახალ
+  // ქადაგებას ამ ვადის ამოწურვამდე ვიღებთ, ხოლო ერთ ფანჯარაში კეში რჩება.
+  archivePromise = fetch(ARCHIVE_URL + '?v=' + Math.floor(Date.now() / 300000))
     .then(res => (res.ok ? res.json() : null))
     .catch(err => {
       console.warn('ქადაგებების არქივი ვერ ჩაიტვირთა, ვრჩებით feed-ზე:', err);

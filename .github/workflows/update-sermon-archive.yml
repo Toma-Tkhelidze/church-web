@@ -3,6 +3,12 @@
 # სამუშაო ამ ფაილს კვირაში ერთხელ ანახლებს, რომ feed-ის ფანჯრიდან
 # გასული ქადაგებები არ დაიკარგოს.
 #
+# გარდა ამისა, ყოველ 10 წუთში სწრაფად ამოწმებს, გამოჩნდა თუ არა ახალი
+# ქადაგება (scripts/check-new-sermon.js). საიტი YouTube-ის ფიდს
+# rss2json-ით კითხულობს, რომელიც მას საათამდე ინახავს — არქივი კი
+# იმავე დომენზეა, ამიტომ ახალი ქადაგება ~10-20 წუთში ჩნდება.
+# GitHub-ის განრიგი ზუსტი არ არის: დატვირთვისას გაშვება აგვიანებს.
+#
 # თუ ახალი ქადაგება მართლა გამოჩნდა, იმავე გაშვებაზე ელფოსტის
 # შეტყობინებაც იგზავნება — იხ. ბოლო ნაბიჯი.
 #
@@ -14,6 +20,8 @@ on:
   schedule:
     # ორშაბათი, 06:00 UTC — თბილისში 10:00, კვირის ქადაგების ატვირთვის შემდეგ
     - cron: '0 6 * * 1'
+    # სწრაფი შემოწმება — არქივს მხოლოდ ახალი ვიდეოს შემთხვევაში ადგენს.
+    - cron: '*/10 * * * *'
   workflow_dispatch:
     inputs:
       force_send:
@@ -38,21 +46,36 @@ jobs:
         with:
           node-version: '20'
 
+      # კვირეულ და ხელით გაშვებაზე არქივი ყოველთვის იგება; 10-წუთიანზე —
+      # მხოლოდ მაშინ, როცა ფიდში არქივისთვის უცნობი ვიდეოა.
+      - name: ახალი ქადაგების სწრაფი შემოწმება
+        id: check
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "${{ github.event.schedule }}" = "*/10 * * * *" ]; then
+            node scripts/check-new-sermon.js >> "$GITHUB_OUTPUT"
+          else
+            echo "new=true" >> "$GITHUB_OUTPUT"
+          fi
+
       # ID-ს განახლებამდე და შემდეგ ვადარებთ. მარტო „ფაილი შეიცვალა“
       # არ კმარა: სათაურის შესწორებაც ცვლის ფაილს, წერილი კი მხოლოდ
       # ნამდვილ ახალ ქადაგებაზე უნდა გაიგზავნოს.
       - name: ბოლო ქადაგების ID — განახლებამდე
+        if: steps.check.outputs.new == 'true'
         id: before
         run: echo "id=$(node scripts/send-sermon-email.js --print-latest)" >> "$GITHUB_OUTPUT"
 
       - name: არქივის შედგენა
+        if: steps.check.outputs.new == 'true'
         run: node scripts/build-sermon-archive.js
 
       - name: ბოლო ქადაგების ID — განახლების შემდეგ
+        if: steps.check.outputs.new == 'true'
         id: after
         run: echo "id=$(node scripts/send-sermon-email.js --print-latest)" >> "$GITHUB_OUTPUT"
 
       - name: ცვლილების ჩაწერა
+        if: steps.check.outputs.new == 'true'
         run: |
           if git diff --quiet -- data/sermon-archive.json; then
             echo "ახალი ქადაგება არ არის — ცვლილება არ ჩაწერილა"
@@ -69,7 +92,7 @@ jobs:
       # Variables), სკრიპტი მხოლოდ სატესტო რეჟიმში მუშაობს და
       # ჟურნალში წერს, რას გააგზავნიდა. შემთხვევით ვერაფერი გაიგზავნება.
       - name: შეტყობინება ელფოსტით
-        if: steps.after.outputs.id != '' && (steps.before.outputs.id != steps.after.outputs.id || inputs.force_send)
+        if: steps.check.outputs.new == 'true' && steps.after.outputs.id != '' && (steps.before.outputs.id != steps.after.outputs.id || inputs.force_send)
         env:
           BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
         run: |
@@ -84,7 +107,7 @@ jobs:
       # ჩამრთველი ცალკეა (SERMON_PUSH_ENABLED), რომ ფოსტისგან
       # დამოუკიდებლად ჩაირთოს და გამოირთოს.
       - name: შეტყობინება აპლიკაციაში
-        if: steps.after.outputs.id != '' && (steps.before.outputs.id != steps.after.outputs.id || inputs.force_send)
+        if: steps.check.outputs.new == 'true' && steps.after.outputs.id != '' && (steps.before.outputs.id != steps.after.outputs.id || inputs.force_send)
         env:
           ONESIGNAL_APP_ID: ${{ vars.ONESIGNAL_APP_ID }}
           ONESIGNAL_REST_API_KEY: ${{ secrets.ONESIGNAL_REST_API_KEY }}
