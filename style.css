@@ -635,6 +635,13 @@ ul {
     padding: 118px 20px 36px;
 }
 
+/* ქვეგვერდებზე ბანერი დაბალია (45vh) და ცენტრის ზოლი სახეებს თავზე
+   აჭრის — ფოტოს ზემოთკენ ვწევთ, რომ სცენა სრულად ჩანდეს. მთავარ
+   გვერდზე ბანერი სრულეკრანიანია და ცენტრში რჩება. */
+.hero-section:not(#sanity-main-image) {
+    background-position: center 20%;
+}
+
 .hero-overlay {
     position: absolute;
     inset: 0;
