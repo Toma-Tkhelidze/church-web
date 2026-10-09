@@ -28,7 +28,8 @@ async function github(env, path, init = {}) {
   return fetch('https://api.github.com/repos/' + REPO + path, {
     ...init,
     headers: {
-      Authorization: 'Bearer ' + env.GITHUB_TOKEN,
+      // ჩასმისას ბოლოში ხშირად ახალი ხაზი მიჰყვება — სათაურში ის შეცდომაა.
+      Authorization: 'Bearer ' + (env.GITHUB_TOKEN || '').trim(),
       'User-Agent': 'efck-sermon-watch',
       'X-GitHub-Api-Version': '2022-11-28',
       ...(init.headers || {})
@@ -40,7 +41,7 @@ async function check(env) {
   const res = await github(env, '/contents/data/sermon-archive.json?ref=main', {
     headers: { Accept: 'application/vnd.github.raw+json' }
   });
-  if (!res.ok) throw new Error('არქივი ვერ წავიკითხე: HTTP ' + res.status);
+  if (!res.ok) throw new Error('არქივი ვერ წავიკითხე: HTTP ' + res.status + ' ' + (await res.text()).slice(0, 300));
   const archive = await res.json();
 
   const playlist = archive.playlists && archive.playlists[0];

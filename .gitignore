@@ -6,3 +6,4 @@ sanity-studio/.sanity/
 Thumbs.db
 *.log
 scratch/
+workers/*/.wrangler/
