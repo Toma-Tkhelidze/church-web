@@ -635,11 +635,11 @@ ul {
     padding: 118px 20px 36px;
 }
 
-/* ქვეგვერდებზე ბანერი დაბალია (45vh) და ცენტრის ზოლი სახეებს თავზე
-   აჭრის — ფოტოს ზემოთკენ ვწევთ, რომ სცენა სრულად ჩანდეს. მთავარ
-   გვერდზე ბანერი სრულეკრანიანია და ცენტრში რჩება. */
+/* ქვეგვერდების დაბალ (45vh) ბანერზე ძველი AI-ბანერი რჩება — ახალი
+   ფოტო მხოლოდ მთავარ გვერდზეა. sermons და bible თავისას !important-ით
+   ადებენ და ეს მათ არ ეხება. */
 .hero-section:not(#sanity-main-image) {
-    background-position: center 20%;
+    background-image: url('https://cdn.sanity.io/images/f9j6xr69/production/80bb6d0e3f0c2949888b5b0c2e6c0a374dfae0cd-2730x1536.png?w=1920&fm=webp&q=80');
 }
 
 .hero-overlay {
