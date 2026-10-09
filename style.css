@@ -620,10 +620,11 @@ ul {
 .hero-section {
     height: 100vh;
     min-height: 600px;
-    /* Sanity-ს CDN-ს ზომა და ფორმატი პარამეტრებით ვთხოვთ — ორიგინალი PNG
-       6.7 MB-ია და ეს ფონი ყველა გვერდზე იტვირთება. იგივე პარამეტრებს
-       sanity-fetch.js-იც ამატებს, როცა სურათს Studio-დან ცვლის. */
-    background: #111111 url('https://cdn.sanity.io/images/f9j6xr69/production/80bb6d0e3f0c2949888b5b0c2e6c0a374dfae0cd-2730x1536.png?w=1920&fm=webp&q=80') center/cover no-repeat;
+    /* იგივე სურათი, რაც Sanity-ს siteContent-შია. მისამართი (პარამეტრებიანად)
+       ზუსტად ისეთია, როგორსაც sanity-fetch.js აწყობს — ბრაუზერი მეორედ არ
+       ჩამოტვირთავს და ძველი ფოტო წამიერად არ გაკრთება. Studio-ში ბანერს
+       რომ შეცვლი, აქაც ჩასვი ახალი asset-ის მისამართი. */
+    background: #111111 url('https://cdn.sanity.io/images/f9j6xr69/production/8c706cd07cb64da59f514befbce40859aad70042-2560x1440.jpg?w=1920&fm=webp&q=80') center/cover no-repeat;
     position: relative;
     display: flex;
     align-items: center;
