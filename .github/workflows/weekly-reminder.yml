@@ -1,0 +1,55 @@
+# ყოველკვირეული push-შეხსენება: კვირის ღვთისმსახურება, ახალგაზრდული
+# შეხვედრა და საოჯახო ჯგუფები — თითო 2 საათით ადრე.
+#
+# ამ სამუშაოს განრიგი არ აქვს: GitHub-ის ცრონი საათობით აგვიანებს.
+# ზუსტ წუთზე მას Cloudflare-ის ვორკერი უშვებს (workers/sermon-watch,
+# დრო wrangler.toml-შია). ტექსტები data/weekly-reminders.json-შია.
+#
+# გაჩერება: Settings → Secrets and variables → Actions → Variables →
+# WEEKLY_REMINDERS_ENABLED — ყველაფერი, რაც „true“ არ არის, სამუშაოს
+# სატესტო რეჟიმში უშვებს და არაფერი იგზავნება.
+#
+# ხელით გაშვება: Actions → ყოველკვირეული შეხსენება → Run workflow.
+
+name: ყოველკვირეული შეხსენება
+
+on:
+  workflow_dispatch:
+    inputs:
+      reminder:
+        description: 'რომელი შეხსენება'
+        type: choice
+        options:
+          - sunday
+          - youth
+          - family-groups
+      dry_run:
+        description: 'მხოლოდ ტესტი — არ გაიგზავნოს'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: შეხსენების გაგზავნა
+        env:
+          ONESIGNAL_APP_ID: ${{ vars.ONESIGNAL_APP_ID }}
+          ONESIGNAL_REST_API_KEY: ${{ secrets.ONESIGNAL_REST_API_KEY }}
+          REMINDER: ${{ inputs.reminder }}
+        run: |
+          if [ "${{ vars.WEEKLY_REMINDERS_ENABLED }}" = "true" ] && [ "${{ inputs.dry_run }}" != "true" ]; then
+            node scripts/send-weekly-reminder.js "$REMINDER"
+          else
+            echo "სატესტო რეჟიმი (WEEKLY_REMINDERS_ENABLED ან dry_run)."
+            node scripts/send-weekly-reminder.js "$REMINDER" --dry-run
+          fi

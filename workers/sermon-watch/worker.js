@@ -1,5 +1,5 @@
 /**
- * Cloudflare Worker — ახალი ქადაგების მოდარაჯე.
+ * Cloudflare Worker — ახალი ქადაგების მოდარაჯე და ყოველკვირეული შეხსენებები.
  *
  * GitHub-ის განრიგს ზუსტად ვერ ვენდობით: 10-წუთიან ცრონს ის რეალურად
  * 4–7 საათში ერთხელ უშვებს. Cloudflare-ის განრიგი კი წუთის
@@ -24,6 +24,14 @@
 const REPO = 'Toma-Tkhelidze/church-web';
 const WORKFLOW = 'update-sermon-archive.yml';
 
+// ყოველკვირეული შეხსენებები: ცრონი (UTC, wrangler.toml) → რომელი.
+// თბილისი = UTC + 4, ზაფხულის დრო არ გვაქვს.
+const REMINDERS = {
+  '0 5 * * 0': 'sunday',          // კვირა 09:00 — ღვთისმსახურება 11:00
+  '0 10 * * 6': 'youth',          // შაბათი 14:00 — ახალგაზრდული 16:00
+  '0 13 * * 3': 'family-groups'   // ოთხშაბათი 17:00 — საოჯახო ჯგუფები 19:00
+};
+
 async function github(env, path, init = {}) {
   return fetch('https://api.github.com/repos/' + REPO + path, {
     ...init,
@@ -35,6 +43,15 @@ async function github(env, path, init = {}) {
       ...(init.headers || {})
     }
   });
+}
+
+async function dispatch(env, workflow, inputs) {
+  const run = await github(env, '/actions/workflows/' + workflow + '/dispatches', {
+    method: 'POST',
+    headers: { Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
+    body: JSON.stringify(inputs ? { ref: 'main', inputs } : { ref: 'main' })
+  });
+  if (!run.ok) throw new Error(workflow + ' ვერ გავუშვი: HTTP ' + run.status + ' ' + await run.text());
 }
 
 async function check(env) {
@@ -58,17 +75,18 @@ async function check(env) {
   const fresh = ids.filter(id => !known.has(id));
   if (!fresh.length) return 'ახალი ქადაგება არ არის';
 
-  const run = await github(env, '/actions/workflows/' + WORKFLOW + '/dispatches', {
-    method: 'POST',
-    headers: { Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ref: 'main' })
-  });
-  if (!run.ok) throw new Error('workflow ვერ გავუშვი: HTTP ' + run.status + ' ' + await run.text());
+  await dispatch(env, WORKFLOW);
   return 'ახალი ვიდეო: ' + fresh.join(', ') + ' — workflow გაშვებულია';
 }
 
 export default {
   async scheduled(event, env, ctx) {
+    const reminder = REMINDERS[event.cron];
+    if (reminder) {
+      await dispatch(env, 'weekly-reminder.yml', { reminder });
+      console.log('შეხსენება გაშვებულია: ' + reminder);
+      return;
+    }
     console.log(await check(env));
   },
 
