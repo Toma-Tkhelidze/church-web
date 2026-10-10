@@ -1,0 +1,75 @@
+# რეგისტრაციის გახსნის შეტყობინება: push და ელფოსტა.
+#
+# Sanity-ში ღონისძიების სტატუსი „ღიაა“ რომ გახდება, Cloudflare-ის
+# ვორკერი (workers/sermon-watch) 5 წუთში ამას ამჩნევს და ამ სამუშაოს
+# უშვებს. ვინ უკვე მიიღო შეტყობინება, data/registration-notified.json-ში
+# იწერება — ასე თითო გახსნაზე მხოლოდ ერთხელ იგზავნება.
+#
+# გაჩერება: Settings → Secrets and variables → Actions → Variables →
+# REGISTRATION_NOTIFY_ENABLED — ყველაფერი, რაც „true“ არ არის, გახსნას
+# მაინც ინიშნავს, მაგრამ არაფერს აგზავნის.
+#
+# ხელით გაშვება: Actions → რეგისტრაციის შეტყობინება → Run workflow.
+
+name: რეგისტრაციის შეტყობინება
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# ორი პარალელური გაშვება ერთსა და იმავე გახსნას ორჯერ ვერ გააგზავნის:
+# მეორე პირველის დასრულებას ელოდება და ფაილში უკვე ჩანიშნულს ხედავს.
+concurrency:
+  group: registration-notify
+  cancel-in-progress: false
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # ხელით გაშვებისას checkout გაშვების მომენტის ვერსიას იღებს —
+      # რიგში მდგომმა სამუშაომ წინამორბედის ჩანაწერი უნდა დაინახოს.
+      - name: უახლესი ვერსია
+        run: git pull --ff-only origin main
+
+      - name: რომელი ღონისძიება გაიხსნა
+        id: claim
+        run: echo "ids=$(node scripts/notify-registration.js --claim)" >> "$GITHUB_OUTPUT"
+
+      # ჯერ ჩანიშვნა და მერე გაგზავნა: თუ ფუში ჩავარდა, არაფერი
+      # გაიგზავნება და შემდეგი გაშვება თავიდან ცდის.
+      - name: ჩანიშვნა
+        run: |
+          if git diff --quiet -- data/registration-notified.json; then
+            echo "ცვლილება არ არის"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/registration-notified.json
+          git commit -m "chore: რეგისტრაციის შეტყობინების ჩანიშვნა"
+          git pull --rebase origin main
+          git push
+
+      - name: გაგზავნა — push და ელფოსტა
+        if: steps.claim.outputs.ids != ''
+        env:
+          ONESIGNAL_APP_ID: ${{ vars.ONESIGNAL_APP_ID }}
+          ONESIGNAL_REST_API_KEY: ${{ secrets.ONESIGNAL_REST_API_KEY }}
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          IDS: ${{ steps.claim.outputs.ids }}
+        run: |
+          if [ "${{ vars.REGISTRATION_NOTIFY_ENABLED }}" = "true" ]; then
+            node scripts/notify-registration.js --send $IDS
+          else
+            echo "REGISTRATION_NOTIFY_ENABLED ჩართული არ არის — სატესტო რეჟიმი."
+            node scripts/notify-registration.js --send $IDS --dry-run
+          fi

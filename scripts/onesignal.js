@@ -15,8 +15,9 @@ const SITE_BASE = 'https://efckutaisi.ge/';
 
 // heading, text და url — დანარჩენი ყველა შეტყობინებისთვის ერთია.
 // topic: ერთი თემის ახალი შეტყობინება წინა წაუკითხავს ჩაანაცვლებს.
-function pushBody({ heading, text, url, topic }) {
-  return {
+// image (არასავალდებულო): დიდი სურათი — Chrome/Android აჩვენებს.
+function pushBody({ heading, text, url, topic, image }) {
+  const body = {
     app_id: APP_ID,
     target_channel: 'push',
     // OneSignal-ის ნაგულისხმევი სეგმენტი — ყველა, ვინც ჩართო.
@@ -29,6 +30,8 @@ function pushBody({ heading, text, url, topic }) {
     chrome_web_icon: SITE_BASE + 'icons/icon-192.png',
     web_push_topic: topic
   };
+  if (image) body.chrome_web_image = image;
+  return body;
 }
 
 async function sendPush(body) {

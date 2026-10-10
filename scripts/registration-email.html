@@ -1,0 +1,81 @@
+<!--
+  რეგისტრაციის გახსნის წერილის შაბლონი.
+
+  ტექსტის შესაცვლელად ეს ფაილი გახსენი — კოდში შესვლა არ სჭირდება.
+  ორმაგ ფრჩხილებში ჩასმულ სიტყვებს სკრიპტი თავად ავსებს Sanity-დან:
+
+    {{TITLE}}        — ღონისძიების სათაური
+    {{DATE}}         — თარიღი (ტექსტად)
+    {{DETAILS}}      — ასაკი ან ადგილი
+    {{DESCRIPTION}}  — აღწერა
+    {{IMAGE_ROW}}    — სურათის ხაზი (ცარიელია, თუ Sanity-ში სურათი არ არის)
+    {{LINK}}         — ბმული რეგისტრაციის გვერდზე, ამ ღონისძიებაზე
+    {{YEAR}}         — მიმდინარე წელი
+
+  ცხრილებია და არა თანამედროვე CSS — ელფოსტის კლიენტების ნაწილი
+  (განსაკუთრებით Outlook) flex-სა და grid-ს დღემდე ვერ კითხულობს.
+-->
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f2ed;margin:0;padding:0;">
+  <tr>
+    <td align="center" style="padding:24px 12px;">
+
+      <table width="560" cellpadding="0" cellspacing="0" border="0" style="width:560px;max-width:100%;background:#ffffff;border-radius:14px;overflow:hidden;">
+
+        <!-- მუქი თავსართი -->
+        <tr>
+          <td align="center" style="background:#111111;padding:26px 24px;">
+            <div style="font-family:Helvetica,Arial,sans-serif;font-size:11px;letter-spacing:2px;color:#aa954f;text-transform:uppercase;">
+              რეგისტრაცია გაიხსნა
+            </div>
+            <div style="font-family:Helvetica,Arial,sans-serif;font-size:15px;color:#ffffff;padding-top:8px;">
+              ქუთაისის სახარების რწმენის ეკლესია
+            </div>
+          </td>
+        </tr>
+
+        {{IMAGE_ROW}}
+
+        <!-- სათაური, დეტალები და ღილაკი -->
+        <tr>
+          <td style="padding:30px 30px 34px;font-family:Helvetica,Arial,sans-serif;">
+            <div style="font-size:13px;color:#8a8378;padding-bottom:8px;">{{DATE}} · {{DETAILS}}</div>
+
+            <div style="font-size:21px;line-height:1.4;color:#111111;font-weight:bold;padding-bottom:16px;">
+              {{TITLE}}
+            </div>
+
+            <div style="font-size:14px;line-height:1.75;color:#5a5348;padding-bottom:26px;">
+              {{DESCRIPTION}}
+            </div>
+
+            <table cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td align="center" style="background:#aa954f;border-radius:999px;">
+                  <a href="{{LINK}}"
+                     style="display:inline-block;padding:13px 32px;font-family:Helvetica,Arial,sans-serif;
+                            font-size:15px;font-weight:bold;color:#111111;text-decoration:none;">
+                    დარეგისტრირდი
+                  </a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- ქვედა ზოლი -->
+        <tr>
+          <td style="background:#faf8f4;border-top:1px solid #e6e1d6;padding:20px 30px;
+                     font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.7;color:#8a8378;">
+            კვირა 11:00 · საკვირაო ღვთისმსახურება<br>
+            მესხის ქ. 42, ქუთაისი
+            <div style="padding-top:12px;color:#a8a196;">
+              © {{YEAR}} სახარების რწმენის ეკლესია – ქუთაისი
+            </div>
+          </td>
+        </tr>
+
+      </table>
+
+    </td>
+  </tr>
+</table>

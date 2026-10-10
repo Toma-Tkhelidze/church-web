@@ -1,5 +1,6 @@
 /**
- * Cloudflare Worker — ახალი ქადაგების მოდარაჯე და ყოველკვირეული შეხსენებები.
+ * Cloudflare Worker — ახალი ქადაგების და რეგისტრაციის მოდარაჯე,
+ * ყოველკვირეული შეხსენებები.
  *
  * GitHub-ის განრიგს ზუსტად ვერ ვენდობით: 10-წუთიან ცრონს ის რეალურად
  * 4–7 საათში ერთხელ უშვებს. Cloudflare-ის განრიგი კი წუთის
@@ -79,6 +80,38 @@ async function check(env) {
   return 'ახალი ვიდეო: ' + fresh.join(', ') + ' — workflow გაშვებულია';
 }
 
+// რეგისტრაცია: Sanity-ში რომელი ღონისძიებაა ღია და რომელზე გავიდა უკვე
+// შეტყობინება (data/registration-notified.json). თუ ერთმანეთს არ
+// ემთხვევა — ახლად გახსნილი ან დახურული — ვუშვებთ registration-notify.yml-ს.
+// რას აგზავნის და რას ინიშნავს, თავად ის წყვეტს.
+const SANITY_QUERY = 'https://f9j6xr69.api.sanity.io/v2021-10-21/data/query/production?query=' +
+  encodeURIComponent('*[_type == "registrationEvent" && !(_id in path("drafts.**")) && defined(eventId)]{eventId, status}');
+
+async function checkRegistrations(env) {
+  const res = await fetch(SANITY_QUERY);
+  if (!res.ok) throw new Error('Sanity: HTTP ' + res.status);
+  const events = (await res.json()).result || [];
+
+  const file = await github(env, '/contents/data/registration-notified.json?ref=main', {
+    headers: { Accept: 'application/vnd.github.raw+json' }
+  });
+  if (!file.ok) throw new Error('ჩანაწერი ვერ წავიკითხე: HTTP ' + file.status);
+  const notified = await file.json();
+
+  const changed = events.filter(e => (e.status === 'active') !== Boolean(notified[e.eventId]));
+  if (!changed.length) return 'რეგისტრაცია: ცვლილება არ არის';
+
+  await dispatch(env, 'registration-notify.yml');
+  return 'რეგისტრაცია: ' + changed.map(e => e.eventId + ' → ' + e.status).join(', ') + ' — workflow გაშვებულია';
+}
+
+// ორი შემოწმება ერთმანეთისგან დამოუკიდებელია: YouTube-ის ჩავარდნამ
+// რეგისტრაცია არ უნდა შეაჩეროს და პირიქით.
+async function checkAll(env) {
+  const results = await Promise.allSettled([check(env), checkRegistrations(env)]);
+  return results.map(r => r.status === 'fulfilled' ? r.value : 'შეცდომა: ' + r.reason.message).join('\n');
+}
+
 export default {
   async scheduled(event, env, ctx) {
     const reminder = REMINDERS[event.cron];
@@ -87,14 +120,14 @@ export default {
       console.log('შეხსენება გაშვებულია: ' + reminder);
       return;
     }
-    console.log(await check(env));
+    console.log(await checkAll(env));
   },
 
   // ხელით შემოწმება ბრაუზერიდან: ვორკერის მისამართი გახსენი და
   // ნახავ, რას ხედავს. ვერაფერს გააფუჭებს — იგივე შემოწმებაა.
   async fetch(request, env) {
     try {
-      return new Response(await check(env) + '\n', { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+      return new Response(await checkAll(env) + '\n', { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
     } catch (err) {
       return new Response('შეცდომა: ' + err.message + '\n', { status: 500, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
     }

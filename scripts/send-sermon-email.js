@@ -10,7 +10,7 @@
  *   node scripts/send-sermon-email.js --dry-run        ყველაფერს აკეთებს, გარდა გაგზავნისა
  *   node scripts/send-sermon-email.js                  გზავნის
  *
- * გასაღები BREVO_API_KEY გარემოს ცვლადიდან მოდის — კოდში არასდროს წერია.
+ * გაგზავნის ნაწილი (გასაღები, სია, გამომგზავნი) scripts/brevo.js-შია.
  */
 
 const fs = require('fs');
@@ -18,13 +18,9 @@ const path = require('path');
 
 // ── კონფიგურაცია ──────────────────────────────────────────────────
 const { SITE_BASE, latestSermon, splitTitle } = require('./latest-sermon');
-const LIST_ID = 3;                       // „ეკლესიის სიახლეები“
-// გამომგზავნი Brevo-ში ავთენტიფიცირებული დომენიდანაა — სხვა მისამართს
-// Brevo @brevosend.com-ით ჩაანაცვლებდა.
-const SENDER = { name: 'სახარების რწმენის ეკლესია', email: 'info@efckutaisi.ge' };
+const { escapeHtml, fillTemplate, sendCampaign } = require('./brevo');
 
 const TEMPLATE = path.join(__dirname, 'sermon-email.html');
-const API = 'https://api.brevo.com/v3';
 
 // HD ყდა (maxresdefault) ყველა ვიდეოს არ აქვს — მაშინ YouTube 404-ს
 // აბრუნებს. წერილში ცარიელი ან ნაცრისფერი სურათი არ უნდა წავიდეს, ამიტომ
@@ -39,13 +35,6 @@ async function thumbnailUrl(videoId) {
   return base + 'hqdefault.jpg';
 }
 
-// HTML-ში ჩასმამდე სათაური უნდა გაიწმინდოს — „&“ ან „<“ შაბლონს არ უნდა შლიდეს.
-function escapeHtml(value) {
-  return String(value == null ? '' : value)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
-
 async function buildHtml(sermon) {
   const parts = splitTitle(sermon.title, sermon.date);
   const values = {
@@ -55,42 +44,16 @@ async function buildHtml(sermon) {
     LINK: SITE_BASE + 'pages/sermons.html',
     YEAR: String(new Date().getFullYear())
   };
-  let html = fs.readFileSync(TEMPLATE, 'utf8');
-  Object.keys(values).forEach(key => {
-    html = html.split('{{' + key + '}}').join(values[key]);
-  });
+  const html = fillTemplate(fs.readFileSync(TEMPLATE, 'utf8'), values);
   return { html: html, subject: 'ახალი ქადაგება: ' + parts.title, parts: parts, thumb: values.THUMB };
 }
 
-// ── Brevo ─────────────────────────────────────────────────────────
-async function brevo(method, endpoint, body) {
-  const res = await fetch(API + endpoint, {
-    method: method,
-    headers: {
-      'api-key': process.env.BREVO_API_KEY,
-      'content-type': 'application/json',
-      accept: 'application/json'
-    },
-    body: body ? JSON.stringify(body) : undefined
-  });
-  const text = await res.text();
-  if (!res.ok) throw new Error(method + ' ' + endpoint + ' → ' + res.status + ' ' + text);
-  return text ? JSON.parse(text) : {};
-}
-
 async function send(mail) {
-  // კამპანია და არა transactional: სიაზე გაგზავნისას Brevo თავად
-  // ამატებს გამოწერის გაუქმების ბმულს და პატივს სცემს უარის თქმას.
-  const campaign = await brevo('POST', '/emailCampaigns', {
-    name: 'ახალი ქადაგება — ' + mail.parts.title + ' (' + new Date().toISOString().slice(0, 10) + ')',
+  return sendCampaign({
+    name: 'ახალი ქადაგება — ' + mail.parts.title,
     subject: mail.subject,
-    sender: SENDER,
-    type: 'classic',
-    htmlContent: mail.html,
-    recipients: { listIds: [LIST_ID] }
+    html: mail.html
   });
-  await brevo('POST', '/emailCampaigns/' + campaign.id + '/sendNow');
-  return campaign.id;
 }
 
 // ── გაშვება ───────────────────────────────────────────────────────
@@ -118,12 +81,6 @@ async function send(mail) {
 
   if (args.includes('--dry-run')) {
     console.log('\nსატესტო რეჟიმი — წერილი არ გაგზავნილა.');
-    return;
-  }
-
-  if (!process.env.BREVO_API_KEY) {
-    console.error('BREVO_API_KEY ცარიელია — გაგზავნა შეუძლებელია.');
-    process.exitCode = 1;
     return;
   }
 
