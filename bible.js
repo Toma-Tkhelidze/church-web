@@ -385,7 +385,7 @@
       return { value: String(i + 1), label: String(i + 1) };
     }), String(state.chapter));
 
-    els.title.textContent = (state.books[state.book - 1] || '') + ' ' + state.chapter;
+    els.title.textContent = chapterTitle();
     setStatus('');
     const hasText = data.verses.some(function (v) { return v.text; });
     renderVerses(data.verses);
@@ -603,6 +603,14 @@
   };
   let sheetVerse = null;
   let toastTimer = 0;
+
+  // „მათეს სახარება თავი 2" — უბრალო „მათეს სახარება 2" ისე იკითხება,
+  // თითქოს მეორე მათეს სახარებაა. ფსალმუნები თავებად არ იყოფა.
+  function chapterTitle() {
+    const name = state.books[state.book - 1] || '';
+    if (state.book === 19) return 'ფსალმუნი ' + state.chapter;
+    return name + ' თავი ' + state.chapter;
+  }
 
   function verseRef(n) {
     return (state.books[state.book - 1] || '') + ' ' + state.chapter + ':' + n;
