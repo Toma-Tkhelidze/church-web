@@ -253,7 +253,7 @@
      ერთი გაშლილი წიგნია. ერთადერთი, რაც იცვლება, translateX-ია — ბრაუზერი
      ამას კომპოზიტორზე ხატავს, ტექსტს ხელახლა არ აწყობს. */
   const COL_GAP = 120;
-  const PAGE_PAD = 26;
+  const PAGE_PAD = 64;
 
   function isBook() {
     return BOOK_MQ.matches;
@@ -329,6 +329,12 @@
       nextLabel.textContent = 'შემდეგი თავი';
       els.pageInfo.textContent = '';
     }
+    // წიგნის რეჟიმში ღილაკები მხოლოდ ისრებია — წარწერა tooltip-ად და
+    // ეკრანის წამკითხველისთვის რჩება.
+    els.prevBottom.title = prevLabel.textContent;
+    els.nextBottom.title = nextLabel.textContent;
+    els.prevBottom.setAttribute('aria-label', prevLabel.textContent);
+    els.nextBottom.setAttribute('aria-label', nextLabel.textContent);
   }
 
   async function load(opts) {

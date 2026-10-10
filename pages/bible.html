@@ -361,15 +361,24 @@
             vertical-align: 0.45em;
             user-select: none;
         }
+        /* ვიწრო ეკრანზე ღილაკები ტექსტის ქვეშ, ორ მხარეს */
+        .bible-book {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            row-gap: 26px;
+            column-gap: 10px;
+        }
+        .bible-book .bible-text { grid-column: 1 / -1; }
+        .bible-nav { width: auto; padding: 0 18px; gap: 8px; }
+        .bible-nav--prev { justify-self: start; }
+        .bible-nav--next { grid-column: 2; justify-self: end; }
         .bible-footer-nav {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
-            gap: 10px;
-            margin-top: 30px;
         }
-        .bible-footer-nav .bible-btn { width: auto; padding: 0 18px; gap: 8px; }
         .bible-pageinfo {
+            margin-top: 14px;
             color: var(--bb-muted);
             font-size: 0.85rem;
             font-variant-numeric: tabular-nums;
@@ -507,9 +516,13 @@
             }
             .bible-book::before { left: 0; }
             .bible-book::after { right: 0; }
+            .bible-book {
+                display: block;
+                position: relative;
+            }
             .bible-book .bible-text {
                 height: 100%;
-                padding: 0 26px;
+                padding: 0 64px;
                 box-sizing: border-box;
                 column-width: var(--bb-col-w, 560px);
                 column-gap: var(--bb-col-gap, 120px);
@@ -518,7 +531,25 @@
                 transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
             }
             .bible-book .bible-verse { break-inside: avoid; }
-            .bible-footer-nav { margin-top: 18px; }
+            /* ფურცვლა წიგნის კიდეებში — მრგვალი ღილაკები, ტექსტის გვერდით */
+            .bible-nav {
+                position: absolute;
+                top: 50%;
+                z-index: 4;
+                width: 46px;
+                height: 46px;
+                padding: 0;
+                border-radius: 50%;
+                transform: translateY(-50%);
+                opacity: 0.55;
+                transition: opacity 0.25s ease, background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+            }
+            .bible-nav span { display: none; }
+            .bible-nav--prev { left: 10px; }
+            .bible-nav--next { right: 10px; grid-column: auto; }
+            .bible-book:hover .bible-nav, .bible-nav:focus-visible { opacity: 1; }
+            .bible-nav:disabled { opacity: 0.18; }
+            .bible-pageinfo { margin-top: 16px; }
         }
 
         /* ვიწრო ეკრანზე წიგნის რეჟიმის ინლაინ სტილები ძალას კარგავს */
@@ -685,12 +716,13 @@
                     <p class="bible-status" id="bibleStatus" role="status">იტვირთება…</p>
                     <div class="bible-book" id="bibleBookView">
                         <div class="bible-text" id="bibleText" lang="ka"></div>
+                        <!-- ფურცვლის ღილაკები: ფართო ეკრანზე წიგნის კიდეებში, შუა სიმაღლეზე -->
+                        <button type="button" class="bible-btn bible-nav bible-nav--prev" id="biblePrevBottom" disabled><i class="fa-solid fa-chevron-left" aria-hidden="true"></i> <span>წინა თავი</span></button>
+                        <button type="button" class="bible-btn bible-nav bible-nav--next" id="bibleNextBottom" disabled><span>შემდეგი თავი</span> <i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
                     </div>
 
                     <div class="bible-footer-nav">
-                        <button type="button" class="bible-btn" id="biblePrevBottom" disabled><i class="fa-solid fa-chevron-left" aria-hidden="true"></i> <span>წინა თავი</span></button>
                         <span class="bible-pageinfo" id="biblePageInfo" aria-live="polite"></span>
-                        <button type="button" class="bible-btn" id="bibleNextBottom" disabled><span>შემდეგი თავი</span> <i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
                     </div>
                 </div>
 
