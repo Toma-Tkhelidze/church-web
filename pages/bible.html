@@ -530,7 +530,14 @@
                 will-change: transform;
                 transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
             }
-            .bible-book .bible-verse { break-inside: avoid; }
+            /* მუხლი სვეტს შორის იყოფა, როგორც ნაბეჭდ ბიბლიაში — თორემ
+               გრძელი მუხლი გვერდის ბოლოში დიდ სიცარიელეს ტოვებს.
+               ბოლოში ან თავში ერთი მარტოხელა სტრიქონი არ რჩება. */
+            .bible-book .bible-verse {
+                break-inside: auto;
+                orphans: 2;
+                widows: 2;
+            }
             /* ფურცვლა წიგნის კიდეებში — მრგვალი ღილაკები, ტექსტის გვერდით */
             .bible-nav {
                 position: absolute;
