@@ -34,7 +34,7 @@ export default defineConfig({
             S.documentTypeListItem('sermonSeries').title('ქადაგებების სერიები'),
             S.documentTypeListItem('registrationEvent').title('ღონისძიებები'),
             S.documentTypeListItem('familyGroup').title('საოჯახო ჯგუფები'),
-            S.documentTypeListItem('teamMember').title('ეკლესიის მმართველობა'),
+            S.documentTypeListItem('teamMember').title('მსახურთა გუნდი'),
           ]),
     }),
   ],

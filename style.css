@@ -2461,6 +2461,8 @@ main section:not(.hero-section):not(.contact-section) .container {
     .dropdown-menu a {
         padding: 8px 10px !important;
         color: rgba(255, 255, 255, 0.75) !important;
+        /* ვიწრო პანელში გრძელი პუნქტი ("რა არის შემდეგი ნაბიჯი") მეორე ხაზზე გადავიდეს */
+        white-space: normal !important;
     }
 
     /* აკორდეონის პრინციპით გახსნა */
