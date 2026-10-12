@@ -32,6 +32,8 @@
   // GA4: analytics.google.com → Admin → Data streams → Measurement ID
   const GA_ID = 'G-PQF331DDYG';
   // Clarity: clarity.microsoft.com → პროექტი → Settings → Project ID
+  // ID-ის ჩაწერისას ზოლის ტექსტშიც (openBar) დაამატე Microsoft Clarity —
+  // თანხმობა მხოლოდ დასახელებულ სერვისებზე მოქმედებს.
   const CLARITY_ID = '';
 
   const KEY = 'efck:consent:v1';
@@ -108,10 +110,11 @@
       '<span class="consent-icon" aria-hidden="true"><i class="fa-solid fa-cookie-bite"></i></span>' +
       '<div class="install-body">' +
         '<span class="install-eyebrow">ქუქიები</span>' +
-        '<strong>დაგვეხმარეთ საიტის გაუმჯობესებაში</strong>' +
-        '<span class="install-lead">Google Analytics-ითა და Microsoft Clarity-ით ვხედავთ, ' +
-          'რომელი გვერდები გამოგადგებათ და სად გიჭირთ. სახელს, ელფოსტას და ' +
-          'ფორმებში ჩაწერილ ტექსტს არ ვინახავთ.</span>' +
+        '<strong>გვინდა, ვებ გვერდი თქვენთვის იყოს</strong>' +
+        '<span class="install-lead">Google Analytics გვაჩვენებს, თუ როგორ შეგვიძლია ' +
+          'გავაუმჯობესოთ ვებ გვერდი. ჩვენ ვხედავთ მხოლოდ საერთო სურათს და თითოეული ' +
+          'სტუმარი ჩვენთვის ანონიმური რჩება. ამ ინფორმაციით ვებ გვერდს ისე ვაწყობთ, ' +
+          'რომ თქვენ გამოგადგეთ.</span>' +
         '<div class="consent-actions">' +
           '<button type="button" class="install-go consent-accept">ვეთანხმები</button>' +
           '<button type="button" class="consent-decline">მხოლოდ საჭირო</button>' +
