@@ -32,7 +32,7 @@
   // GA4: analytics.google.com → Admin → Data streams → Measurement ID
   const GA_ID = 'G-PQF331DDYG';
   // Clarity: clarity.microsoft.com → პროექტი → Settings → Project ID
-  const CLARITY_ID = '';
+  const CLARITY_ID = 'yh8lr6l6hr';
 
   const KEY = 'efck:consent:v1';
   const DECLINE_QUIET_DAYS = 180;
@@ -91,6 +91,10 @@
       s.async = true;
       s.src = 'https://www.clarity.ms/tag/' + encodeURIComponent(CLARITY_ID);
       document.head.appendChild(s);
+      // ზოლზე თანხმობა უკვე მოგვცეს — Clarity-საც ვატყობინებთ, თორემ
+      // ევროპელ სტუმრებზე ქუქიების გარეშე, შეკვეცილ რეჟიმში იმუშავებს.
+      // რეკლამისთვის თანხმობა არ გვითხოვია, ამიტომ ის უარყოფილია.
+      window.clarity('consentv2', { ad_Storage: 'denied', analytics_Storage: 'granted' });
       // ჩანაწერებში PWA-ს ვიზიტები ცალკე გაიფილტრება
       window.clarity('set', 'app_mode', installed ? 'pwa' : 'browser');
     }
