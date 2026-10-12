@@ -1783,6 +1783,26 @@ video {
     letter-spacing: 0.5px;
 }
 
+/* თანხმობის ბმული (analytics.js) — საავტორო ხაზის ნაწილია და მისივე
+   ფერითა და ზომით იწერება, რომ დიზაინში არ ჩანდეს. */
+.footer-consent {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    /* გლობალური წესი ყველა ღილაკს FiraGo-ს და მთავრულს („case“) აძალებს —
+       აქ საავტორო ხაზის შრიფტი გვჭირდება. */
+    font-family: inherit !important;
+    font-feature-settings: normal;
+    letter-spacing: inherit;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.footer-consent:hover,
+.footer-consent:focus-visible { color: var(--gold); }
+
 .footer-social {
     display: flex;
     gap: 10px;
@@ -4440,8 +4460,7 @@ a.next-service .ns-where, .next-service a.ns-where {
 /* Push შეტყობინებების ღილაკი — ინსტალაციის ღილაკის ტყუპისცალი, ერთი
    განსხვავებით: კომპიუტერზეც ჩანს. ინსტალაცია იქ არ არსებობს,
    შეტყობინებები კი Chrome-სა და Edge-ში ჩვეულებრივ მუშაობს. */
-.footer-push,
-.footer-consent {
+.footer-push {
     display: inline-flex;
     align-items: center;
     gap: 9px;
@@ -4461,22 +4480,19 @@ a.next-service .ns-where, .next-service a.ns-where {
 
 .footer-push[hidden] { display: none; }
 
-.footer-push:hover:not(.is-on),
-.footer-consent:hover {
+.footer-push:hover:not(.is-on) {
     background: var(--gold);
     border-color: var(--gold);
     color: var(--dark-900);
     box-shadow: 0 0 0 4px rgba(170, 149, 79, 0.14);
 }
 
-.footer-push i,
-.footer-consent i {
+.footer-push i {
     font-size: 1.05em;
     transition: transform var(--transition);
 }
 
-.footer-push:hover:not(.is-on) i,
-.footer-consent:hover i { transform: translateY(-2px); }
+.footer-push:hover:not(.is-on) i { transform: translateY(-2px); }
 
 /* ჩართულია — აღარ არის ღილაკი, არამედ მდგომარეობის ნიშანი. */
 .footer-push.is-on {
@@ -4493,9 +4509,7 @@ a.next-service .ns-where, .next-service a.ns-where {
     .footer-install i,
     .footer-install:hover i,
     .footer-push i,
-    .footer-push:hover i,
-    .footer-consent i,
-    .footer-consent:hover i { transition: none; transform: none; }
+    .footer-push:hover i { transition: none; transform: none; }
 }
 
 /* ── ქუქიების თანხმობის ზოლი (analytics.js) ─────────────────────────

@@ -7,7 +7,7 @@
 
    ორივე მხოლოდ თანხმობის შემდეგ იტვირთება. სანამ ვიზიტორი ზოლზე არ
    უპასუხებს, საიტიდან არაფერი იგზავნება. უარის შემდეგ ზოლი ნახევარი
-   წელი აღარ ჩნდება; ფუტერის ღილაკით გადაწყვეტილების შეცვლა ყოველთვის
+   წელი აღარ ჩნდება; ფუტერის „კონფიდენციალურობის“ ბმულით გადაწყვეტილების შეცვლა ყოველთვის
    შეიძლება.
 
    სანამ ორივე ID ცარიელია, ეს ფაილი არაფერს აკეთებს — არც ზოლს აჩენს.
@@ -132,43 +132,34 @@
       writeState({ choice: 'accept', at: Date.now() });
       close();
       load();
-      syncFooter();
     });
     bar.querySelector('.consent-decline').addEventListener('click', () => {
+      const wasOn = readState().choice === 'accept';
       writeState({ choice: 'decline', at: Date.now() });
+      // თანხმობის გაუქმება: გვერდს ვტვირთავთ, რომ უკვე ჩატვირთული
+      // სკრიპტები მართლა გაქრეს.
+      if (wasOn) {
+        window.location.reload();
+        return;
+      }
       close();
-      syncFooter();
     });
   }
 
-  // ── ფუტერის ღილაკი — გადაწყვეტილების შეცვლა ─────────────────────
+  // ── ფუტერის ბმული — გადაწყვეტილების შეცვლა ──────────────────────
+  // საავტორო ხაზის ბოლოს მკრთალი ბმული: კანონი ითხოვს, რომ თანხმობის
+  // გაუქმება ადვილი იყოს და არა თვალში საცემი. დაჭერა ისევ ზოლს ხსნის.
   function mountFooterLink() {
-    const strip = document.querySelector('.footer-bottom');
-    if (!strip || strip.querySelector('.footer-consent')) return;
+    const copy = document.querySelector('.footer-bottom .footer-copy');
+    if (!copy || copy.querySelector('.footer-consent')) return;
 
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'footer-consent';
-    btn.addEventListener('click', () => {
-      // თანხმობის გაუქმება: ჩანაწერს ვშლით და გვერდს ვტვირთავთ, რომ
-      // უკვე ჩატვირთული სკრიპტები მართლა გაქრეს.
-      if (readState().choice === 'accept') {
-        writeState({});
-        window.location.reload();
-        return;
-      }
-      openBar();
-    });
-    strip.insertBefore(btn, strip.querySelector('.footer-social'));
-    syncFooter();
-  }
-
-  function syncFooter() {
-    const btn = document.querySelector('.footer-consent');
-    if (!btn) return;
-    const on = readState().choice === 'accept';
-    btn.innerHTML = '<i class="fa-solid fa-cookie-bite" aria-hidden="true"></i>'
-      + '<span>' + (on ? 'ანალიტიკის გამორთვა' : 'ანალიტიკის ჩართვა') + '</span>';
+    btn.textContent = 'კონფიდენციალურობა';
+    btn.setAttribute('aria-label', 'კონფიდენციალურობა: ანალიტიკის ჩართვა ან გამორთვა');
+    btn.addEventListener('click', openBar);
+    copy.append(' · ', btn);
   }
 
   // ── გაშვება ─────────────────────────────────────────────────────
