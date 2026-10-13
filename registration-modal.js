@@ -43,8 +43,8 @@ const REG_EVENTS = {
     }
   },
   // ახალგაზრდულზე პირველად მოსული — ლიდერი შაბათამდე წერს და კარში
-  // ხვდება. action ცარიელია, სანამ Google Form არ შეიქმნება; მანამდე
-  // youth.html ღილაკს არ აჩენს (იხ. isRegistrationReady).
+  // ხვდება. Google Form: „ახალგაზრდული — პირველი ვიზიტი“ (ყველა ველი
+  // არასავალდებულოა — შემოწმება აქაა). youth.html ღილაკს isRegistrationReady-ით აჩენს.
   'youth-first-visit': {
     heading: 'პირველად მოვდივარ',
     fields: ['firstName', 'youthAge', 'contact', 'company', 'question'],
@@ -53,13 +53,13 @@ const REG_EVENTS = {
     successTitle: 'გელოდებით!',
     success: 'ლიდერი შაბათამდე მოგწერს. შეხვედრა იწყება 16:00-ზე, მესხის ქ. 42.',
     closeAfter: 6000,
-    action: '',
+    action: 'https://docs.google.com/forms/d/e/1FAIpQLSd5lk9naOC_suEbvtvoeqLxm0fswjRbmUmmv8YezCmPWfv6gw/formResponse',
     entries: {
-      firstName: '',
-      youthAge: '',
-      contact: '',
-      company: '',
-      question: ''
+      firstName: 'entry.1383501497',
+      youthAge: 'entry.786149127',
+      contact: 'entry.1590703312',
+      company: 'entry.384886935',
+      question: 'entry.610520502'
     }
   },
   'conference': {
@@ -111,7 +111,7 @@ const REG_FIELDS = {
     validate: v => /^\d{1,2}$/.test(v.trim()) && parseInt(v.trim(), 10) >= 10
   },
   contact: {
-    label: 'სად მოგწეროს ლიდერმა? *', type: 'contact',
+    label: 'როგორ დაგიკავშირდეთ? *', type: 'contact',
     channels: [
       // სოც. ქსელებზე ბმული — ლიდერი ერთი დაჭერით იპოვის, სახელით ძებნა კი ხშირად ცდება
       { name: 'Instagram', placeholder: 'პროფილის ბმული, მაგ: instagram.com/nino.k', inputmode: 'url',
