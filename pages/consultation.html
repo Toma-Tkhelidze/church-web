@@ -126,14 +126,16 @@
         .leader-img-box {
             height: 100%;
             min-height: 400px;
-            background-color: #ebdcd0;
+            background-color: #aa954f;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .leader-img-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        .leader-img-box i {
+            color: #ffffff;
+            font-size: 8rem;
         }
 
         .leader-detailed-info {
@@ -176,8 +178,11 @@
                 grid-template-columns: 1fr;
             }
             .leader-img-box {
-                min-height: 300px;
-                height: 350px;
+                min-height: 0;
+                height: 220px;
+            }
+            .leader-img-box i {
+                font-size: 5.5rem;
             }
             .leader-detailed-info {
                 padding: 35px;
@@ -351,9 +356,9 @@
                 <h2 style="font-family: 'Playfair Display', 'Noto Sans Georgian', serif; font-weight: 300; font-size: 2.5rem; margin-top: 0; margin-bottom: 50px; color: #111; text-align: center;">გაიცანით კონსულტანტი</h2>
                 
                 <div class="leader-premium-card scroll-reveal">
-                    <!-- ლიდერის ფოტო -->
-                    <div class="leader-img-box">
-                        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=cover&w=600&q=80" alt="დავით ახვლედიანი">
+                    <!-- ფოტოს ადგილი: ნამდვილი ფოტო ჯერ არ გვაქვს, ამიტომ ხატულა -->
+                    <div class="leader-img-box" aria-hidden="true">
+                        <i class="fa-solid fa-user"></i>
                     </div>
                     <!-- ლიდერის აღწერა -->
                     <div class="leader-detailed-info">
