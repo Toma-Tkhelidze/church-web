@@ -101,27 +101,27 @@ const REG_FIELDS = {
     validate: () => true
   },
   firstName: {
-    label: 'სახელი *', type: 'text', placeholder: 'მაგ: ნინო',
+    label: 'შენი სახელი *', type: 'text', placeholder: 'მაგ: ნინო',
     error: 'გთხოვთ, ჩაწერე სახელი (მხოლოდ ასოებით).',
     validate: v => v.trim().length >= 2 && /^[a-zA-Zა-ჰ\s-]+$/.test(v.trim())
   },
   youthAge: {
-    label: 'ასაკი *', type: 'text', inputmode: 'numeric', placeholder: 'მაგ: 17',
+    label: 'რამდენი წლის ხარ? *', type: 'text', inputmode: 'numeric', placeholder: 'მაგ: 17',
     error: 'ასაკი ციფრებით ჩაწერე, მაგ: 17.',
     validate: v => /^\d{1,2}$/.test(v.trim()) && parseInt(v.trim(), 10) >= 10
   },
   contact: {
-    label: 'როგორ დაგიკავშირდეთ? *', type: 'text', placeholder: 'Instagram (@სახელი) ან ტელეფონი',
+    label: 'სად მოგწეროს ლიდერმა? *', type: 'text', placeholder: 'Instagram (მაგ: @nino) ან ტელეფონის ნომერი',
     error: 'ჩაწერე Instagram ან ტელეფონის ნომერი, რომ მოგწეროთ.',
     validate: v => v.trim().length >= 3
   },
   company: {
-    label: 'მოდიხარ… *', type: 'select', options: ['მარტო', 'მეგობართან ერთად'],
+    label: 'მარტო მოდიხარ თუ ვინმესთან ერთად? *', type: 'select', options: ['მარტო მოვდივარ', 'მეგობართან ერთად მოვდივარ'],
     error: 'აირჩიე ერთ-ერთი.',
     validate: v => v !== ''
   },
   question: {
-    label: 'გინდა, რამე გვკითხო?', type: 'textarea', placeholder: 'არასავალდებულოა',
+    label: 'გაქვს რამე კითხვა? (არასავალდებულო)', type: 'textarea', placeholder: 'მაგ: რა ჩავიცვა, რამდენ ხანს გრძელდება შეხვედრა…',
     validate: () => true
   }
 };
