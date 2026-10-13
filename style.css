@@ -4198,6 +4198,8 @@ a.next-service .ns-where, .next-service a.ns-where {
 .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border: 1px solid #e1d8bf; border-radius: 4px; font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-size: 0.92rem; box-sizing: border-box; background: #fdfbf7; }
 .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #aa954f; background: #ffffff; }
 .form-group .contact-combo { display: flex; flex-direction: column; gap: 8px; }
+/* ჩამოსაშლელი სია ჩვეულებრივი შრიფტით — საერთო წესი (FiraGo-Medium + მთავრული) მას მსხვილს და დიდასოიანს ხდიდა */
+.form-group select { font-family: 'Noto Sans Georgian', 'Montserrat', sans-serif !important; font-feature-settings: normal; font-weight: 400; color: #333; }
 
 .btn-modal-primary {
     font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1.5px;
