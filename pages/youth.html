@@ -1123,17 +1123,20 @@
 
             // Messenger-სა და Instagram-ს ვებიდან მზა ტექსტის მიღება არ შეუძლიათ,
             // ამიტომ ბმული ჯერ კოპირდება. ტელეფონზე აპები პირდაპირ იხსნება:
-            // Messenger — ბმულით, Instagram — პირად მიმოწერაზე (Android-ზე
-            // intent-ით, აპი თუ არ აქვს, ვებ-გვერდი იხსნება; iPhone-ზე
-            // instagram.com-ის ბმულს თავად აპი იჭერს).
+            // Messenger — ბმულით, Instagram — პირად მიმოწერაზე. Android-ზე
+            // intent-ით (აპი თუ არ აქვს, ვებ-გვერდი იხსნება). iPhone-ზე
+            // Safari instagram.com-ის ბმულს აპს არ აძლევს, ამიტომ აპის
+            // სქემით იხსნება; თუ 1.5 წამში გვერდი არ დაიმალა — აპი არ
+            // ყოფილა და ვებ-გვერდზე გადავდივართ.
             const isAndroid = /Android/i.test(navigator.userAgent);
+            const isIOS = isPhone && !isAndroid;
             const igInbox = "https://www.instagram.com/direct/inbox/";
             const inviteLinks = {
                 whatsapp: "https://wa.me/?text=" + encodeURIComponent(inviteText + "\n" + inviteUrl),
                 messenger: isPhone ? "fb-messenger://share/?link=" + encodeURIComponent(inviteUrl) : "https://www.messenger.com/",
                 instagram: isAndroid
                     ? "intent://www.instagram.com/direct/inbox/#Intent;scheme=https;package=com.instagram.android;S.browser_fallback_url=" + encodeURIComponent(igInbox) + ";end"
-                    : igInbox
+                    : isIOS ? "instagram://direct-inbox" : igInbox
             };
             const inviteHints = {
                 messenger: isPhone
@@ -1155,6 +1158,9 @@
                     if (method === "messenger" || method === "instagram") {
                         copyInviteLink();
                         showInviteHint(inviteHints[method]);
+                        if (method === "instagram" && isIOS) {
+                            setTimeout(() => { if (!document.hidden) location.href = igInbox; }, 1500);
+                        }
                     } else if (method === "copy") {
                         const label = btn.querySelector("span");
                         copyInviteLink().then(ok => {
