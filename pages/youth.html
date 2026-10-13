@@ -648,8 +648,9 @@
                     
                     <div class="testimonial-card">
                         <i class="fa-solid fa-quote-left quote-icon" aria-hidden="true"></i>
-                        <p class="testimonial-text">აქ ვიპოვე ადამიანები, რომლებიც ჩემი ცხოვრების განუყოფელი ნაწილი გახდნენ. ახალგაზრდულმა დამანახა, რომ ჩემი რწმენა არ არის მოსაწყენი რუტინა, არამედ ცოცხალი ურთიერთობაა ღმერთთან და მეგობრებთან.</p>
-                        <div class="testimonial-author">ანა, <span>19 წლის</span></div>
+                        <p class="testimonial-text">ახალგაზრდულის შესახებ მეგობრისგან გავიგე. პირველად რომ მოვედი, ვნერვიულობდი, აქ ხომ არავის ვიცნობდი. მაგრამ მალევე დავინახე, რა თბილად და გულითადად ეპყრობიან ერთმანეთს. ეს ძალიან მომეწონა. დღეს აქ მყავს ადამიანები, რომლებთანაც დროის გატარება მიყვარს.</p>
+                        <!-- ასაკი data-birth-დან ითვლება; ტექსტი მხოლოდ JS-ის გარეშე ჩანს -->
+                        <div class="testimonial-author">დიანა გელხვიძე, <span data-birth="2004-05-26">22 წლის</span></div>
                     </div>
 
                     <div class="testimonial-card">
@@ -962,6 +963,15 @@
                     openRegistrationModal(openModalBtn.dataset.event, title ? title.textContent.trim() : "");
                 });
             }
+
+            // ისტორიების ასაკი დაბადების თარიღიდან, რომ დაბადების დღეზე თავად განახლდეს
+            document.querySelectorAll("[data-birth]").forEach(el => {
+                const [y, m, d] = el.dataset.birth.split("-").map(Number);
+                const now = new Date();
+                let age = now.getFullYear() - y;
+                if (now.getMonth() + 1 < m || (now.getMonth() + 1 === m && now.getDate() < d)) age--;
+                el.textContent = age + " წლის";
+            });
 
             // FAQ Accordion toggling
             document.querySelectorAll(".faq-question").forEach(question => {
