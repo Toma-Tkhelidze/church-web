@@ -1117,53 +1117,50 @@
                 (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.platform));
             const inviteHint = document.getElementById("inviteHint");
             const showInviteHint = text => { inviteHint.textContent = text; inviteHint.hidden = false; };
-            const copyInviteLink = () => navigator.clipboard
-                ? navigator.clipboard.writeText(inviteUrl).then(() => true, () => false)
+            const copyText = text => navigator.clipboard
+                ? navigator.clipboard.writeText(text).then(() => true, () => false)
                 : Promise.resolve(false);
+            // სოც. ქსელებისთვის მთლიანი მოსაწვევი, „ბმულის კოპირებისთვის“ — მხოლოდ ბმული
+            const inviteFull = inviteText + "\n" + inviteUrl;
 
             // Messenger-სა და Instagram-ს ვებიდან მზა ტექსტის მიღება არ შეუძლიათ,
-            // ამიტომ ბმული ჯერ კოპირდება. ტელეფონზე აპები პირდაპირ იხსნება:
-            // Messenger — ბმულით, Instagram — პირად მიმოწერაზე. Android-ზე
-            // intent-ით (აპი თუ არ აქვს, ვებ-გვერდი იხსნება). iPhone-ზე
-            // Safari instagram.com-ის ბმულს აპს არ აძლევს, ამიტომ აპის
-            // სქემით იხსნება; თუ 1.5 წამში გვერდი არ დაიმალა — აპი არ
-            // ყოფილა და ვებ-გვერდზე გადავდივართ.
-            const isAndroid = /Android/i.test(navigator.userAgent);
-            const isIOS = isPhone && !isAndroid;
-            const igInbox = "https://www.instagram.com/direct/inbox/";
+            // ამიტომ მოსაწვევი ჯერ კოპირდება, რომ ჩატში ჩასმა შეიძლებოდეს.
+            // ტელეფონზე Messenger აპი ბმულით იხსნება, Instagram — გაზიარების
+            // მენიუთი (იქიდან ბმული ბარათად ერთვის; აპის პირდაპირ გახსნისას
+            // ბმული ხელით უნდა ჩასმულიყო). კომპიუტერზე მათი ვებ-ჩატი იხსნება.
+            const igShare = isPhone && !!navigator.share;
             const inviteLinks = {
-                whatsapp: "https://wa.me/?text=" + encodeURIComponent(inviteText + "\n" + inviteUrl),
+                whatsapp: "https://wa.me/?text=" + encodeURIComponent(inviteFull),
                 messenger: isPhone ? "fb-messenger://share/?link=" + encodeURIComponent(inviteUrl) : "https://www.messenger.com/",
-                instagram: isAndroid
-                    ? "intent://www.instagram.com/direct/inbox/#Intent;scheme=https;package=com.instagram.android;S.browser_fallback_url=" + encodeURIComponent(igInbox) + ";end"
-                    : isIOS ? "instagram://direct-inbox" : igInbox
+                instagram: "https://www.instagram.com/direct/inbox/"
             };
             const inviteHints = {
                 messenger: isPhone
-                    ? "თუ Messenger არ გაიხსნა, ბმული უკვე დაკოპირებულია — ჩასვი მეგობრის ჩატში."
-                    : "ბმული დაკოპირდა ✓ Messenger-ში გახსენი მეგობრის ჩატი და ჩასვი (Ctrl+V).",
-                instagram: isPhone
-                    ? "ბმული დაკოპირდა ✓ Instagram-ში გახსენი მეგობრის ჩატი და ჩასვი."
-                    : "ბმული დაკოპირდა ✓ Instagram-ის პირად მიმოწერაში გახსენი მეგობრის ჩატი და ჩასვი (Ctrl+V)."
+                    ? "მოსაწვევი დაკოპირდა ✓ თუ Messenger-ში ტექსტი არ ჩანს, ჩატში ჩასვი."
+                    : "მოსაწვევი დაკოპირდა ✓ Messenger-ში გახსენი მეგობრის ჩატი და ჩასვი (Ctrl+V).",
+                instagram: igShare
+                    ? "სიიდან აირჩიე Instagram, მერე — მეგობარი. მოსაწვევის ტექსტი დაკოპირებულიცაა, თუ ჩასმა მოგინდება."
+                    : "მოსაწვევი დაკოპირდა ✓ Instagram-ის პირად მიმოწერაში გახსენი მეგობრის ჩატი და ჩასვი (Ctrl+V)."
             };
 
             document.querySelectorAll("[data-invite]").forEach(btn => {
                 const method = btn.dataset.invite;
                 if (inviteLinks[method]) btn.href = inviteLinks[method];
                 // ტელეფონზე ახალი ჩანართი აპის გახსნას უშლის ხელს
-                if ((method === "messenger" || method === "instagram") && isPhone) btn.removeAttribute("target");
+                if (method === "messenger" && isPhone) btn.removeAttribute("target");
 
-                btn.addEventListener("click", () => {
+                btn.addEventListener("click", e => {
                     if (window.efcTrack) efcTrack("youth_invite", { method: method });
                     if (method === "messenger" || method === "instagram") {
-                        copyInviteLink();
+                        copyText(inviteFull);
                         showInviteHint(inviteHints[method]);
-                        if (method === "instagram" && isIOS) {
-                            setTimeout(() => { if (!document.hidden) location.href = igInbox; }, 1500);
+                        if (method === "instagram" && igShare) {
+                            e.preventDefault();
+                            navigator.share({ text: inviteText, url: inviteUrl }).catch(() => {});
                         }
                     } else if (method === "copy") {
                         const label = btn.querySelector("span");
-                        copyInviteLink().then(ok => {
+                        copyText(inviteUrl).then(ok => {
                             if (!ok) { prompt("დააკოპირე ბმული:", inviteUrl); return; }
                             btn.classList.add("copied");
                             label.textContent = "დაკოპირდა ✓";
