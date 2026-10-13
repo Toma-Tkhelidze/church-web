@@ -1121,37 +1121,40 @@
                 ? navigator.clipboard.writeText(inviteUrl).then(() => true, () => false)
                 : Promise.resolve(false);
 
-            // Messenger-სა და Instagram-ს ვებიდან მზა ტექსტის მიღება არ შეუძლიათ:
-            // ტელეფონზე Messenger აპი პირდაპირ იხსნება, Instagram — გაზიარების
-            // მენიუთი; კომპიუტერზე ბმული კოპირდება და მათი ვებ-ჩატი იხსნება.
+            // Messenger-სა და Instagram-ს ვებიდან მზა ტექსტის მიღება არ შეუძლიათ,
+            // ამიტომ ბმული ჯერ კოპირდება. ტელეფონზე აპები პირდაპირ იხსნება:
+            // Messenger — ბმულით, Instagram — პირად მიმოწერაზე (Android-ზე
+            // intent-ით, აპი თუ არ აქვს, ვებ-გვერდი იხსნება; iPhone-ზე
+            // instagram.com-ის ბმულს თავად აპი იჭერს).
+            const isAndroid = /Android/i.test(navigator.userAgent);
+            const igInbox = "https://www.instagram.com/direct/inbox/";
             const inviteLinks = {
                 whatsapp: "https://wa.me/?text=" + encodeURIComponent(inviteText + "\n" + inviteUrl),
                 messenger: isPhone ? "fb-messenger://share/?link=" + encodeURIComponent(inviteUrl) : "https://www.messenger.com/",
-                instagram: "https://www.instagram.com/direct/inbox/"
+                instagram: isAndroid
+                    ? "intent://www.instagram.com/direct/inbox/#Intent;scheme=https;package=com.instagram.android;S.browser_fallback_url=" + encodeURIComponent(igInbox) + ";end"
+                    : igInbox
             };
             const inviteHints = {
                 messenger: isPhone
                     ? "თუ Messenger არ გაიხსნა, ბმული უკვე დაკოპირებულია — ჩასვი მეგობრის ჩატში."
                     : "ბმული დაკოპირდა ✓ Messenger-ში გახსენი მეგობრის ჩატი და ჩასვი (Ctrl+V).",
                 instagram: isPhone
-                    ? "სიიდან აირჩიე Instagram. ბმული დაკოპირებულიც არის, თუ ხელით ჩასმა დაგჭირდება."
+                    ? "ბმული დაკოპირდა ✓ Instagram-ში გახსენი მეგობრის ჩატი და ჩასვი."
                     : "ბმული დაკოპირდა ✓ Instagram-ის პირად მიმოწერაში გახსენი მეგობრის ჩატი და ჩასვი (Ctrl+V)."
             };
 
             document.querySelectorAll("[data-invite]").forEach(btn => {
                 const method = btn.dataset.invite;
                 if (inviteLinks[method]) btn.href = inviteLinks[method];
-                if (method === "messenger" && isPhone) btn.removeAttribute("target");
+                // ტელეფონზე ახალი ჩანართი აპის გახსნას უშლის ხელს
+                if ((method === "messenger" || method === "instagram") && isPhone) btn.removeAttribute("target");
 
-                btn.addEventListener("click", e => {
+                btn.addEventListener("click", () => {
                     if (window.efcTrack) efcTrack("youth_invite", { method: method });
                     if (method === "messenger" || method === "instagram") {
                         copyInviteLink();
                         showInviteHint(inviteHints[method]);
-                        if (method === "instagram" && isPhone && navigator.share) {
-                            e.preventDefault();
-                            navigator.share({ url: inviteUrl }).catch(() => {});
-                        }
                     } else if (method === "copy") {
                         const label = btn.querySelector("span");
                         copyInviteLink().then(ok => {
