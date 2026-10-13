@@ -504,9 +504,17 @@
         .invite-btn i { font-size: 1.1rem; }
         .invite-btn:hover { border-color: #aa954f; background: #ffffff; transform: translateY(-1px); }
         .invite-whatsapp i { color: #25d366; }
-        .invite-viber i { color: #7360f2; }
-        .invite-telegram i { color: #229ed9; }
-        .invite-more i, .invite-copy i { color: #aa954f; }
+        .invite-messenger i { color: #0084ff; }
+        .invite-instagram i { color: #e1306c; }
+        .invite-copy i { color: #aa954f; }
+        .invite-hint {
+            font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #6b6455;
+            margin: 16px 0 0;
+            flex-grow: 0;
+        }
         .invite-copy.copied { border-color: #34a853; color: #1e4620; }
         .invite-copy.copied i { color: #34a853; }
 
@@ -745,24 +753,22 @@
                     <div class="youth-join-card">
                         <span class="youth-join-icon"><i class="fa-solid fa-user-plus" aria-hidden="true"></i></span>
                         <h3>მოიწვიე მეგობარი</h3>
-                        <p>ერთად მოსვლა უფრო ადვილია. გაუგზავნე მოსაწვევი ერთი დაჭერით — შეხვედრის დრო და ბმული უკვე ჩაწერილია.</p>
+                        <p>ერთად მოსვლა უფრო ადვილია. გაუგზავნე მოსაწვევი ერთი დაჭერით.</p>
                         <div class="youth-invite-buttons" role="group" aria-label="მოსაწვევის გაგზავნა">
+                            <a class="invite-btn invite-messenger" data-invite="messenger" target="_blank" rel="noopener noreferrer">
+                                <i class="fa-brands fa-facebook-messenger" aria-hidden="true"></i><span>Messenger</span>
+                            </a>
+                            <a class="invite-btn invite-instagram" data-invite="instagram" target="_blank" rel="noopener noreferrer">
+                                <i class="fa-brands fa-instagram" aria-hidden="true"></i><span>Instagram</span>
+                            </a>
                             <a class="invite-btn invite-whatsapp" data-invite="whatsapp" target="_blank" rel="noopener noreferrer">
                                 <i class="fa-brands fa-whatsapp" aria-hidden="true"></i><span>WhatsApp</span>
                             </a>
-                            <a class="invite-btn invite-viber" data-invite="viber">
-                                <i class="fa-brands fa-viber" aria-hidden="true"></i><span>Viber</span>
-                            </a>
-                            <a class="invite-btn invite-telegram" data-invite="telegram" target="_blank" rel="noopener noreferrer">
-                                <i class="fa-brands fa-telegram" aria-hidden="true"></i><span>Telegram</span>
-                            </a>
-                            <button type="button" class="invite-btn invite-more" data-invite="share" hidden>
-                                <i class="fa-solid fa-share-nodes" aria-hidden="true"></i><span>სხვა</span>
-                            </button>
                             <button type="button" class="invite-btn invite-copy" data-invite="copy">
                                 <i class="fa-solid fa-link" aria-hidden="true"></i><span>ბმულის კოპირება</span>
                             </button>
                         </div>
+                        <p class="invite-hint" id="inviteHint" aria-live="polite" hidden></p>
                     </div>
 
                 </div>
@@ -1107,33 +1113,53 @@
             // მეგობრის მოწვევა — მზა ტექსტი და გვერდის ბმული
             const inviteUrl = "https://efckutaisi.ge/pages/youth.html";
             const inviteText = "შაბათს 16:00-ზე ახალგაზრდულზე მოდი ჩემთან ერთად 🙌 მესხის ქ. 42, ქუთაისი";
-            const inviteFull = inviteText + "\n" + inviteUrl;
+            const isPhone = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+                (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.platform));
+            const inviteHint = document.getElementById("inviteHint");
+            const showInviteHint = text => { inviteHint.textContent = text; inviteHint.hidden = false; };
+            const copyInviteLink = () => navigator.clipboard
+                ? navigator.clipboard.writeText(inviteUrl).then(() => true, () => false)
+                : Promise.resolve(false);
+
+            // Messenger-სა და Instagram-ს ვებიდან მზა ტექსტის მიღება არ შეუძლიათ:
+            // ტელეფონზე Messenger აპი პირდაპირ იხსნება, Instagram — გაზიარების
+            // მენიუთი; კომპიუტერზე ბმული კოპირდება და მათი ვებ-ჩატი იხსნება.
             const inviteLinks = {
-                whatsapp: "https://wa.me/?text=" + encodeURIComponent(inviteFull),
-                viber: "viber://forward?text=" + encodeURIComponent(inviteFull),
-                telegram: "https://t.me/share/url?url=" + encodeURIComponent(inviteUrl) + "&text=" + encodeURIComponent(inviteText)
+                whatsapp: "https://wa.me/?text=" + encodeURIComponent(inviteText + "\n" + inviteUrl),
+                messenger: isPhone ? "fb-messenger://share/?link=" + encodeURIComponent(inviteUrl) : "https://www.messenger.com/",
+                instagram: "https://www.instagram.com/direct/inbox/"
             };
+            const inviteHints = {
+                messenger: isPhone
+                    ? "თუ Messenger არ გაიხსნა, ბმული უკვე დაკოპირებულია — ჩასვი მეგობრის ჩატში."
+                    : "ბმული დაკოპირდა ✓ Messenger-ში გახსენი მეგობრის ჩატი და ჩასვი (Ctrl+V).",
+                instagram: isPhone
+                    ? "სიიდან აირჩიე Instagram. ბმული დაკოპირებულიც არის, თუ ხელით ჩასმა დაგჭირდება."
+                    : "ბმული დაკოპირდა ✓ Instagram-ის პირად მიმოწერაში გახსენი მეგობრის ჩატი და ჩასვი (Ctrl+V)."
+            };
+
             document.querySelectorAll("[data-invite]").forEach(btn => {
                 const method = btn.dataset.invite;
                 if (inviteLinks[method]) btn.href = inviteLinks[method];
-                if (method === "share" && navigator.share) btn.hidden = false;
+                if (method === "messenger" && isPhone) btn.removeAttribute("target");
 
-                btn.addEventListener("click", () => {
+                btn.addEventListener("click", e => {
                     if (window.efcTrack) efcTrack("youth_invite", { method: method });
-                    if (method === "share") {
-                        navigator.share({ title: "ახალგაზრდული — EFC ქუთაისი", text: inviteText, url: inviteUrl }).catch(() => {});
+                    if (method === "messenger" || method === "instagram") {
+                        copyInviteLink();
+                        showInviteHint(inviteHints[method]);
+                        if (method === "instagram" && isPhone && navigator.share) {
+                            e.preventDefault();
+                            navigator.share({ url: inviteUrl }).catch(() => {});
+                        }
                     } else if (method === "copy") {
                         const label = btn.querySelector("span");
-                        const done = () => {
+                        copyInviteLink().then(ok => {
+                            if (!ok) { prompt("დააკოპირე ბმული:", inviteUrl); return; }
                             btn.classList.add("copied");
                             label.textContent = "დაკოპირდა ✓";
                             setTimeout(() => { btn.classList.remove("copied"); label.textContent = "ბმულის კოპირება"; }, 2500);
-                        };
-                        if (navigator.clipboard) {
-                            navigator.clipboard.writeText(inviteFull).then(done, () => prompt("დააკოპირე:", inviteFull));
-                        } else {
-                            prompt("დააკოპირე:", inviteFull);
-                        }
+                        });
                     }
                 });
             });
