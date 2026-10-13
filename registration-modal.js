@@ -42,6 +42,26 @@ const REG_EVENTS = {
       health: 'entry.534558569'
     }
   },
+  // ახალგაზრდულზე პირველად მოსული — ლიდერი შაბათამდე წერს და კარში
+  // ხვდება. action ცარიელია, სანამ Google Form არ შეიქმნება; მანამდე
+  // youth.html ღილაკს არ აჩენს (იხ. isRegistrationReady).
+  'youth-first-visit': {
+    heading: 'პირველად მოვდივარ',
+    fields: ['firstName', 'youthAge', 'contact', 'company', 'question'],
+    intro: 'მოგვწერე, ვინ ხარ — ლიდერი შაბათამდე დაგიკავშირდება და შესასვლელთან დაგხვდება. შენს მონაცემებს მხოლოდ ახალგაზრდული მსახურების ლიდერები ნახავენ.',
+    submitLabel: 'გაგზავნა',
+    successTitle: 'გელოდებით!',
+    success: 'ლიდერი შაბათამდე მოგწერს. შეხვედრა იწყება 16:00-ზე, მესხის ქ. 42.',
+    closeAfter: 6000,
+    action: '',
+    entries: {
+      firstName: '',
+      youthAge: '',
+      contact: '',
+      company: '',
+      question: ''
+    }
+  },
   'conference': {
     fields: ['name', 'phone', 'email'],
     action: 'https://docs.google.com/forms/d/e/1FAIpQLSc0BmGddd6TqhlOyJ8YgdhibEyyDRXZ-9lxSaklIaxRQXk6Kw/formResponse',
@@ -78,6 +98,30 @@ const REG_FIELDS = {
   health: {
     label: 'განსაკუთრებული საჭიროებები (ალერგია, ქრონიკული დაავადება ან კვებითი შეზღუდვა)',
     type: 'textarea', placeholder: 'ასეთის არსებობის შემთხვევაში აღწერეთ...',
+    validate: () => true
+  },
+  firstName: {
+    label: 'სახელი *', type: 'text', placeholder: 'მაგ: ნინო',
+    error: 'გთხოვთ, ჩაწერე სახელი (მხოლოდ ასოებით).',
+    validate: v => v.trim().length >= 2 && /^[a-zA-Zა-ჰ\s-]+$/.test(v.trim())
+  },
+  youthAge: {
+    label: 'ასაკი *', type: 'text', inputmode: 'numeric', placeholder: 'მაგ: 17',
+    error: 'ასაკი ციფრებით ჩაწერე, მაგ: 17.',
+    validate: v => /^\d{1,2}$/.test(v.trim()) && parseInt(v.trim(), 10) >= 10
+  },
+  contact: {
+    label: 'როგორ დაგიკავშირდეთ? *', type: 'text', placeholder: 'Instagram (@სახელი) ან ტელეფონი',
+    error: 'ჩაწერე Instagram ან ტელეფონის ნომერი, რომ მოგწეროთ.',
+    validate: v => v.trim().length >= 3
+  },
+  company: {
+    label: 'მოდიხარ… *', type: 'select', options: ['მარტო', 'მეგობართან ერთად'],
+    error: 'აირჩიე ერთ-ერთი.',
+    validate: v => v !== ''
+  },
+  question: {
+    label: 'გინდა, რამე გვკითხო?', type: 'textarea', placeholder: 'არასავალდებულოა',
     validate: () => true
   }
 };
@@ -146,9 +190,16 @@ function buildRegistrationFields(eventId) {
   container.innerHTML = config.fields.map(key => {
     const f = REG_FIELDS[key];
     if (!f) return '';
-    const control = f.type === 'textarea'
-      ? '<textarea id="reg_' + key + '" rows="3" placeholder="' + regEscape(f.placeholder) + '"></textarea>'
-      : '<input type="' + f.type + '" id="reg_' + key + '" placeholder="' + regEscape(f.placeholder) + '">';
+    let control;
+    if (f.type === 'textarea') {
+      control = '<textarea id="reg_' + key + '" rows="3" placeholder="' + regEscape(f.placeholder) + '"></textarea>';
+    } else if (f.type === 'select') {
+      control = '<select id="reg_' + key + '"><option value="">აირჩიე…</option>' +
+        f.options.map(o => '<option>' + regEscape(o) + '</option>').join('') + '</select>';
+    } else {
+      control = '<input type="' + f.type + '" id="reg_' + key + '" placeholder="' + regEscape(f.placeholder) + '"' +
+        (f.inputmode ? ' inputmode="' + f.inputmode + '"' : '') + '>';
+    }
     const error = f.error
       ? '<div class="error-message" id="err_' + key + '"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> ' + regEscape(f.error) + '</div>'
       : '';
@@ -189,6 +240,7 @@ function handleRegistrationSubmit(e) {
   const form = regModalEl.querySelector('#dynamicRegisterForm');
   const toast = regModalEl.querySelector('#successToast');
   const submitBtn = form.querySelector('.btn-modal-primary');
+  const submitLabel = config.submitLabel || 'განაცხადის გაგზავნა';
   if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'იგზავნება…'; }
 
   // Google Forms CORS-ს არ უშვებს — no-cors რეჟიმში პასუხს ვერ ვკითხულობთ,
@@ -198,14 +250,14 @@ function handleRegistrationSubmit(e) {
       form.style.display = 'none';
       if (toast) toast.style.display = 'block';
       if (window.efcTrack) efcTrack('registration_submit', { event_id: regCurrentEvent });
-      setTimeout(closeRegistrationModal, 2500);
+      setTimeout(closeRegistrationModal, config.closeAfter || 2500);
     })
     .catch(err => {
       console.error('რეგისტრაციის გაგზავნა ვერ მოხერხდა:', err);
       alert('ხარვეზი მონაცემთა გადაცემისას.');
     })
     .finally(() => {
-      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'განაცხადის გაგზავნა'; }
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = submitLabel; }
     });
 }
 
@@ -213,6 +265,12 @@ function closeRegistrationModal() {
   if (!regModalEl) return;
   regModalEl.classList.remove('modal-active');
   if (typeof window.unlockBodyScroll === 'function') window.unlockBodyScroll();
+}
+
+/** ფორმა მზადაა, თუ Google Form-ის მისამართი და ველები შევსებულია. */
+function isRegistrationReady(eventId) {
+  const config = REG_EVENTS[eventId];
+  return !!(config && config.action && config.fields.every(key => config.entries[key]));
 }
 
 /** ფორმის გახსნა. eventId უნდა იყოს REG_EVENTS-ის გასაღები. */
@@ -224,10 +282,13 @@ function openRegistrationModal(eventId, title) {
   ensureRegistrationModal();
   regCurrentEvent = eventId;
 
-  const heading = regModalEl.querySelector('#modalTitle');
-  if (heading) heading.textContent = (title ? title + ' - ' : '') + 'რეგისტრაცია';
-
   const config = REG_EVENTS[eventId];
+  const heading = regModalEl.querySelector('#modalTitle');
+  if (heading) heading.textContent = config.heading || ((title ? title + ' - ' : '') + 'რეგისტრაცია');
+  const submitBtn = regModalEl.querySelector('.btn-modal-primary');
+  if (submitBtn) submitBtn.textContent = config.submitLabel || 'განაცხადის გაგზავნა';
+  const successTitle = regModalEl.querySelector('.success-toast h4');
+  if (successTitle) successTitle.textContent = config.successTitle || 'რეგისტრაცია წარმატებით შესრულდა!';
   const intro = regModalEl.querySelector('#modalIntro');
   if (intro) {
     intro.textContent = config.intro || '';

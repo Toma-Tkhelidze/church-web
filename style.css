@@ -4195,8 +4195,8 @@ a.next-service .ns-where, .next-service a.ns-where {
 
 .form-group { margin-bottom: 20px; text-align: left; }
 .form-group label { display: block; font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-size: 0.8rem; font-weight: 600; color: #aa954f; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-.form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #e1d8bf; border-radius: 4px; font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-size: 0.92rem; box-sizing: border-box; background: #fdfbf7; }
-.form-group input:focus, .form-group textarea:focus { outline: none; border-color: #aa954f; background: #ffffff; }
+.form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border: 1px solid #e1d8bf; border-radius: 4px; font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-size: 0.92rem; box-sizing: border-box; background: #fdfbf7; }
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #aa954f; background: #ffffff; }
 
 .btn-modal-primary {
     font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1.5px;
@@ -4205,7 +4205,7 @@ a.next-service .ns-where, .next-service a.ns-where {
 }
 .btn-modal-primary:hover { background-color: #8e7a3d; transform: translateY(-2px); box-shadow: 0 15px 30px rgba(170, 149, 79, 0.4); }
 
-.form-group.has-error input, .form-group.has-error textarea { border-color: #ea4335 !important; background-color: #fffaf9 !important; }
+.form-group.has-error input, .form-group.has-error textarea, .form-group.has-error select { border-color: #ea4335 !important; background-color: #fffaf9 !important; }
 .error-message { display: none; color: #ea4335; font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-size: 0.78rem; font-weight: 600; margin-top: 6px; align-items: center; gap: 6px; }
 
 .success-toast { display: none; background: #eef9f1; border: 1px solid #34a853; color: #1e4620; padding: 20px; border-radius: 8px; text-align: center; font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; }
