@@ -111,9 +111,24 @@ const REG_FIELDS = {
     validate: v => /^\d{1,2}$/.test(v.trim()) && parseInt(v.trim(), 10) >= 10
   },
   contact: {
-    label: 'სად მოგწეროს ლიდერმა? *', type: 'text', placeholder: 'Instagram (მაგ: @nino) ან ტელეფონის ნომერი',
-    error: 'ჩაწერე Instagram ან ტელეფონის ნომერი, რომ მოგწეროთ.',
-    validate: v => v.trim().length >= 3
+    label: 'სად მოგწეროს ლიდერმა? *', type: 'contact',
+    channels: [
+      // სოც. ქსელებზე ბმული — ლიდერი ერთი დაჭერით იპოვის, სახელით ძებნა კი ხშირად ცდება
+      { name: 'Instagram', placeholder: 'პროფილის ბმული, მაგ: instagram.com/nino.k', inputmode: 'url',
+        error: 'ჩასვი Instagram-ის პროფილის ბმული: პროფილზე Share profile → Copy link.',
+        check: v => /(^|\/\/|\.)instagram\.com\/[^\s/?#]+/i.test(v.trim()) },
+      { name: 'Facebook / Messenger', placeholder: 'პროფილის ბმული, მაგ: facebook.com/nino.k', inputmode: 'url',
+        error: 'ჩასვი Facebook-ის პროფილის ბმული: პროფილზე ••• → Copy link.',
+        check: v => /(^|\/\/|\.)(facebook\.com|fb\.com|m\.me)\/\S+/i.test(v.trim()) },
+      { name: 'WhatsApp', placeholder: 'ნომერი, მაგ: 599123456', inputmode: 'tel', error: 'ნომერი 9 ციფრია და 5-ით იწყება.',
+        check: v => regIsPhone(v) },
+      { name: 'Viber', placeholder: 'ნომერი, მაგ: 599123456', inputmode: 'tel', error: 'ნომერი 9 ციფრია და 5-ით იწყება.',
+        check: v => regIsPhone(v) },
+      { name: 'ზარი / SMS', placeholder: 'ნომერი, მაგ: 599123456', inputmode: 'tel', error: 'ნომერი 9 ციფრია და 5-ით იწყება.',
+        check: v => regIsPhone(v) },
+      { name: 'ელ-ფოსტა', placeholder: 'მაგ: nino@gmail.com', inputmode: 'email', error: 'ჩაწერე სწორი ელ-ფოსტა.',
+        check: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) }
+    ]
   },
   company: {
     label: 'მარტო მოდიხარ თუ ვინმესთან ერთად? *', type: 'select', options: ['მარტო მოვდივარ', 'მეგობართან ერთად მოვდივარ'],
@@ -128,6 +143,11 @@ const REG_FIELDS = {
 
 let regModalEl = null;
 let regCurrentEvent = '';
+
+/** ქართული მობილური: 9 ციფრი, 5-ით; +995, ჰარები და ტირეები არ უშლის. */
+function regIsPhone(value) {
+  return /^5\d{8}$/.test(String(value).replace(/[\s()-]/g, '').replace(/^\+?995/, ''));
+}
 
 function regEscape(value) {
   return String(value == null ? '' : value)
@@ -193,6 +213,15 @@ function buildRegistrationFields(eventId) {
     let control;
     if (f.type === 'textarea') {
       control = '<textarea id="reg_' + key + '" rows="3" placeholder="' + regEscape(f.placeholder) + '"></textarea>';
+    } else if (f.type === 'contact') {
+      // არხი + მისამართი; Google Form-ში ერთ ველად მიდის: „Instagram: @nino“
+      const first = f.channels[0];
+      control = '<div class="contact-combo">' +
+        '<select id="reg_' + key + '_via" aria-label="არხი">' +
+          f.channels.map(c => '<option>' + regEscape(c.name) + '</option>').join('') + '</select>' +
+        '<input type="text" id="reg_' + key + '" placeholder="' + regEscape(first.placeholder) + '"' +
+          (first.inputmode ? ' inputmode="' + first.inputmode + '"' : '') + '>' +
+        '</div>';
     } else if (f.type === 'select') {
       control = '<select id="reg_' + key + '"><option value="">აირჩიე…</option>' +
         f.options.map(o => '<option>' + regEscape(o) + '</option>').join('') + '</select>';
@@ -200,11 +229,38 @@ function buildRegistrationFields(eventId) {
       control = '<input type="' + f.type + '" id="reg_' + key + '" placeholder="' + regEscape(f.placeholder) + '"' +
         (f.inputmode ? ' inputmode="' + f.inputmode + '"' : '') + '>';
     }
-    const error = f.error
-      ? '<div class="error-message" id="err_' + key + '"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> ' + regEscape(f.error) + '</div>'
+    const errorText = f.error || (f.channels && f.channels[0].error);
+    const error = errorText
+      ? '<div class="error-message" id="err_' + key + '"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span>' + regEscape(errorText) + '</span></div>'
       : '';
     return '<div class="form-group"><label for="reg_' + key + '">' + regEscape(f.label) + '</label>' + control + error + '</div>';
   }).join('');
+
+  // არხის შეცვლისას მინიშნება და კლავიატურა მას მიჰყვება
+  config.fields.forEach(key => {
+    const f = REG_FIELDS[key];
+    if (!f || f.type !== 'contact') return;
+    const via = container.querySelector('#reg_' + key + '_via');
+    const input = container.querySelector('#reg_' + key);
+    via.addEventListener('change', () => {
+      const ch = f.channels.find(c => c.name === via.value);
+      input.placeholder = ch.placeholder;
+      if (ch.inputmode) input.setAttribute('inputmode', ch.inputmode);
+      else input.removeAttribute('inputmode');
+      input.focus();
+    });
+  });
+}
+
+/** ველის მნიშვნელობა და შემოწმება; contact-ს არხიც ემატება. */
+function readRegistrationField(key) {
+  const f = REG_FIELDS[key];
+  const input = regModalEl.querySelector('#reg_' + key);
+  if (!input) return null;
+  if (f.type !== 'contact') return { value: input.value, ok: f.validate(input.value), error: f.error };
+  const via = regModalEl.querySelector('#reg_' + key + '_via').value;
+  const ch = f.channels.find(c => c.name === via) || f.channels[0];
+  return { value: ch.name + ': ' + input.value.trim(), ok: ch.check(input.value), error: ch.error };
 }
 
 function handleRegistrationSubmit(e) {
@@ -218,13 +274,16 @@ function handleRegistrationSubmit(e) {
   const values = {};
   let valid = true;
   config.fields.forEach(key => {
-    const input = regModalEl.querySelector('#reg_' + key);
-    if (!input) return;
-    values[key] = input.value;
-    if (!REG_FIELDS[key].validate(input.value)) {
-      input.parentElement.classList.add('has-error');
+    const field = readRegistrationField(key);
+    if (!field) return;
+    values[key] = field.value;
+    if (!field.ok) {
+      regModalEl.querySelector('#reg_' + key).closest('.form-group').classList.add('has-error');
       const err = regModalEl.querySelector('#err_' + key);
-      if (err) err.style.display = 'flex';
+      if (err) {
+        err.querySelector('span').textContent = field.error;
+        err.style.display = 'flex';
+      }
       valid = false;
     }
   });
