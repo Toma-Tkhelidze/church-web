@@ -452,7 +452,7 @@
         </section>
 
         <!-- სექცია 4: კონსულტაციის მოთხოვნა და ლოცვის თხოვნა.
-             ორივე ფორმა contact.html-ის Google Form-ში იგზავნება, თემა შეტყობინების თავშია. -->
+             ლოცვის თხოვნა მთავარი გვერდის „ლოცვითი საჭიროების“ Google Form-ში მიდის. -->
         <section class="counsel-section tinted" id="request" aria-labelledby="counsel-request-title">
             <div class="container">
                 <span class="counsel-eyebrow">დაგვიკავშირდით</span>
@@ -548,14 +548,18 @@
                             <h3>ლოცვის თხოვნა</h3>
                             <p class="card-sub">ჯერ საუბარი არ გსურთ? მოგვწერეთ, რისთვის ვილოცოთ. სახელის მითითება არ არის აუცილებელი.</p>
 
-                            <form id="prayerForm" novalidate>
+                            <form id="counselPrayerForm" novalidate>
                                 <div class="form-group">
                                     <label for="pName">სახელი <span class="optional">(არასავალდებულო)</span></label>
-                                    <input type="text" id="pName" autocomplete="given-name" placeholder="შეგიძლიათ ცარიელი დატოვოთ">
+                                    <input type="text" id="pName" maxlength="80" autocomplete="given-name" placeholder="შეგიძლიათ ცარიელი დატოვოთ">
+                                </div>
+                                <div class="form-group">
+                                    <label for="pContact">ტელეფონი ან ელ-ფოსტა <span class="optional">(არასავალდებულო)</span></label>
+                                    <input type="text" id="pContact" maxlength="120" placeholder="თუ გსურთ, რომ დაგიკავშირდეთ">
                                 </div>
                                 <div class="form-group">
                                     <label for="pMsg">რისთვის ვილოცოთ *</label>
-                                    <textarea id="pMsg" rows="4" placeholder="მოკლედ დაწერეთ..."></textarea>
+                                    <textarea id="pMsg" rows="4" maxlength="1200" placeholder="მოკლედ დაწერეთ..."></textarea>
                                     <div class="error-message" id="pMsgError"></div>
                                 </div>
                                 <button type="submit" class="btn-counsel ghost counsel-submit">
@@ -827,7 +831,7 @@
                 });
             }
 
-            // კონსულტაციისა და ლოცვის ფორმები → contact.html-ის Google Form
+            // კონსულტაციის მოთხოვნა → contact.html-ის Google Form
             // (სახელი და ტელეფონი იქ სავალდებულოა, ამიტომ ცარიელს არ ვაგზავნით)
             const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSexKi-vDo9DLGoRH-VbALi4x4Fvom9mWNX5NA5jkpn2kt68lw/formResponse';
 
@@ -842,15 +846,12 @@
                 form.querySelectorAll(".error-message").forEach(e => { e.style.display = "none"; });
             }
 
-            function send(form, success, fields, eventName) {
+            function send(form, success, url, fields, eventName) {
                 const btn = form.querySelector("button[type=submit]");
                 const data = new FormData();
-                data.append('entry.972024769', fields.name);
-                data.append('entry.2064345444', fields.phone);
-                data.append('entry.462657626', fields.email);
-                data.append('entry.154045180', fields.message);
+                Object.keys(fields).forEach(k => data.append(k, fields[k]));
                 btn.disabled = true;
-                fetch(FORM_URL, { method: 'POST', body: data, mode: 'no-cors' })
+                fetch(url, { method: 'POST', body: data, mode: 'no-cors' })
                     .then(() => {
                         form.reset();
                         form.style.display = "none";
@@ -903,28 +904,30 @@
                     note ? "\n" + note : ""
                 ].join("\n").trim();
 
-                send(counselForm, document.getElementById("counselSuccess"), {
-                    name: name.value.trim(),
-                    phone: phoneValue,
-                    email: emailValue,
-                    message: message
+                send(counselForm, document.getElementById("counselSuccess"), FORM_URL, {
+                    'entry.972024769': name.value.trim(),
+                    'entry.2064345444': phoneValue,
+                    'entry.462657626': emailValue,
+                    'entry.154045180': message
                 }, 'consultation_request');
             });
 
-            const prayerForm = document.getElementById("prayerForm");
+            // ლოცვის თხოვნა → მთავარი გვერდის „ლოცვითი საჭიროების“ Google Form (იგივე entry-ები, რაც script.js-ში).
+            // id განსხვავებულია: script.js #prayerForm-ს მთავარი გვერდის მარკაპით ეძებს.
+            const PRAYER_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSe9oD4E70ISx6NoVYD9D_xWgWnOoTg-TcS3yNyGyZmwMH9eyg/formResponse';
+            const prayerForm = document.getElementById("counselPrayerForm");
             prayerForm.addEventListener("submit", (e) => {
                 e.preventDefault();
                 clearErrors(prayerForm);
                 const msg = document.getElementById("pMsg");
-                if (msg.value.trim().length < 3) {
+                if (msg.value.trim().length < 5) {
                     setError(msg, document.getElementById("pMsgError"), "გთხოვთ მოკლედ დაწეროთ, რისთვის ვილოცოთ");
                     return;
                 }
-                send(prayerForm, document.getElementById("prayerSuccess"), {
-                    name: document.getElementById("pName").value.trim() || "ანონიმური",
-                    phone: "—",
-                    email: "",
-                    message: "[ლოცვის თხოვნა]\n" + msg.value.trim()
+                send(prayerForm, document.getElementById("prayerSuccess"), PRAYER_URL, {
+                    'entry.575442378': msg.value.trim(),
+                    'entry.1565967549': document.getElementById("pName").value.trim() || "არ მიუთითა",
+                    'entry.340373505': document.getElementById("pContact").value.trim() || "—"
                 }, 'prayer_request');
             });
         });
