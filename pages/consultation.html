@@ -104,11 +104,112 @@
             line-height: 1.6;
         }
 
+        .counsel-cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; }
+        .btn-counsel {
+            display: inline-flex; align-items: center; gap: 10px;
+            background: #aa954f; color: #fff; border: 2px solid #aa954f;
+            padding: 14px 26px; border-radius: 4px; text-decoration: none; cursor: pointer;
+            font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-weight: 600; font-size: 0.9rem;
+            transition: background 0.25s, color 0.25s;
+        }
+        .btn-counsel:hover { background: #8f7c3f; border-color: #8f7c3f; }
+        .btn-counsel.ghost { background: transparent; color: #aa954f; }
+        .btn-counsel.ghost:hover { background: #aa954f; color: #fff; }
+
+        .counsel-section { padding: 80px 0; background: #ffffff; }
+        .counsel-section.tinted { background: #faf8f5; }
+        .counsel-eyebrow {
+            color: #aa954f; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px;
+            font-size: 0.85rem; display: block; margin-bottom: 10px; text-align: center;
+            font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif;
+        }
+        .counsel-heading {
+            font-family: 'Playfair Display', 'Noto Sans Georgian', serif; font-weight: 300;
+            font-size: 2.4rem; color: #111; text-align: center; margin: 0 0 16px 0; line-height: 1.2;
+        }
+        .counsel-lead {
+            font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-size: 1rem; color: #555;
+            line-height: 1.75; text-align: center; max-width: 680px; margin: 0 auto 50px;
+        }
+
+        /* როგორ მიმდინარეობს */
+        .counsel-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1000px; margin: 0 auto; counter-reset: step; }
+        .counsel-step {
+            background: #fff; border: 1px solid #f3eedf; border-radius: 12px; padding: 34px 28px;
+            text-align: center; position: relative;
+        }
+        .counsel-step-num {
+            width: 54px; height: 54px; border-radius: 50%; background: #aa954f; color: #fff;
+            display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; font-size: 1.3rem;
+        }
+        .counsel-step h3 { font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-size: 1.05rem; color: #111; margin: 0 0 10px; }
+        .counsel-step p { font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-size: 0.92rem; color: #555; line-height: 1.7; margin: 0; }
+        .counsel-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 40px; }
+        .counsel-badge {
+            display: inline-flex; align-items: center; gap: 8px; background: #fff; border: 1px solid #e1d8bf;
+            border-radius: 30px; padding: 10px 18px; font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif;
+            font-size: 0.88rem; color: #333;
+        }
+        .counsel-badge i { color: #aa954f; }
+
+        /* საკითხები */
+        .counsel-topics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; max-width: 1100px; margin: 0 auto; }
+        .counsel-topic { border: 1px solid #f3eedf; border-radius: 12px; padding: 28px; text-align: left; background: #fff; }
+        .counsel-topic i { color: #aa954f; font-size: 1.6rem; margin-bottom: 14px; display: block; }
+        .counsel-topic h3 { font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-size: 1.02rem; color: #111; margin: 0 0 8px; }
+        .counsel-topic p { font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-size: 0.9rem; color: #555; line-height: 1.7; margin: 0; }
+
+        /* მოთხოვნის ფორმა + ლოცვის თხოვნა */
+        .counsel-form-layout { display: grid; grid-template-columns: 1.4fr 1fr; gap: 30px; max-width: 1100px; margin: 0 auto; align-items: start; }
+        .counsel-card { background: #fff; border: 1px solid #f3eedf; border-radius: 12px; padding: 38px; box-shadow: 0 15px 45px rgba(170, 149, 79, 0.05); }
+        .counsel-card h3 { font-family: 'Playfair Display', 'Noto Sans Georgian', serif; font-weight: 400; font-size: 1.6rem; color: #111; margin: 0 0 10px; }
+        .counsel-card .card-sub { font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-size: 0.92rem; color: #555; line-height: 1.7; margin: 0 0 24px; }
+        .counsel-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+        .form-group .optional { color: #999; font-weight: 400; text-transform: none; letter-spacing: 0; }
+        .counsel-side { display: flex; flex-direction: column; gap: 30px; }
+        .counsel-privacy { background: #111; color: #fff; border-radius: 12px; padding: 30px; }
+        .counsel-privacy i { color: #aa954f; font-size: 1.6rem; margin-bottom: 12px; display: block; }
+        .counsel-privacy h3 { font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-size: 1.05rem; margin: 0 0 10px; color: #fff; }
+        .counsel-privacy p { font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-size: 0.9rem; line-height: 1.7; margin: 0; color: #ddd; }
+        .counsel-submit {
+            width: 100%; justify-content: center; border: none;
+        }
+        .counsel-submit[disabled] { opacity: 0.6; cursor: wait; }
+
+        /* FAQ */
+        .counsel-faq { max-width: 820px; margin: 0 auto; }
+        .counsel-faq details { border-bottom: 1px solid #ece5d3; }
+        .counsel-faq details:first-child { border-top: 1px solid #ece5d3; }
+        .counsel-faq summary {
+            list-style: none; cursor: pointer; padding: 22px 40px 22px 0; position: relative;
+            font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-weight: 600; font-size: 1rem; color: #111;
+        }
+        .counsel-faq summary::-webkit-details-marker { display: none; }
+        .counsel-faq summary::after {
+            content: '\f067'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: #aa954f;
+            position: absolute; right: 4px; top: 50%; transform: translateY(-50%); transition: transform 0.25s;
+        }
+        .counsel-faq details[open] summary::after { transform: translateY(-50%) rotate(45deg); }
+        .counsel-faq summary:hover { color: #aa954f; }
+        .counsel-faq details p {
+            font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-size: 0.95rem; color: #555;
+            line-height: 1.75; margin: 0 0 22px;
+        }
+
         @media (max-width: 991px) {
             .responsive-two-col {
                 grid-template-columns: 1fr !important;
                 gap: 40px !important;
             }
+            .counsel-steps, .counsel-topics { grid-template-columns: 1fr 1fr; }
+            .counsel-form-layout { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 640px) {
+            .counsel-section { padding: 60px 0; }
+            .counsel-heading { font-size: 1.9rem; }
+            .counsel-steps, .counsel-topics, .counsel-form-row { grid-template-columns: 1fr; }
+            .counsel-card { padding: 26px 20px; }
+            .btn-counsel { width: 100%; justify-content: center; box-sizing: border-box; }
         }</style>
 </head>
 <body>
@@ -241,7 +342,7 @@
                     
                     <p>ჩვენი მიზანია შემოგთავაზოთ ბიბლიურ პრინციპებზე დაფუძნებული, სულიწმინდის მადლითა და თანაგრძნობით აღავსებული კონსულტაცია, რომელიც დაგეხმარებათ გულის საჭიროებების გარჩევაში და ღვთის წყალობის მოზიდვაში ამ საჭიროებების დასაკმაყოფილებლად.</p>
                     
-                    <p>ქრისტიანული კონსულტაცია არსებითად განსხვავდება სეკულარული (საერო) მიდგომებისგან. ჩვენ წმინდა წერილს განვიხილავთ, როგორც ყოველგვარი ჭეშმარიტების ფუნდამენტურ წყაროს. ბიბლია შეიცავს უამრავ პრაქტიკულ სიბრძნეს ადამიანის ბუნების, ქორწინებისა და ოჯახის, მიწისერი ტანჯვისა და სხვა მრავალი სასიცოცხლო საკითხის შესახებ.</p>
+                    <p>ქრისტიანული კონსულტაცია არსებითად განსხვავდება სეკულარული (საერო) მიდგომებისგან. ჩვენ წმინდა წერილს განვიხილავთ, როგორც ყოველგვარი ჭეშმარიტების ფუნდამენტურ წყაროს. ბიბლია შეიცავს უამრავ პრაქტიკულ სიბრძნეს ადამიანის ბუნების, ქორწინებისა და ოჯახის, მიწიერი ტანჯვისა და სხვა მრავალი სასიცოცხლო საკითხის შესახებ.</p>
                     
                     <p>კონსულტაციის პროცესში ბიბლიური კონცეფციების გამოყენებით, ჩვენ მივუთითებთ ადამიანებს იმ გზაზე, რომლითაც უნდა იარონ და ვეხმარებით მათ ამ კურთხევის ბილიკებზე სვლაში.</p>
                     
@@ -250,6 +351,10 @@
                     </div>
                     
                     <p>ჩვენი სტრატეგიაა, დავეხმაროთ ადამიანებს ყოველდღიურ ცხოვრებაში ილუზიებისა და შეცდომების ბიბლიური ჭეშმარიტებით ჩანაცვლებაში. ჭეშმარიტება, როდესაც ის შეცნობილი, რწმენით მიღებული და დამორჩილებულია, ათავისუფლებს ადამიანს. ხოლო როდესაც ადამიანები თავისუფლდებიან, ისინი სრულად ახორციელებენ თავიანთ ჭეშმარიტ მოწოდებას: „შეიცნობთ ჭეშმარიტებას და ჭეშმარიტება გაგათავისუფლებთ თქვენ“ (იოანე 8:32).</p>
+                    <div class="counsel-cta-row">
+                        <a href="#request" class="btn-counsel"><i class="fa-regular fa-calendar-check" aria-hidden="true"></i> მოითხოვეთ კონსულტაცია</a>
+                        <a href="#prayer" class="btn-counsel ghost"><i class="fa-solid fa-hands-praying" aria-hidden="true"></i> ლოცვის თხოვნა</a>
+                    </div>
                 </div>
 
                 <!-- მარჯვენა სვეტი: განრიგი და Latest Message ვიდეო ბლოკით (ზუსტად წინა გვერდის მსგავსი) -->
@@ -268,6 +373,240 @@
     </ul>
 </div>
 
+            </div>
+        </section>
+
+        <!-- სექცია 2: როგორ მიმდინარეობს -->
+        <section class="counsel-section tinted" aria-labelledby="counsel-steps-title">
+            <div class="container">
+                <span class="counsel-eyebrow">მარტივი პირველი ნაბიჯი</span>
+                <h2 class="counsel-heading" id="counsel-steps-title">როგორ მიმდინარეობს</h2>
+                <p class="counsel-lead">დახმარების თხოვნა ხშირად ყველაზე რთული ნაბიჯია. ჩვენ ვცდილობთ, ის რაც შეიძლება მარტივი და მშვიდი იყოს.</p>
+
+                <div class="counsel-steps">
+                    <div class="counsel-step scroll-reveal">
+                        <div class="counsel-step-num" aria-hidden="true"><i class="fa-regular fa-envelope"></i></div>
+                        <h3>1. მოგვწერეთ</h3>
+                        <p>შეავსეთ მოკლე ფორმა ქვემოთ. დეტალების მოყოლა არ არის აუცილებელი — საკმარისია, გვითხრათ, როგორ დაგიკავშირდეთ.</p>
+                    </div>
+                    <div class="counsel-step scroll-reveal">
+                        <div class="counsel-step-num" aria-hidden="true"><i class="fa-regular fa-calendar"></i></div>
+                        <h3>2. შევთანხმდებით დროზე</h3>
+                        <p>დაგიკავშირდებით და ერთად შევარჩევთ თქვენთვის მოსახერხებელ დროსა და ფორმატს.</p>
+                    </div>
+                    <div class="counsel-step scroll-reveal">
+                        <div class="counsel-step-num" aria-hidden="true"><i class="fa-regular fa-comments"></i></div>
+                        <h3>3. შეხვედრა</h3>
+                        <p>ვისაუბრებთ პირისპირ ეკლესიაში ან ონლაინ — მშვიდ გარემოში, თქვენი ტემპით, ლოცვითა და წმინდა წერილის შუქზე.</p>
+                    </div>
+                </div>
+
+                <div class="counsel-badges">
+                    <span class="counsel-badge"><i class="fa-solid fa-hand-holding-heart" aria-hidden="true"></i> უფასოა</span>
+                    <span class="counsel-badge"><i class="fa-solid fa-door-open" aria-hidden="true"></i> ეკლესიის წევრობა საჭირო არ არის</span>
+                    <span class="counsel-badge"><i class="fa-solid fa-lock" aria-hidden="true"></i> კონფიდენციალურია</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- სექცია 3: რა საკითხებში ვეხმარებით -->
+        <section class="counsel-section" aria-labelledby="counsel-topics-title">
+            <div class="container">
+                <span class="counsel-eyebrow">თქვენ მარტო არ ხართ</span>
+                <h2 class="counsel-heading" id="counsel-topics-title">რა საკითხებში ვეხმარებით</h2>
+                <p class="counsel-lead">ნებისმიერი ტვირთი, რომელსაც ატარებთ, საუბრის ღირსია. აქ რამდენიმე ყველაზე ხშირი თემაა.</p>
+
+                <div class="counsel-topics">
+                    <div class="counsel-topic scroll-reveal">
+                        <i class="fa-solid fa-people-roof" aria-hidden="true"></i>
+                        <h3>ოჯახი და ქორწინება</h3>
+                        <p>ურთიერთობის სირთულეები, კომუნიკაცია, მომზადება ქორწინებისთვის.</p>
+                    </div>
+                    <div class="counsel-topic scroll-reveal">
+                        <i class="fa-solid fa-dove" aria-hidden="true"></i>
+                        <h3>მწუხარება და დანაკარგი</h3>
+                        <p>ახლობლის დაკარგვა, გამოუთქმელი ტკივილი და ნუგეშის ძიება.</p>
+                    </div>
+                    <div class="counsel-topic scroll-reveal">
+                        <i class="fa-solid fa-cloud-sun" aria-hidden="true"></i>
+                        <h3>შიში და შფოთვა</h3>
+                        <p>მუდმივი დაძაბულობა, უიმედობა, მომავლის შიში.</p>
+                    </div>
+                    <div class="counsel-topic scroll-reveal">
+                        <i class="fa-solid fa-children" aria-hidden="true"></i>
+                        <h3>მშობლები და მოზარდები</h3>
+                        <p>აღზრდის კითხვები, თაობებს შორის გაუგებრობა, მოზარდის მხარდაჭერა.</p>
+                    </div>
+                    <div class="counsel-topic scroll-reveal">
+                        <i class="fa-solid fa-book-bible" aria-hidden="true"></i>
+                        <h3>სულიერი კითხვები</h3>
+                        <p>ეჭვები, რწმენის კრიზისი, ღმერთთან ურთიერთობის აღდგენა.</p>
+                    </div>
+                    <div class="counsel-topic scroll-reveal">
+                        <i class="fa-solid fa-signs-post" aria-hidden="true"></i>
+                        <h3>ცხოვრებისეული გადაწყვეტილებები</h3>
+                        <p>სამსახური, სწავლა, ახალი ეტაპი — როცა გზის გარკვევა გჭირდებათ.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- სექცია 4: კონსულტაციის მოთხოვნა და ლოცვის თხოვნა.
+             ორივე ფორმა contact.html-ის Google Form-ში იგზავნება, თემა შეტყობინების თავშია. -->
+        <section class="counsel-section tinted" id="request" aria-labelledby="counsel-request-title">
+            <div class="container">
+                <span class="counsel-eyebrow">დაგვიკავშირდით</span>
+                <h2 class="counsel-heading" id="counsel-request-title">მოითხოვეთ კონსულტაცია</h2>
+                <p class="counsel-lead">შეავსეთ ფორმა და დაგიკავშირდებით. თუ ჯერ საუბარი არ გსურთ, შეგიძლიათ უბრალოდ ლოცვა გვთხოვოთ.</p>
+
+                <div class="counsel-form-layout">
+                    <div class="counsel-card">
+                        <h3>კონსულტაციის მოთხოვნა</h3>
+                        <p class="card-sub">ვარსკვლავით (*) მონიშნული ველები სავალდებულოა, დანარჩენი — თქვენი სურვილით.</p>
+
+                        <form id="counselForm" novalidate>
+                            <div class="counsel-form-row">
+                                <div class="form-group">
+                                    <label for="cName">სახელი *</label>
+                                    <input type="text" id="cName" autocomplete="name" placeholder="მაგ: ნინო">
+                                    <div class="error-message" id="cNameError"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cPhone">ტელეფონი *</label>
+                                    <input type="tel" id="cPhone" autocomplete="tel" inputmode="numeric" placeholder="მაგ: 599XXXYYY">
+                                    <div class="error-message" id="cPhoneError"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cEmail">ელ-ფოსტა <span class="optional">(არასავალდებულო)</span></label>
+                                <input type="email" id="cEmail" autocomplete="email" placeholder="მაგ: example@gmail.com">
+                                <div class="error-message" id="cEmailError"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cTopic">თემა *</label>
+                                <select id="cTopic">
+                                    <option value="">აირჩიეთ...</option>
+                                    <option>ოჯახი და ქორწინება</option>
+                                    <option>მწუხარება და დანაკარგი</option>
+                                    <option>შიში და შფოთვა</option>
+                                    <option>მშობლები და მოზარდები</option>
+                                    <option>სულიერი კითხვები</option>
+                                    <option>ცხოვრებისეული გადაწყვეტილება</option>
+                                    <option>სხვა / მირჩევნია საუბრისას ვთქვა</option>
+                                </select>
+                                <div class="error-message" id="cTopicError"></div>
+                            </div>
+
+                            <div class="counsel-form-row">
+                                <div class="form-group">
+                                    <label for="cFormat">ფორმატი</label>
+                                    <select id="cFormat">
+                                        <option>არ აქვს მნიშვნელობა</option>
+                                        <option>პირისპირ, ეკლესიაში</option>
+                                        <option>ონლაინ</option>
+                                        <option>ტელეფონით</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cTime">სასურველი დრო</label>
+                                    <select id="cTime">
+                                        <option>ნებისმიერი</option>
+                                        <option>სამუშაო დღე, დღისით</option>
+                                        <option>სამუშაო დღე, საღამოს</option>
+                                        <option>შაბათ-კვირა</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cMsg">რამდენიმე სიტყვა <span class="optional">(არასავალდებულო)</span></label>
+                                <textarea id="cMsg" rows="4" placeholder="თუ გსურთ, მოკლედ აღწერეთ, რაზე გინდათ საუბარი..."></textarea>
+                            </div>
+
+                            <button type="submit" class="btn-counsel counsel-submit">
+                                <i class="fa-regular fa-paper-plane" aria-hidden="true"></i> მოთხოვნის გაგზავნა
+                            </button>
+                        </form>
+
+                        <div class="success-toast" id="counselSuccess" role="status">
+                            <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                            <h4>მოთხოვნა მიღებულია</h4>
+                            <p>მადლობა ნდობისთვის. მალე დაგიკავშირდებით მითითებულ ნომერზე.</p>
+                        </div>
+                    </div>
+
+                    <div class="counsel-side">
+                        <div class="counsel-privacy">
+                            <i class="fa-solid fa-shield-heart" aria-hidden="true"></i>
+                            <h3>საუბარი ჩვენ შორის რჩება</h3>
+                            <p>რასაც გაგვიზიარებთ, კონფიდენციალურია. თქვენს მონაცემებს მხოლოდ თქვენთან დასაკავშირებლად ვიყენებთ და არავის გადავცემთ.</p>
+                        </div>
+
+                        <div class="counsel-card" id="prayer">
+                            <h3>ლოცვის თხოვნა</h3>
+                            <p class="card-sub">ჯერ საუბარი არ გსურთ? მოგვწერეთ, რისთვის ვილოცოთ. სახელის მითითება არ არის აუცილებელი.</p>
+
+                            <form id="prayerForm" novalidate>
+                                <div class="form-group">
+                                    <label for="pName">სახელი <span class="optional">(არასავალდებულო)</span></label>
+                                    <input type="text" id="pName" autocomplete="given-name" placeholder="შეგიძლიათ ცარიელი დატოვოთ">
+                                </div>
+                                <div class="form-group">
+                                    <label for="pMsg">რისთვის ვილოცოთ *</label>
+                                    <textarea id="pMsg" rows="4" placeholder="მოკლედ დაწერეთ..."></textarea>
+                                    <div class="error-message" id="pMsgError"></div>
+                                </div>
+                                <button type="submit" class="btn-counsel ghost counsel-submit">
+                                    <i class="fa-solid fa-hands-praying" aria-hidden="true"></i> ლოცვის თხოვნის გაგზავნა
+                                </button>
+                            </form>
+
+                            <div class="success-toast" id="prayerSuccess" role="status">
+                                <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                                <h4>მივიღეთ</h4>
+                                <p>ვილოცებთ თქვენთვის. ღმერთმა დაგლოცოთ.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- სექცია 5: ხშირი კითხვები -->
+        <section class="counsel-section" aria-labelledby="counsel-faq-title">
+            <div class="container">
+                <span class="counsel-eyebrow">ხშირი კითხვები</span>
+                <h2 class="counsel-heading" id="counsel-faq-title">რას გვეკითხებიან ხშირად</h2>
+                <p class="counsel-lead">პასუხი ვერ იპოვეთ? მოგვწერეთ: <a href="mailto:info@efckutaisi.ge" style="color:#aa954f;">info@efckutaisi.ge</a></p>
+
+                <div class="counsel-faq">
+                    <details>
+                        <summary>უნდა ვიყო მორწმუნე ან ეკლესიის წევრი?</summary>
+                        <p>არა. კონსულტაცია ღიაა ყველასთვის, ვისაც თანადგომა სჭირდება — მიუხედავად იმისა, დადიხართ თუ არა ეკლესიაში. ჩვენი მიდგომა ბიბლიურია, მაგრამ არავინ მოგახვევთ თავს რამეს.</p>
+                    </details>
+                    <details>
+                        <summary>რა ღირს კონსულტაცია?</summary>
+                        <p>კონსულტაცია უფასოა. ეს ეკლესიის მსახურებაა და არა ფასიანი მომსახურება.</p>
+                    </details>
+                    <details>
+                        <summary>რამდენი შეხვედრა იქნება საჭირო?</summary>
+                        <p>ეს თქვენს საჭიროებაზეა დამოკიდებული. ზოგჯერ ერთი საუბარიც საკმარისია, ზოგჯერ კი რამდენიმე შეხვედრაა საჭირო. ამას ერთად გადავწყვეტთ.</p>
+                    </details>
+                    <details>
+                        <summary>შემიძლია მეუღლესთან ან ოჯახის წევრთან ერთად მოვიდე?</summary>
+                        <p>რა თქმა უნდა. ოჯახურ და საქორწინო საკითხებზე ერთობლივი საუბარი ხშირად ყველაზე ნაყოფიერია. ფორმაში უბრალოდ მიუთითეთ, რომ ერთად გსურთ მოსვლა.</p>
+                    </details>
+                    <details>
+                        <summary>ვინმე გაიგებს, რაზე ვისაუბრეთ?</summary>
+                        <p>არა. რასაც გაგვიზიარებთ, კონფიდენციალურად რჩება. ერთადერთი გამონაკლისია შემთხვევა, როცა ვინმეს სიცოცხლეს ან უსაფრთხოებას უშუალო საფრთხე ემუქრება.</p>
+                    </details>
+                    <details>
+                        <summary>ეს ფსიქოთერაპიას ცვლის?</summary>
+                        <p>ბიბლიური კონსულტაცია სულიერი თანადგომაა და არა სამედიცინო მკურნალობა. თუ საჭირო იქნება, გირჩევთ ექიმს ან ფსიქოლოგს მიმართოთ — და ამ გზაზეც მხარში დაგიდგებით.</p>
+                    </details>
+                </div>
             </div>
         </section>
 
@@ -487,6 +826,107 @@
                     el.style.transform = "translateY(0)";
                 });
             }
+
+            // კონსულტაციისა და ლოცვის ფორმები → contact.html-ის Google Form
+            // (სახელი და ტელეფონი იქ სავალდებულოა, ამიტომ ცარიელს არ ვაგზავნით)
+            const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSexKi-vDo9DLGoRH-VbALi4x4Fvom9mWNX5NA5jkpn2kt68lw/formResponse';
+
+            function setError(input, errorEl, message) {
+                input.parentElement.classList.add("has-error");
+                errorEl.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${message}`;
+                errorEl.style.display = "flex";
+            }
+
+            function clearErrors(form) {
+                form.querySelectorAll(".has-error").forEach(g => g.classList.remove("has-error"));
+                form.querySelectorAll(".error-message").forEach(e => { e.style.display = "none"; });
+            }
+
+            function send(form, success, fields, eventName) {
+                const btn = form.querySelector("button[type=submit]");
+                const data = new FormData();
+                data.append('entry.972024769', fields.name);
+                data.append('entry.2064345444', fields.phone);
+                data.append('entry.462657626', fields.email);
+                data.append('entry.154045180', fields.message);
+                btn.disabled = true;
+                fetch(FORM_URL, { method: 'POST', body: data, mode: 'no-cors' })
+                    .then(() => {
+                        form.reset();
+                        form.style.display = "none";
+                        success.style.display = "block";
+                        if (window.efcTrack) efcTrack(eventName);
+                    })
+                    .catch(err => {
+                        console.error('შეცდომა გაგზავნისას:', err);
+                        alert("დაფიქსირდა ტექნიკური ხარვეზი. გთხოვთ სცადოთ მოგვიანებით ან მოგვწეროთ info@efckutaisi.ge-ზე.");
+                    })
+                    .finally(() => { btn.disabled = false; });
+            }
+
+            const counselForm = document.getElementById("counselForm");
+            counselForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                clearErrors(counselForm);
+                const name = document.getElementById("cName");
+                const phone = document.getElementById("cPhone");
+                const email = document.getElementById("cEmail");
+                const topic = document.getElementById("cTopic");
+                let ok = true;
+
+                if (name.value.trim().length < 2) {
+                    setError(name, document.getElementById("cNameError"), "გთხოვთ მიუთითოთ სახელი");
+                    ok = false;
+                }
+                const phoneValue = phone.value.replace(/[\s-]/g, "");
+                if (!/^5\d{8}$/.test(phoneValue)) {
+                    setError(phone, document.getElementById("cPhoneError"), "9 ციფრი, იწყება 5-ით (მაგ: 599123456)");
+                    ok = false;
+                }
+                const emailValue = email.value.trim();
+                if (emailValue && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
+                    setError(email, document.getElementById("cEmailError"), "ელ-ფოსტის ფორმატი არასწორია");
+                    ok = false;
+                }
+                if (!topic.value) {
+                    setError(topic, document.getElementById("cTopicError"), "გთხოვთ აირჩიოთ თემა");
+                    ok = false;
+                }
+                if (!ok) return;
+
+                const note = document.getElementById("cMsg").value.trim();
+                const message = [
+                    "[კონსულტაციის მოთხოვნა]",
+                    "თემა: " + topic.value,
+                    "ფორმატი: " + document.getElementById("cFormat").value,
+                    "სასურველი დრო: " + document.getElementById("cTime").value,
+                    note ? "\n" + note : ""
+                ].join("\n").trim();
+
+                send(counselForm, document.getElementById("counselSuccess"), {
+                    name: name.value.trim(),
+                    phone: phoneValue,
+                    email: emailValue,
+                    message: message
+                }, 'consultation_request');
+            });
+
+            const prayerForm = document.getElementById("prayerForm");
+            prayerForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                clearErrors(prayerForm);
+                const msg = document.getElementById("pMsg");
+                if (msg.value.trim().length < 3) {
+                    setError(msg, document.getElementById("pMsgError"), "გთხოვთ მოკლედ დაწეროთ, რისთვის ვილოცოთ");
+                    return;
+                }
+                send(prayerForm, document.getElementById("prayerSuccess"), {
+                    name: document.getElementById("pName").value.trim() || "ანონიმური",
+                    phone: "—",
+                    email: "",
+                    message: "[ლოცვის თხოვნა]\n" + msg.value.trim()
+                }, 'prayer_request');
+            });
         });
     </script>
 
