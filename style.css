@@ -4851,3 +4851,46 @@ a.next-service .ns-where, .next-service a.ns-where {
         letter-spacing: 0;
     }
 }
+
+/* ══ ელფოსტის ბმულის მენიუ (script.js) ══ */
+.mail-menu {
+    position: fixed;
+    z-index: 3000;
+    min-width: 230px;
+    background: #ffffff;
+    border: 1px solid #e9e1cb;
+    border-radius: 10px;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18);
+    padding: 6px;
+    font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif;
+}
+.mail-menu__addr {
+    margin: 4px 10px 6px;
+    font-size: 0.78rem;
+    color: #888;
+    word-break: break-all;
+}
+.mail-menu__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    color: #222 !important;
+    font: inherit;
+    font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif !important;
+    font-feature-settings: normal;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: left;
+    text-decoration: none !important;
+    text-transform: none;
+    letter-spacing: 0;
+    cursor: pointer;
+}
+.mail-menu__item i { width: 16px; color: #aa954f; text-align: center; }
+.mail-menu__item:hover, .mail-menu__item:focus-visible { background: #faf6ea; outline: none; }

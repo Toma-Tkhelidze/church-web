@@ -1473,3 +1473,109 @@ window.unlockBodyScroll = function() {
         document.addEventListener('DOMContentLoaded', build);
     }
 })();
+
+
+// ══ ელფოსტის ბმულები ═══════════════════════════════════════════════
+// mailto: მხოლოდ მაშინ მუშაობს, როცა კომპიუტერზე ელფოსტის აპია
+// მიბმული — თორემ დაჭერაზე არაფერი ხდება. კომპიუტერზე ამიტომ პატარა
+// მენიუს ვაჩენთ: Gmail, ელფოსტის აპი ან მისამართის კოპირება.
+// ტელეფონზე mailto: საიმედოდ ხსნის ფოსტის აპს, იქ არაფერს ვცვლით.
+(function () {
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+    let menu = null;
+    let anchor = null;
+
+    const close = () => {
+        if (!menu) return;
+        menu.remove();
+        menu = null;
+        if (anchor) anchor.setAttribute('aria-expanded', 'false');
+        anchor = null;
+    };
+
+    const copy = text => {
+        if (navigator.clipboard && window.isSecureContext) {
+            return navigator.clipboard.writeText(text);
+        }
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } finally { ta.remove(); }
+        return Promise.resolve();
+    };
+
+    const open = link => {
+        close();
+        const href = link.getAttribute('href');
+        const address = decodeURIComponent(href.slice(7).split('?')[0]);
+        anchor = link;
+        link.setAttribute('aria-expanded', 'true');
+
+        menu = document.createElement('div');
+        menu.className = 'mail-menu';
+        menu.setAttribute('role', 'menu');
+        menu.innerHTML =
+            '<p class="mail-menu__addr"></p>' +
+            '<a role="menuitem" class="mail-menu__item" target="_blank" rel="noopener noreferrer">' +
+                '<i class="fa-brands fa-google" aria-hidden="true"></i> Gmail-ში დაწერა</a>' +
+            '<a role="menuitem" class="mail-menu__item">' +
+                '<i class="fa-regular fa-envelope" aria-hidden="true"></i> ელფოსტის აპში გახსნა</a>' +
+            '<button type="button" role="menuitem" class="mail-menu__item">' +
+                '<i class="fa-regular fa-copy" aria-hidden="true"></i> <span>მისამართის კოპირება</span></button>';
+        menu.querySelector('.mail-menu__addr').textContent = address;
+        const [gmail, app] = menu.querySelectorAll('a');
+        gmail.href = 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(address);
+        app.href = href;
+        gmail.addEventListener('click', () => {
+            if (window.efcTrack) efcTrack('email_click', { method: 'gmail' });
+            close();
+        });
+        app.addEventListener('click', () => {
+            if (window.efcTrack) efcTrack('email_click', { method: 'app' });
+            setTimeout(close, 0);
+        });
+        const copyBtn = menu.querySelector('button');
+        copyBtn.addEventListener('click', () => {
+            copy(address).then(() => {
+                copyBtn.querySelector('span').textContent = 'დაკოპირდა ✓';
+                if (window.efcTrack) efcTrack('email_click', { method: 'copy' });
+                setTimeout(close, 1200);
+            });
+        });
+
+        document.body.appendChild(menu);
+        const r = link.getBoundingClientRect();
+        const w = menu.offsetWidth;
+        const h = menu.offsetHeight;
+        let left = Math.min(Math.max(8, r.left), window.innerWidth - w - 8);
+        let top = r.bottom + 8;
+        if (top + h > window.innerHeight - 8) top = Math.max(8, r.top - h - 8);
+        menu.style.left = left + 'px';
+        menu.style.top = top + 'px';
+        gmail.focus();
+    };
+
+    document.addEventListener('click', e => {
+        const link = e.target.closest && e.target.closest('a[href^="mailto:"]');
+        if (link && !link.closest('.mail-menu')) {
+            e.preventDefault();
+            if (anchor === link) { close(); return; }
+            open(link);
+            return;
+        }
+        if (menu && !menu.contains(e.target)) close();
+    });
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && menu) {
+            const a = anchor;
+            close();
+            if (a) a.focus();
+        }
+    });
+    window.addEventListener('scroll', close, { passive: true });
+    window.addEventListener('resize', close);
+})();
