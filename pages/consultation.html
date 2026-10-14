@@ -452,7 +452,7 @@
         </section>
 
         <!-- სექცია 4: კონსულტაციის მოთხოვნა და ლოცვის თხოვნა.
-             ლოცვის თხოვნა მთავარი გვერდის „ლოცვითი საჭიროების“ Google Form-ში მიდის. -->
+             კონსულტაცია ცალკე Google Form-ში მიდის, ლოცვის თხოვნა მთავარი გვერდის „ლოცვითი საჭიროების“ Google Form-ში მიდის. -->
         <section class="counsel-section tinted" id="request" aria-labelledby="counsel-request-title">
             <div class="container">
                 <span class="counsel-eyebrow">დაგვიკავშირდით</span>
@@ -831,9 +831,9 @@
                 });
             }
 
-            // კონსულტაციის მოთხოვნა → contact.html-ის Google Form
-            // (სახელი და ტელეფონი იქ სავალდებულოა, ამიტომ ცარიელს არ ვაგზავნით)
-            const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSexKi-vDo9DLGoRH-VbALi4x4Fvom9mWNX5NA5jkpn2kt68lw/formResponse';
+            // კონსულტაციის მოთხოვნა → ცალკე Google Form „კონსულტაციის მოთხოვნა (საიტი)“,
+            // რომ მხოლოდ კონსულტანტმა ნახოს. ყველა კითხვა იქ არასავალდებულოა — საიტი თავად ამოწმებს.
+            const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdQk2NueLGOndz0xF8eFGqt-Ox7TAsrDlB4SJh381_LAkYmSw/formResponse';
 
             function setError(input, errorEl, message) {
                 input.parentElement.classList.add("has-error");
@@ -895,20 +895,14 @@
                 }
                 if (!ok) return;
 
-                const note = document.getElementById("cMsg").value.trim();
-                const message = [
-                    "[კონსულტაციის მოთხოვნა]",
-                    "თემა: " + topic.value,
-                    "ფორმატი: " + document.getElementById("cFormat").value,
-                    "სასურველი დრო: " + document.getElementById("cTime").value,
-                    note ? "\n" + note : ""
-                ].join("\n").trim();
-
                 send(counselForm, document.getElementById("counselSuccess"), FORM_URL, {
-                    'entry.972024769': name.value.trim(),
-                    'entry.2064345444': phoneValue,
-                    'entry.462657626': emailValue,
-                    'entry.154045180': message
+                    'entry.660865167': name.value.trim(),
+                    'entry.1147534781': phoneValue,
+                    'entry.204355507': emailValue || "—",
+                    'entry.1792223225': topic.value,
+                    'entry.1861251974': document.getElementById("cFormat").value,
+                    'entry.737344418': document.getElementById("cTime").value,
+                    'entry.1150369125': document.getElementById("cMsg").value.trim() || "—"
                 }, 'consultation_request');
             });
 
