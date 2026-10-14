@@ -144,19 +144,41 @@
     .group-image-wrap {
         height: 240px;
         position: relative;
-        background-color: #ebdcd0;
+        background-color: #efe7d4;
         overflow: hidden;
     }
 
-    .group-image-wrap img {
+    /* ფოტოს ნაცვლად უბნის სტილიზებული რუკა — ხატავს familyGroupMap() */
+    .group-image-wrap > svg,
+    .group-image-wrap > img,
+    .modal-hero-image > svg,
+    .modal-hero-image > img {
+        display: block;
         width: 100%;
         height: 100%;
         object-fit: cover;
+    }
+
+    .group-image-wrap > svg,
+    .group-image-wrap > img {
         transition: transform 0.5s ease;
     }
 
-    .group-card:hover .group-image-wrap img {
+    .group-card:hover .group-image-wrap > svg,
+    .group-card:hover .group-image-wrap > img {
         transform: scale(1.03);
+    }
+
+    .map-credit {
+        font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif;
+        font-size: 0.78rem;
+        color: #888;
+        text-align: center;
+        margin: 30px 0 0;
+    }
+
+    .map-credit a {
+        color: inherit;
     }
 
     .group-badge {
@@ -316,9 +338,9 @@
         height: 280px;
         width: 100%;
         display: block;
-        object-fit: cover;
-        background-color: #ebdcd0;
+        background-color: #efe7d4;
         border-radius: 12px 12px 0 0;
+        overflow: hidden;
     }
 
     .modal-body {
@@ -719,7 +741,7 @@
                 style="width: 100%; box-sizing: border-box; color: #555; line-height: 1.75; font-size: 1.05rem; font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-weight: 400; max-width: 800px; margin: 0 auto;">
                 კვირა დღის მსახურება დიდ დარბაზში შესანიშნავი დროა ერთობლივი თაყვანისცემისთვის, ზეიმისთვისა და ღვთის
                 სიტყვის მოსასმენად. თუმცა, ნამდვილი, ღრმა მეგობრობა და სულიერი ზრდა პატარა წრეში ყალიბდება. ჩვენი
-                საოჯახო ჯგუფები (Life Groups) არის $10\text{-}15$ ადამიანისგან შემდგარი მყუდრო გაერთიანებები, რომლებიც
+                საოჯახო ჯგუფები (Life Groups) არის 10–15 ადამიანისგან შემდგარი მყუდრო გაერთიანებები, რომლებიც
                 კვირის განმავლობაში სხვადასხვა სახლში იკრიბებიან, რათა პრაქტიკულად გამოიყენონ ბიბლიური პრინციპები.
             </p>
 
@@ -740,8 +762,6 @@
 
                 <div class="group-card scroll-reveal" data-group-id="1">
                     <div class="group-image-wrap">
-                        <img src="https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=cover&w=600&q=80"
-                            alt="ვაკისუბანი (პასილოკი)">
                         <span class="group-badge">ოთხშაბათი</span>
                     </div>
                     <div class="group-card-content">
@@ -758,16 +778,13 @@
                                 <i class="fa-solid fa-location-dot"></i> მისამართი (ნახვა რუკაზე)
                             </a>
                         </div>
-                        <p class="group-excerpt">სიღრმისეული ბიბლიური კვლევისა და თეოლოგიური საკითხების პრაქტიკული
-                            განხილვის ჯგუფი მყუდრო გარემოში.</p>
+                        <p class="group-excerpt">მყუდრო შეხვედრა სახლში: ერთად ვკითხულობთ ბიბლიას, ვსაუბრობთ და ვლოცულობთ ერთმანეთისთვის.</p>
                         <span class="group-action-btn">დეტალების ნახვა <i class="fa-solid fa-arrow-right"></i></span>
                     </div>
                 </div>
 
                 <div class="group-card scroll-reveal" data-group-id="2">
                     <div class="group-image-wrap">
-                        <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=cover&w=600&q=80"
-                            alt="ნიკეა">
                         <span class="group-badge">ოთხშაბათი</span>
                     </div>
                     <div class="group-card-content">
@@ -784,16 +801,13 @@
                                 <i class="fa-solid fa-location-dot"></i> მისამართი (ნახვა რუკაზე)
                             </a>
                         </div>
-                        <p class="group-excerpt">მშობლებისა და ზრდასრულების ჯგუფი, რომელიც განსაკუთრებულ ყურადღებას
-                            უთმობს ოჯახურ ლოცვასა და თანადგომას.</p>
+                        <p class="group-excerpt">მყუდრო შეხვედრა სახლში: ერთად ვკითხულობთ ბიბლიას, ვსაუბრობთ და ვლოცულობთ ერთმანეთისთვის.</p>
                         <span class="group-action-btn">დეტალების ნახვა <i class="fa-solid fa-arrow-right"></i></span>
                     </div>
                 </div>
 
                 <div class="group-card scroll-reveal" data-group-id="3">
                     <div class="group-image-wrap">
-                        <img src="https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?auto=format&fit=cover&w=600&q=80"
-                            alt="კახიანოური (პლაშატკა - ახალგაზრდობის გამზირი)">
                         <span class="group-badge">ოთხშაბათი</span>
                     </div>
                     <div class="group-card-content">
@@ -810,16 +824,13 @@
                                 <i class="fa-solid fa-location-dot"></i> მისამართი (ნახვა რუკაზე)
                             </a>
                         </div>
-                        <p class="group-excerpt">სპეციალური ქალთა საოჯახო ჯგუფი, რომელიც ორიენტირებულია სულიერ
-                            მეგობრობაზე, ბიბლიის კითხვასა და საერთო ლოცვებზე.</p>
+                        <p class="group-excerpt">მყუდრო შეხვედრა სახლში: ერთად ვკითხულობთ ბიბლიას, ვსაუბრობთ და ვლოცულობთ ერთმანეთისთვის.</p>
                         <span class="group-action-btn">დეტალების ნახვა <i class="fa-solid fa-arrow-right"></i></span>
                     </div>
                 </div>
 
                 <div class="group-card scroll-reveal" data-group-id="4">
                     <div class="group-image-wrap">
-                        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=cover&w=800&q=80"
-                            alt="აღმაშენებელი">
                         <span class="group-badge">ოთხშაბათი</span>
                     </div>
                     <div class="group-card-content">
@@ -836,16 +847,13 @@
                                 <i class="fa-solid fa-location-dot"></i> მისამართი (ნახვა რუკაზე)
                             </a>
                         </div>
-                        <p class="group-excerpt">სტუდენტებისა და ახალგაზრდა პროფესიონალების დინამიკური ჯგუფი, აქტუალური
-                            თემებისა და რწმენის განსახილველად.</p>
+                        <p class="group-excerpt">მყუდრო შეხვედრა სახლში: ერთად ვკითხულობთ ბიბლიას, ვსაუბრობთ და ვლოცულობთ ერთმანეთისთვის.</p>
                         <span class="group-action-btn">დეტალების ნახვა <i class="fa-solid fa-arrow-right"></i></span>
                     </div>
                 </div>
 
                 <div class="group-card scroll-reveal" data-group-id="5">
                     <div class="group-image-wrap">
-                        <img src="https://images.unsplash.com/photo-1516796181074-bf453fbfa3e6?auto=format&fit=cover&w=600&q=80"
-                            alt="წერეთლის ქუჩა">
                         <span class="group-badge">ოთხშაბათი</span>
                     </div>
                     <div class="group-card-content">
@@ -862,16 +870,13 @@
                                 <i class="fa-solid fa-location-dot"></i> მისამართი (ნახვა რუკაზე)
                             </a>
                         </div>
-                        <p class="group-excerpt">უფროსი თაობის მყუდრო ჯგუფი, სადაც ხდება მდიდარი ცხოვრებისეული
-                            გამოცდილების გაზიარება და ბიბლიური სწავლება.</p>
+                        <p class="group-excerpt">მყუდრო შეხვედრა სახლში: ერთად ვკითხულობთ ბიბლიას, ვსაუბრობთ და ვლოცულობთ ერთმანეთისთვის.</p>
                         <span class="group-action-btn">დეტალების ნახვა <i class="fa-solid fa-arrow-right"></i></span>
                     </div>
                 </div>
 
                 <div class="group-card scroll-reveal" data-group-id="6">
                     <div class="group-image-wrap">
-                        <img src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=cover&w=800&q=80"
-                            alt="ჭავჭავაძის ქუჩა.">
                         <span class="group-badge">ოთხშაბათი</span>
                     </div>
                     <div class="group-card-content">
@@ -888,13 +893,13 @@
                                 <i class="fa-solid fa-location-dot"></i> მისამართი (ნახვა რუკაზე)
                             </a>
                         </div>
-                        <p class="group-excerpt">ახალგაზრდა ოჯახებისა და წყვილების ჯგუფი, რომლებიც ორიენტირებულნი არიან
-                            ყოველდღიურ ცხოვრებაში ბიბლიის გამოყენებაზე.</p>
+                        <p class="group-excerpt">მყუდრო შეხვედრა სახლში: ერთად ვკითხულობთ ბიბლიას, ვსაუბრობთ და ვლოცულობთ ერთმანეთისთვის.</p>
                         <span class="group-action-btn">დეტალების ნახვა <i class="fa-solid fa-arrow-right"></i></span>
                     </div>
                 </div>
 
             </div>
+            <p class="map-credit">რუკები: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap-ის მონაწილეები</a>. ქინძისთავი უბანს აჩვენებს და არა შეხვედრის ზუსტ მისამართს.</p>
         </div>
     </section>
 
@@ -907,7 +912,7 @@
         <button class="modal-close-btn" id="closeModal" aria-label="ფანჯრის დახურვა">
             <i class="fa-solid fa-xmark"></i>
         </button>
-        <img src="" alt="ჯგუფის ფოტო" class="modal-hero-image" id="modalImage">
+        <div class="modal-hero-image" id="modalImage" aria-hidden="true"></div>
         <div class="modal-body">
             <h2 class="modal-title" id="modalTitle">ხელმძღვანელების სახელი</h2>
 
@@ -1165,15 +1170,103 @@
 
 
 <script>
+    // ბარათებზე ფოტოს ნაცვლად უბნის რუკაა (ადამიანების ფოტოებს განზრახ არ
+    // ვდებთ). ახალ ჯგუფს, რომლის რუკაც ჯერ არ დახატულა, სტილიზებული ბადე
+    // უჩანს — ჯგუფის სახელიდან, ამიტომ ყოველთვის ერთი და იგივე.
+    // უბნის ნამდვილი რუკები (OpenStreetMap) — scripts/build-group-maps.js ხატავს.
+    // სახელის ნაწილით ვეძებთ, რომ Sanity-ში სათაურის მცირე ცვლილებამ არ გატეხოს.
+    const GROUP_MAPS = [
+        ["ვაკისუბ", "vakisubani"],
+        ["ნიკეა", "nikea"],
+        ["კახიანოურ", "kakhianouri"],
+        ["აღმაშენებ", "agmashenebeli"],
+        ["წერეთ", "tsereteli"],
+        ["ჭავჭავაძ", "chavchavadze"]
+    ];
+
+    window.familyGroupMap = function (seed) {
+        const known = GROUP_MAPS.find(([part]) => String(seed).includes(part));
+        if (known) return `<img src="images/family-groups/${known[1]}.webp" alt="" loading="lazy" decoding="async">`;
+        let h = 2166136261;
+        for (const ch of String(seed)) h = Math.imul(h ^ ch.codePointAt(0), 16777619);
+        const rnd = () => {
+            h = (h + 0x6D2B79F5) | 0;
+            let t = Math.imul(h ^ (h >>> 15), 1 | h);
+            t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+        const between = (a, b) => a + rnd() * (b - a);
+        const r = (n) => Math.round(n);
+        const W = 400, H = 240, cx = 200, cy = 120;
+
+        // ქუჩების ბადე, ოდნავ დახრილი, პარკებით
+        const angle = r(between(-16, 16));
+        const sx = between(70, 100), sy = between(60, 85);
+        const px = between(0.25, 0.75) * sx, py = between(0.25, 0.75) * sy;
+        let parks = '', minor = '', major = '';
+        for (let i = -4; i <= 4; i++) {
+            for (let j = -4; j <= 4; j++) {
+                if ((i || j) && Math.abs(i) <= 2 && Math.abs(j) <= 2 && rnd() < 0.14) {
+                    parks += `<rect x="${r(cx + px + i * sx - sx + 8)}" y="${r(cy + py + j * sy - sy + 8)}" width="${r(sx - 16)}" height="${r(sy - 16)}" rx="6" fill="#dfe4c8"/>`;
+                }
+            }
+        }
+        for (let i = -4; i <= 4; i++) {
+            const x = r(cx + px + i * sx), y = r(cy + py + i * sy);
+            major += `<path d="M${x} -300V540M-300 ${y}H700"/>`;
+            if (rnd() < 0.6) minor += `<path d="M${r(x - sx / 2)} -300V540"/>`;
+            if (rnd() < 0.6) minor += `<path d="M-300 ${r(y - sy / 2)}H700"/>`;
+        }
+
+        // მდინარე — კიდესთან, რომ ქინძისთავს არ გადაეფაროს
+        const edge = Math.floor(rnd() * 4);
+        const a = between(18, 58), b = between(18, 58), c2 = between(18, 58), d = between(18, 58);
+        const river = [
+            `M-30 ${r(a)}C120 ${r(b)} 280 ${r(c2)} 430 ${r(d)}`,
+            `M-30 ${r(H - a)}C120 ${r(H - b)} 280 ${r(H - c2)} 430 ${r(H - d)}`,
+            `M${r(a + 20)} -30C${r(b + 20)} 80 ${r(c2 + 20)} 160 ${r(d + 20)} 270`,
+            `M${r(W - a - 20)} -30C${r(W - b - 20)} 80 ${r(W - c2 - 20)} 160 ${r(W - d - 20)} 270`
+        ][edge];
+
+        const tip = cy + 22;
+        return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">` +
+            `<rect width="${W}" height="${H}" fill="#efe7d4"/>` +
+            `<g transform="rotate(${angle} ${cx} ${cy})">${parks}` +
+            `<g stroke="#f8f4ea" stroke-width="4" fill="none">${minor}</g>` +
+            `<g stroke="#fffdf8" stroke-width="10" fill="none">${major}</g></g>` +
+            `<path d="${river}" stroke="#bcd2d8" stroke-width="${r(between(20, 28))}" fill="none" stroke-linecap="round"/>` +
+            `<circle cx="${cx}" cy="${tip}" r="40" fill="#aa954f" opacity="0.1"/>` +
+            `<circle cx="${cx}" cy="${tip}" r="22" fill="#aa954f" opacity="0.18"/>` +
+            `<ellipse cx="${cx}" cy="${tip}" rx="9" ry="3" fill="#000" opacity="0.15"/>` +
+            `<path d="M${cx} ${tip}C${cx - 4} ${tip - 8} ${cx - 15} ${tip - 17} ${cx - 15} ${tip - 28}A15 15 0 1 1 ${cx + 15} ${tip - 28}C${cx + 15} ${tip - 17} ${cx + 4} ${tip - 8} ${cx} ${tip}Z" fill="#aa954f"/>` +
+            `<circle cx="${cx}" cy="${tip - 28}" r="5.5" fill="#fff"/></svg>`;
+    };
+
+    window.drawGroupMaps = function () {
+        document.querySelectorAll(".group-card").forEach(card => {
+            const wrap = card.querySelector(".group-image-wrap");
+            const title = card.querySelector(".group-leaders");
+            if (wrap && title && !wrap.querySelector("svg, img")) {
+                wrap.insertAdjacentHTML("afterbegin", window.familyGroupMap(title.textContent.trim()));
+            }
+        });
+    };
+    window.drawGroupMaps();
+
+    // ყველა ჯგუფი ერთი ფორმატით იკრიბება, ამიტომ აღწერაც ერთია — აქ იცვლება,
+    // არა Sanity-ში (Sanity-ის excerpt/description ველებს საიტი აღარ კითხულობს).
+    window.GROUP_EXCERPT = "მყუდრო შეხვედრა სახლში: ერთად ვკითხულობთ ბიბლიას, ვსაუბრობთ და ვლოცულობთ ერთმანეთისთვის.";
+    window.GROUP_DESCRIPTION = "ყოველ ოთხშაბათს, 19:00 საათზე, ერთ-ერთი წევრის სახლში ვიკრიბებით — ჩვეულებრივ 10–15 ადამიანი. ერთად ვკითხულობთ ბიბლიას, ვსაუბრობთ იმაზე, როგორ გამოვიყენოთ ის ყოველდღიურ ცხოვრებაში, ვუზიარებთ ერთმანეთს სიხარულსა და სირთულეებს და ვლოცულობთ ერთმანეთისთვის. წინასწარი მომზადება საჭირო არ არის — მობრძანდით ისეთი, როგორიც ხართ. ახალ ადამიანს ყოველთვის სიხარულით ვხვდებით.";
+
     // საოჯახო ჯგუფების სარეზერვო მონაცემები. თუ Sanity-ში ჯგუფები არსებობს,
     // sanity-fetch.js ამ ობიექტს ჩაანაცვლებს და ბარათებსაც თავიდან ჩახატავს.
     window.groupsData = {
-        1: { title: "ვაკისუბანი (პასილოკი)", leader: "საბა ჭანკვეტაძე", formLeader: "საბა ჭანკვეტაძე", time: "ყოველ ოთხშაბათს, 19:00 სთ", location: "ვაკისუბანი (პასილოკი), ქუთაისი", type: "სიღრმისეული ბიბლიური კვლევა", image: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=cover&w=800&q=80", description: "ჩვენი ჯგუფის ფოკუსი წმინდა წერილის სიღრმისეული ანალიზია. ჩვენ თავს ვუძღვნით ბიბლიური წიგნების თავ-თავად შესწავლას, ისტორიული კონტექსტების გააზრებას და ერთმანეთისთვის კითხვების დასმას.", map: "https://maps.google.com/?q=Vakisubani+Kutaisi" },
-        2: { title: "ნიკეა", leader: "მარინა მიქაძე", formLeader: "მარინა მიქაძე", time: "ყოველ ოთხშაბათს, 19:00 სთ", location: "ნიკეას ქუჩა, ქუთაისი", type: "ზრდასრულები და მშობლები", image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=cover&w=600&q=80", description: "ჩვენი კარი ღიაა ყველასთვის, განსაკუთრებით კი იმ მშობლებისთვის, ვისაც სურს შვილების ქრისტიანული პრინციპებით აღზრდა. შეხვედრებზე ვსაუბრობთ ყოველდღიურ გამოწვევებზე და ვუზიარებთ ერთმანეთს გამოცდილებას.", map: "https://maps.google.com/?q=Nikea+St+Kutaisi" },
-        3: { title: "კახიანოური (პლაშატკა - ახალგაზრდობის გამზირი)", leader: "ტარიელ მუზაევი", formLeader: "ტარიელ მუზაევი", time: "ყოველ ოთხშაბათს, 19:00 სთ", location: "ახალგაზრდობის გამზირი, ქუთაისი", type: "მხოლოდ ქალების მსახურება", image: "https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?auto=format&fit=cover&w=600&q=80", description: "ეს არის სპეციალიზებული ქალთა ჯგუფი. ჩვენ ერთად განვიხილავთ ბიბლიაში არსებულ ქალთა პერსონაჟებს, ვლოცულობთ ჩვენი ოჯახებისთვის, შვილებისთვის და ერთმანეთისთვის. გარემო არის უკიდურესად თბილი.", map: "https://maps.google.com/?q=Akhalgazrdoba+Ave+Kutaisi" },
-        4: { title: "აღმაშენებელი", leader: "ლარისა ლობოვი", formLeader: "ლარისა ლობოვი", time: "ყოველ ოთხშაბათს, 19:00 სთ", location: "აღმაშენებლის გამზირი, ქუთაისი", type: "სტუდენტები და ახალგაზრდა პროფესიონალები", image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=cover&w=800&q=80", description: "აქტიური, ახალგაზრდული და ენერგიული ჯგუფი! ჩვენ ერთად ვეძებთ პასუხებს თანამედროვე სამყაროსა და კულტურაში არსებულ რთულ კითხვებზე ქრისტიანული მსოფლმხედველობიდან გამომდინარე.", map: "https://maps.google.com/?q=Agmashenebeli+Ave+Kutaisi" },
-        5: { title: "წერეთლის ქუჩა", leader: "ნინო ცნობილაძე", formLeader: "ნინო ცნობილაძე", time: "ყოველ ოთხშაბათს, 19:00 სთ", location: "წერეთლის ქუჩა, ქუთაისი", type: "უფროსი თაობა (Senior Fellowship)", image: "https://images.unsplash.com/photo-1516796181074-bf453fbfa3e6?auto=format&fit=cover&w=800&q=80", description: "ჩვენს ჯგუფს აქვს მრავალწლიანი ცხოვრებისეული და სულიერი გამოცდილების ბაზისი. ჩვენ ერთად ვგალობთ, ვკითხულობთ წმინდა წერილს და ვცდილობთ ვიყოთ მენტორები ეკლესიის ახალგაზრდა თაობებისთვის.", map: "https://maps.google.com/?q=Tsereteli+St+Kutaisi" },
-        6: { title: "ჭავჭავაძის ქუჩა.", leader: "რომეო შალამბერიძე", formLeader: "რომეო შალამბერიძე", time: "ყოველ ოთხშაბათს, 19:00 სთ", location: "ჭავჭავაძის ქუჩა, ქუთაისი", type: "ახალგაზრდა ოჯახები და წყვილები", image: "https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=cover&w=800&q=80", description: "კეთილი იყოს თქვენი მობრძანება ჩვენს ჯგუფში! ჩვენ ძირითადად ვიკრიბებით ახალგაზრდა წყვილები. შეხვედრა იწყება მსუბუქი ვახშმით და ყავით, რის შემდეგაც გადავდივართ კვირა დღის ქადაგების პრაქტიკულ განხილვაზე.", map: "https://maps.google.com/?q=Chavchavadze+St+Kutaisi" }
+        1: { title: "ვაკისუბანი (პასილოკი)", leader: "საბა ჭანკვეტაძე", formLeader: "საბა ჭანკვეტაძე", time: "ყოველ ოთხშაბათს, 19:00 სთ", location: "ვაკისუბანი (პასილოკი), ქუთაისი", type: "სიღრმისეული ბიბლიური კვლევა", description: window.GROUP_DESCRIPTION, map: "https://maps.google.com/?q=Vakisubani+Kutaisi" },
+        2: { title: "ნიკეა", leader: "მარინა მიქაძე", formLeader: "მარინა მიქაძე", time: "ყოველ ოთხშაბათს, 19:00 სთ", location: "ნიკეას ქუჩა, ქუთაისი", type: "ზრდასრულები და მშობლები", description: window.GROUP_DESCRIPTION, map: "https://maps.google.com/?q=Nikea+St+Kutaisi" },
+        3: { title: "კახიანოური (პლაშატკა - ახალგაზრდობის გამზირი)", leader: "ტარიელ მუზაევი", formLeader: "ტარიელ მუზაევი", time: "ყოველ ოთხშაბათს, 19:00 სთ", location: "ახალგაზრდობის გამზირი, ქუთაისი", type: "მხოლოდ ქალების მსახურება", description: window.GROUP_DESCRIPTION, map: "https://maps.google.com/?q=Akhalgazrdoba+Ave+Kutaisi" },
+        4: { title: "აღმაშენებელი", leader: "ლარისა ლობოვი", formLeader: "ლარისა ლობოვი", time: "ყოველ ოთხშაბათს, 19:00 სთ", location: "აღმაშენებლის გამზირი, ქუთაისი", type: "სტუდენტები და ახალგაზრდა პროფესიონალები", description: window.GROUP_DESCRIPTION, map: "https://maps.google.com/?q=Agmashenebeli+Ave+Kutaisi" },
+        5: { title: "წერეთლის ქუჩა", leader: "ნინო ცნობილაძე", formLeader: "ნინო ცნობილაძე", time: "ყოველ ოთხშაბათს, 19:00 სთ", location: "წერეთლის ქუჩა, ქუთაისი", type: "უფროსი თაობა (Senior Fellowship)", description: window.GROUP_DESCRIPTION, map: "https://maps.google.com/?q=Tsereteli+St+Kutaisi" },
+        6: { title: "ჭავჭავაძის ქუჩა.", leader: "რომეო შალამბერიძე", formLeader: "რომეო შალამბერიძე", time: "ყოველ ოთხშაბათს, 19:00 სთ", location: "ჭავჭავაძის ქუჩა, ქუთაისი", type: "ახალგაზრდა ოჯახები და წყვილები", description: window.GROUP_DESCRIPTION, map: "https://maps.google.com/?q=Chavchavadze+St+Kutaisi" }
     };
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -1218,8 +1311,7 @@
                 if (data) {
                     currentLeaderName = data.formLeader || data.leader;
                     mTitle.textContent = data.title;
-                    mImage.src = data.image;
-                    mImage.alt = data.title;
+                    mImage.innerHTML = window.familyGroupMap(data.title);
                     mTime.innerHTML = `<i class="fa-regular fa-clock"></i> ${data.time}`;
                     document.getElementById("modalLeader").innerHTML = `<i class="fa-solid fa-user"></i> ${data.leader}`;
                     mLoc.innerHTML = `<i class="fa-solid fa-location-dot"></i> ${data.location}`;

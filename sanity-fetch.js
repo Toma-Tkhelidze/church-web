@@ -238,7 +238,6 @@ function renderFamilyGroups(groups) {
   const data = {};
   const cards = groups.map((group, index) => {
     const id = String(index + 1);
-    const image = sanityImageUrl(group.imageAssetUrl, 800) || group.imageUrl || '';
     data[id] = {
       title: group.title,
       leader: group.leader,
@@ -246,16 +245,13 @@ function renderFamilyGroups(groups) {
       time: group.time,
       location: group.location,
       type: group.groupType,
-      image: image,
-      description: group.description,
+      description: window.GROUP_DESCRIPTION || group.description,
       map: group.mapUrl
     };
 
     return `
                 <div class="group-card scroll-reveal" data-group-id="${id}">
                     <div class="group-image-wrap">
-                        <img src="${escapeHtml(image)}"
-                            alt="${escapeHtml(group.title)}">
                         <span class="group-badge">${escapeHtml(group.badge)}</span>
                     </div>
                     <div class="group-card-content">
@@ -272,7 +268,7 @@ function renderFamilyGroups(groups) {
                                 <i class="fa-solid fa-location-dot"></i> მისამართი (ნახვა რუკაზე)
                             </a>
                         </div>
-                        <p class="group-excerpt">${escapeHtml(group.excerpt)}</p>
+                        <p class="group-excerpt">${escapeHtml(window.GROUP_EXCERPT || group.excerpt)}</p>
                         <span class="group-action-btn">დეტალების ნახვა <i class="fa-solid fa-arrow-right"></i></span>
                     </div>
                 </div>`;
@@ -280,6 +276,8 @@ function renderFamilyGroups(groups) {
 
   window.groupsData = data;
   grid.innerHTML = cards.join('');
+  // ფოტოს ნაცვლად უბნის რუკა (family-groups.html-ის familyGroupMap)
+  if (typeof window.drawGroupMaps === 'function') window.drawGroupMaps();
   if (typeof window.setupScrollReveal === 'function') window.setupScrollReveal();
 }
 
@@ -487,9 +485,7 @@ function updatePageContent() {
       groupType,
       excerpt,
       description,
-      mapUrl,
-      imageUrl,
-      "imageAssetUrl": image.asset->url
+      mapUrl
     },
     "teamMembers": *[_type == "teamMember"] | order(order asc) {
       _id,
