@@ -1638,9 +1638,13 @@ function initSermonWatch() {
 let archivePromise = null;
 function fetchSermonArchive() {
   if (archivePromise) return archivePromise;
-  // GitHub Pages ფაილს 10 წუთით ინახავს; 5-წუთიანი გასაღებით ახალ
-  // ქადაგებას ამ ვადის ამოწურვამდე ვიღებთ, ხოლო ერთ ფანჯარაში კეში რჩება.
-  archivePromise = fetch(ARCHIVE_URL + '?v=' + Math.floor(Date.now() / 300000))
+  // GitHub Pages ფაილს 10 წუთით ინახავს; წუთიანი გასაღებით ახალ
+  // ქადაგებას ამ ვადის ამოწურვამდე ვიღებთ, ხოლო ერთ წუთში კეში რჩება.
+  // შეტყობინებიდან გახსნისას (?s=<ID>) გასაღები ქადაგების ID-ია — ეს
+  // მისამართი ჯერ არავის უთხოვია და ძველი ასლი არსად დევს.
+  const fromPush = new URLSearchParams(location.search).get('s');
+  const key = fromPush ? encodeURIComponent(fromPush) : Math.floor(Date.now() / 60000);
+  archivePromise = fetch(ARCHIVE_URL + '?v=' + key)
     .then(res => (res.ok ? res.json() : null))
     .catch(err => {
       console.warn('ქადაგებების არქივი ვერ ჩაიტვირთა, ვრჩებით feed-ზე:', err);

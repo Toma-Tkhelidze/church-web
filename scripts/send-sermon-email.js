@@ -41,7 +41,7 @@ async function buildHtml(sermon) {
     TITLE: escapeHtml(parts.title),
     DATE: escapeHtml(parts.date),
     THUMB: await thumbnailUrl(sermon.id),
-    LINK: SITE_BASE + 'pages/sermons.html',
+    LINK: SITE_BASE + 'pages/sermons.html?s=' + encodeURIComponent(sermon.id),
     YEAR: String(new Date().getFullYear())
   };
   const html = fillTemplate(fs.readFileSync(TEMPLATE, 'utf8'), values);

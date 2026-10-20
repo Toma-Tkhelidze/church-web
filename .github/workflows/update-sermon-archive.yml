@@ -90,6 +90,12 @@ jobs:
           git commit -m "chore: ქადაგებების არქივის ავტომატური განახლება"
           git push
 
+      # GitHub Pages ფაილს push-იდან ერთ-ორ წუთში აქვეყნებს. შეტყობინება
+      # მანამდე რომ გავიდეს, დაჭერისას ძველი სია გამოჩნდებოდა.
+      - name: საიტის განახლების მოლოდინი
+        if: steps.check.outputs.new == 'true' && steps.after.outputs.id != '' && steps.before.outputs.id != steps.after.outputs.id
+        run: node scripts/wait-for-deploy.js
+
       # ჩამრთველი განზრახ ცალკეა: სანამ SERMON_MAIL_ENABLED ცვლადი
       # „true“ არ გახდება (Settings → Secrets and variables → Actions →
       # Variables), სკრიპტი მხოლოდ სატესტო რეჟიმში მუშაობს და

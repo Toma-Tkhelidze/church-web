@@ -23,7 +23,9 @@ function buildMessage(sermon) {
     body: pushBody({
       heading: 'ახალი ქადაგება',
       text: parts.title + (parts.date ? ' · ' + parts.date : ''),
-      url: SITE_BASE + 'pages/sermons.html',
+      // ?s= გვერდს ეუბნება, რომელი ქადაგება უნდა იპოვოს — არქივს
+      // ქეშის გვერდის ავლით ახალს წაიკითხავს (sanity-fetch.js).
+      url: SITE_BASE + 'pages/sermons.html?s=' + encodeURIComponent(sermon.id),
       // ერთი თემა: თუ წინა კვირის შეტყობინება ჯერ არ წაუკითხავთ,
       // ახალი მას ჩაანაცვლებს და ორი არ დაგროვდება.
       topic: 'sermon'
