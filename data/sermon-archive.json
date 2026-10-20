@@ -6,6 +6,10 @@
    "id": "PLC_n-dqgCYfWAb2CbwumDHPRApAkcP99A"
   },
   {
+   "year": "2025",
+   "id": "PLCmYp0z0hlAw"
+  },
+  {
    "year": "2024",
    "id": "PLC_n-dqgCYfVoTDhwa3nqvBb-VT6h6BBn"
   },
@@ -315,7 +319,19 @@
     "date": "2024-01-07"
    }
   ],
+  "2025": [
+   {
+    "id": "uyDmyTFl_0k",
+    "title": "რწმენის მიზანი | სპარტაკ ჭანკვეტაძე",
+    "date": null
+   }
+  ],
   "2026": [
+   {
+    "id": "TS3WPriJtEA",
+    "title": "რომ ააშენო, უნდა იცოდე, რომ იცოდე უნდა ისწავლო | 18 ოქტომბერი, 2026",
+    "date": "2026-10-18"
+   },
    {
     "id": "xCKNgl6HLHo",
     "title": "არ დაკმაყოფილდე გუშინდელი გამარჯვებით | 11 ოქტომბერი, 2026",
