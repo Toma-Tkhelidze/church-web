@@ -78,13 +78,146 @@
     </script>
     
     <style>
-        /* "რას უნდა ელოდოთ" ბარათები — ორ სვეტად, რომ გრძელი ტექსტი არ დაიწელოს */
-        .visit-expect-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 24px;
+        /* ── გზამკვლევი: კვირის დილა ნაბიჯებად ───────────────────────────
+           კომპიუტერზე ოთხი სვეტი და ჰორიზონტალური ოქროსფერი ხაზი წერტილებზე;
+           ბავშვების ზოლი მე-2–3 სვეტის ქვეშ. ≤900px — ვერტიკალური ხაზი მარცხნივ. */
+        .visit-journey {
+            padding: 80px 20px 90px;
+            background: #fdfbf7;
+            border-top: 1px solid #f3eedf;
         }
-        .visit-expect-grid > div { padding: 35px 32px; }
+        .visit-journey__inner { max-width: 1100px; margin: 0 auto; }
+        .visit-journey__head { text-align: center; margin-bottom: 56px; }
+        .visit-journey__head h2 {
+            font-family: 'Playfair Display', 'Noto Sans Georgian', serif;
+            font-weight: 300;
+            font-size: clamp(2rem, 5vw, 2.6rem);
+            color: #111;
+            margin: 0 0 10px;
+        }
+        .visit-journey__head p { color: #777; font-size: 1.02rem; margin: 0; }
+
+        .journey {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            column-gap: 36px;
+            row-gap: 30px;
+            position: relative;
+        }
+        /* ხაზი პირველი წერტილის ცენტრიდან ბოლოს ცენტრამდე: სვეტის ნახევარი
+           = (სიგანე − 3 შუალედი) / 8 */
+        .journey::before {
+            content: "";
+            position: absolute;
+            top: 27px;
+            left: calc((100% - 108px) / 8);
+            right: calc((100% - 108px) / 8);
+            height: 2px;
+            background: linear-gradient(to right, #e6dcc0, #aa954f 50%, #e6dcc0);
+        }
+        .journey-step {
+            position: relative;
+            grid-row: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .journey-step--1 { grid-column: 1; }
+        .journey-step--2 { grid-column: 2; }
+        .journey-step--3 { grid-column: 3; }
+        .journey-step--4 { grid-column: 4; }
+        .journey-dot {
+            position: relative;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #aa954f;
+            color: #aa954f;
+            display: grid;
+            place-items: center;
+            font-size: 1.15rem;
+            box-shadow: 0 0 0 8px #fdfbf7;
+            margin-bottom: 18px;
+        }
+        .journey-time {
+            color: #aa954f;
+            font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif;
+            font-weight: 700;
+            font-size: 0.82rem;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            font-variant-numeric: tabular-nums;
+        }
+        .journey-step h3 {
+            font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif;
+            font-weight: 600;
+            font-size: 1.08rem;
+            color: #222;
+            margin: 0 0 10px;
+            text-wrap: balance;
+        }
+        .journey-step p {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.65;
+            margin: 0;
+            max-width: 30ch;
+        }
+        .journey-kids {
+            grid-row: 2;
+            grid-column: 2 / 4;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 16px 20px;
+            background: #fff;
+            border: 1px dashed #d9caa0;
+            border-radius: 10px;
+        }
+        .journey-kids i { color: #aa954f; font-size: 1.25rem; margin-top: 3px; }
+        .journey-kids p { margin: 0; color: #555; font-size: 0.93rem; line-height: 1.6; }
+        .journey-kids strong { color: #222; font-weight: 600; }
+        .journey-kids a { color: #aa954f; font-weight: 600; text-decoration: none; white-space: nowrap; }
+        .journey-kids a:hover { text-decoration: underline; }
+
+        @media (max-width: 900px) {
+            .visit-journey { padding: 64px 20px 70px; }
+            .visit-journey__head { margin-bottom: 40px; }
+            .journey {
+                grid-template-columns: 1fr;
+                row-gap: 34px;
+                max-width: 560px;
+                margin: 0 auto;
+                padding-left: 76px;
+            }
+            .journey::before {
+                top: 28px;
+                bottom: 28px;
+                left: 27px;
+                right: auto;
+                width: 2px;
+                height: auto;
+                background: linear-gradient(to bottom, #e6dcc0, #aa954f 50%, #e6dcc0);
+            }
+            .journey-step,
+            .journey-kids {
+                grid-row: auto;
+                grid-column: 1;
+            }
+            .journey-step {
+                align-items: flex-start;
+                text-align: left;
+                min-height: 56px;
+            }
+            .journey-dot { position: absolute; left: -76px; top: 0; margin: 0; }
+            .journey-time { margin-top: 4px; }
+            .journey-step p { max-width: none; }
+        }
         /* ხშირად დასმული კითხვები — იგივე აკორდეონი, რაც ახალგაზრდულ გვერდზეა */
         .faq-section {
             padding: 80px 20px;
@@ -160,10 +293,6 @@
         .faq-answer a { color: #aa954f; font-weight: 600; text-decoration: underline; }
         @media (max-width: 640px) {
             .faq-question h3 { font-size: 1.05rem; line-height: 1.45; padding-right: 12px; }
-        }
-        @media (max-width: 640px) {
-            .visit-expect-grid { grid-template-columns: 1fr; }
-            .visit-expect-grid > div { padding: 32px 25px; }
         }
     </style>
 </head>
@@ -314,37 +443,49 @@
             </div>
         </section>
 
-        <section style="padding: 60px 0 90px 0; background-color: #fdfbf7; border-top: 1px solid #f3eedf;">
-            <div style="width: 100%; max-width: 1100px; margin: 0 auto; padding: 0 20px; box-sizing: border-box;">
-                
-                <div style="text-align: center; margin-bottom: 45px;">
+        <!-- გზამკვლევი: კვირის დილა ნაბიჯებად. რიგი თავად ინფორმაციაა, ამიტომ
+             ol-სიაა. ზუსტი დრო მხოლოდ ის წერია, რაც ვიცით: დასაწყისი 11:00 და
+             დასასრული ~13:00 (თომამ დაადასტურა, 2026-10-21). ბავშვების ზოლი
+             კომპიუტერზე თაყვანისცემისა და ქადაგების ქვეშ დგას, ტელეფონზე —
+             ქადაგების შემდეგ. -->
+        <section class="visit-journey" aria-labelledby="journeyTitle">
+            <div class="visit-journey__inner">
+                <header class="visit-journey__head">
                     <span class="grid-uppertitle">გზამკვლევი სტუმრებისთვის</span>
-                    <h2 style="font-size: 2.2rem; color: #222; font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-weight: 700;">რას უნდა ელოდოთ პირველი ვიზიტისას?</h2>
-                </div>
+                    <h2 id="journeyTitle">შენი პირველი კვირა</h2>
+                    <p>ასე ჩაივლის საკვირაო დილა — მისვლიდან ყავამდე.</p>
+                </header>
 
-                <div class="visit-expect-grid">
-                    <div style="background: #fff; border-radius: 8px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.02); border-bottom: 3px solid #eee;">
-                        <div style="color: #aa954f; font-size: 1.6rem; margin-bottom: 18px;"><i class="fa-solid fa-mug-hot"></i></div>
-                        <h4 style="font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-weight: 600; color: #222; margin-bottom: 12px; font-size: 1.1rem;">მეგობრული მიღება</h4>
-                        <p style="font-size: 0.95rem; color: #666; line-height: 1.6;">კართან შეგხვდებიან ჩვენი მასპინძლები. მსახურების შემდეგ კი გეპატიჟებით ცხელ ყავაზე ერთობის სივრცეში.</p>
-                    </div>
-                    <div style="background: #fff; border-radius: 8px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.02); border-bottom: 3px solid #aa954f;">
-                        <div style="color: #aa954f; font-size: 1.6rem; margin-bottom: 18px;"><i class="fa-solid fa-music"></i></div>
-                        <h4 style="font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-weight: 600; color: #222; margin-bottom: 12px; font-size: 1.1rem;">განდიდება და თაყვანისცემა</h4>
-                        <p style="font-size: 0.95rem; color: #666; line-height: 1.6;">ჩვენი მსახურება მოიცავს უფლის განდიდებასა და თაყვანისცემას ცოცხალი მუსიკით, რაც გვეხმარება გულების გახსნასა და ღმერთთან სულიერ კავშირში.</p>
-                    </div>
-                    <div style="background: #fff; border-radius: 8px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.02); border-bottom: 3px solid #aa954f;">
-                        <div style="color: #aa954f; font-size: 1.6rem; margin-bottom: 18px;"><i class="fa-solid fa-book-bible"></i></div>
-                        <h4 style="font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-weight: 600; color: #222; margin-bottom: 12px; font-size: 1.1rem;">ბიბლიური ქადაგება</h4>
-                        <p style="font-size: 0.95rem; color: #666; line-height: 1.6;">მსახურების გულში ბიბლიაზე დაფუძნებული ქადაგებაა — გასაგები და პრაქტიკული სწავლება, რომელიც შთაგაგონებთ და ყოველდღიურ ცხოვრებაში გაგამხნევებთ.</p>
-                    </div>
-                    <div style="background: #fff; border-radius: 8px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.02); border-bottom: 3px solid #eee;">
-                        <div style="color: #aa954f; font-size: 1.6rem; margin-bottom: 18px;"><i class="fa-solid fa-child-reaching"></i></div>
-                        <h4 style="font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-weight: 600; color: #222; margin-bottom: 12px; font-size: 1.1rem;">ბავშვებზე ზრუნვა</h4>
-                        <p style="font-size: 0.95rem; color: #666; line-height: 1.6;">თქვენს პატარებს შეუძლიათ დრო გაატარონ საკვირაო სკოლაში, სადაც მათზე ჩვენი ლიდერები იზრუნებენ.</p>
-                    </div>
-                </div>
-
+                <ol class="journey">
+                    <li class="journey-step journey-step--1">
+                        <span class="journey-dot" aria-hidden="true"><i class="fa-solid fa-door-open"></i></span>
+                        <span class="journey-time">მისვლისას</span>
+                        <h3>მეგობრული მიღება</h3>
+                        <p>კართან ჩვენი მასპინძლები დაგხვდებიან, დაგეხმარებიან ადგილის პოვნაში და ყველა კითხვას უპასუხებენ.</p>
+                    </li>
+                    <li class="journey-step journey-step--2">
+                        <span class="journey-dot" aria-hidden="true"><i class="fa-solid fa-music"></i></span>
+                        <span class="journey-time">11:00</span>
+                        <h3>განდიდება და თაყვანისცემა</h3>
+                        <p>მსახურება ცოცხალი მუსიკით იწყება — ერთად ვადიდებთ უფალს და გულს ვხსნით მისთვის.</p>
+                    </li>
+                    <li class="journey-step journey-step--3">
+                        <span class="journey-dot" aria-hidden="true"><i class="fa-solid fa-book-bible"></i></span>
+                        <span class="journey-time">შემდეგ</span>
+                        <h3>ბიბლიური ქადაგება</h3>
+                        <p>გასაგები და პრაქტიკული სწავლება ბიბლიიდან, რომელიც ყოველდღიურ ცხოვრებაში გაგამხნევებს.</p>
+                    </li>
+                    <li class="journey-kids">
+                        <i class="fa-solid fa-child-reaching" aria-hidden="true"></i>
+                        <p><strong>ამ დროს ბავშვები საკვირაო სკოლაში არიან</strong> — სამ ასაკობრივ ჯგუფად, ჩვენს მასწავლებლებთან ერთად. <a href="kids.html">ბავშვთა მსახურება <span aria-hidden="true">→</span></a></p>
+                    </li>
+                    <li class="journey-step journey-step--4">
+                        <span class="journey-dot" aria-hidden="true"><i class="fa-solid fa-mug-hot"></i></span>
+                        <span class="journey-time">≈ 13:00</span>
+                        <h3>ყავა და საუბარი</h3>
+                        <p>მსახურების შემდეგ გეპატიჟებით ცხელ ყავაზე ერთობის სივრცეში — საუკეთესო დროა ერთმანეთის გასაცნობად.</p>
+                    </li>
+                </ol>
             </div>
         </section>
 
