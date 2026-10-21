@@ -639,9 +639,41 @@ ul {
    ფოტო მხოლოდ მთავარ გვერდზეა. sermons და bible თავისას !important-ით
    ადებენ და ეს მათ არ ეხება. ვარსკვლავები სურათის ზედა-მარცხენა
    მხარესაა: დესკტოპზე ზემოთ ვწევთ, ტელეფონზე — მარცხნივ. */
-.hero-section:not(#sanity-main-image) {
+/* [data-hero] აქ გამორიცხულია: ამ წესს ID-ის სიძლიერე აქვს და
+   ქვემოთა თემატურ ფოტოებს სხვაგვარად გადაფარავდა. */
+.hero-section:not(#sanity-main-image, [data-hero]) {
     background-image: url('https://cdn.sanity.io/images/f9j6xr69/production/80bb6d0e3f0c2949888b5b0c2e6c0a374dfae0cd-2730x1536.png?w=1920&fm=webp&q=80');
     background-position: 10% 10%;
+}
+
+/* თემატური ფოტო თითო გვერდზე: <section class="hero-section" data-hero="…">.
+   ფაილები pages/images/headers/-შია (Unsplash, უფასო ლიცენზია): ფართო
+   1920×760 და ტელეფონისთვის კვადრატული 900×900 -sm. ახალი გვერდისთვის
+   ორივე ფაილი დაამატე და აქ ერთი ხაზი ორივე ბლოკში. data-hero-ს გარეშე
+   გვერდი ძველ ბანერზე რჩება. */
+.hero-section[data-hero] { background-position: center; }
+.hero-section[data-hero="new-here"]      { background-image: url('pages/images/headers/new-here.webp'); }
+.hero-section[data-hero="about"]         { background-image: url('pages/images/headers/about.webp'); }
+.hero-section[data-hero="family-groups"] { background-image: url('pages/images/headers/family-groups.webp'); }
+.hero-section[data-hero="youth"]         { background-image: url('pages/images/headers/youth.webp'); }
+.hero-section[data-hero="kids"]          { background-image: url('pages/images/headers/kids.webp'); }
+.hero-section[data-hero="next-steps"]    { background-image: url('pages/images/headers/next-steps.webp'); }
+.hero-section[data-hero="registration"]  { background-image: url('pages/images/headers/registration.webp'); }
+.hero-section[data-hero="give"]          { background-image: url('pages/images/headers/give.webp'); }
+.hero-section[data-hero="contact"]       { background-image: url('pages/images/headers/contact.webp'); }
+.hero-section[data-hero="subscribed"]    { background-image: url('pages/images/headers/subscribed.webp'); }
+
+@media (max-width: 767px) {
+    .hero-section[data-hero="new-here"]      { background-image: url('pages/images/headers/new-here-sm.webp'); }
+    .hero-section[data-hero="about"]         { background-image: url('pages/images/headers/about-sm.webp'); }
+    .hero-section[data-hero="family-groups"] { background-image: url('pages/images/headers/family-groups-sm.webp'); }
+    .hero-section[data-hero="youth"]         { background-image: url('pages/images/headers/youth-sm.webp'); }
+    .hero-section[data-hero="kids"]          { background-image: url('pages/images/headers/kids-sm.webp'); }
+    .hero-section[data-hero="next-steps"]    { background-image: url('pages/images/headers/next-steps-sm.webp'); }
+    .hero-section[data-hero="registration"]  { background-image: url('pages/images/headers/registration-sm.webp'); }
+    .hero-section[data-hero="give"]          { background-image: url('pages/images/headers/give-sm.webp'); }
+    .hero-section[data-hero="contact"]       { background-image: url('pages/images/headers/contact-sm.webp'); }
+    .hero-section[data-hero="subscribed"]    { background-image: url('pages/images/headers/subscribed-sm.webp'); }
 }
 
 .hero-overlay {
