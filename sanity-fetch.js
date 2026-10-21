@@ -1487,9 +1487,12 @@ function setSermonFacade(videoId) {
   const facade = document.getElementById('sermonFacade');
   // დაკვრა თუ უკვე დაიწყო, სურათს აღარ ვცვლით — პლეერი უკან არ უნდა დაბრუნდეს.
   if (!facade || facade.hidden || !videoId) return;
+  // იგივე ქადაგება HTML-ში უკვე დგას — სურათს თავიდან არ ვტვირთავთ.
+  // თორემ hqdefault-ზე გადასული ყდა ისევ maxres-ზე დაბრუნდებოდა.
+  const same = facade.dataset.videoId === videoId;
   facade.dataset.videoId = videoId;
   const img = facade.querySelector('.player-facade__thumb');
-  if (img) img.src = 'https://img.youtube.com/vi/' + encodeURIComponent(videoId) + '/maxresdefault.jpg';
+  if (img && !same) img.src = 'https://img.youtube.com/vi/' + encodeURIComponent(videoId) + '/maxresdefault.jpg';
   currentSermonId = videoId;
   renderPlayerActions();
 }

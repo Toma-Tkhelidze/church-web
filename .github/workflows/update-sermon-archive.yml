@@ -78,6 +78,12 @@ jobs:
         if: steps.check.outputs.new == 'true'
         run: node scripts/build-share-pages.js
 
+      # ბოლო ქადაგების ID HTML-შივე იწერება, რომ გვერდმა წამიერად ძველი
+      # ქადაგების ყდა არ აჩვენოს, სანამ JavaScript ახალს იპოვის.
+      - name: ბოლო ქადაგება HTML-ში
+        if: steps.check.outputs.new == 'true'
+        run: node scripts/stamp-latest-sermon.js
+
       - name: ბოლო ქადაგების ID — განახლების შემდეგ
         if: steps.check.outputs.new == 'true'
         id: after
@@ -88,7 +94,7 @@ jobs:
         run: |
           # s/-ში ახალი ფაილები untracked-ია — git diff მათ ვერ ხედავს,
           # ამიტომ ჯერ ვამატებთ და staged ცვლილებას ვამოწმებთ.
-          git add data/sermon-archive.json s
+          git add data/sermon-archive.json s index.html pages/*.html script.js
           if git diff --cached --quiet; then
             echo "ახალი ქადაგება არ არის — ცვლილება არ ჩაწერილა"
             exit 0

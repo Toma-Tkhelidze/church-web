@@ -2162,19 +2162,30 @@
                      აჭიანურებდა. ჯერ მხოლოდ სურათი დგას, ვიდეო კი დაჭერისას
                      ჩაიტვირთება — playSermon() თავად ცვლის ერთმანეთით. -->
                 <button type="button" class="player-facade" id="sermonFacade"
-                        data-video-id="qj7EVIvEEhI" aria-label="ქადაგების დაკვრა">
+                        data-video-id="TS3WPriJtEA" aria-label="ქადაგების დაკვრა">
                     <!-- HD ყდა ყველა ვიდეოს არ აქვს: YouTube მაშინ 404-ს კი არა,
                          120×90 ნაცრისფერ სურათს აბრუნებს და onerror არ ისვრება.
                          ამიტომ ჩატვირთვისას ზომას ვამოწმებთ და hqdefault-ზე
                          გადავდივართ, რომელიც ყოველთვის არსებობს. -->
                     <img class="player-facade__thumb" alt="" decoding="async"
-                         src="https://img.youtube.com/vi/qj7EVIvEEhI/maxresdefault.jpg"
+                         src="https://img.youtube.com/vi/TS3WPriJtEA/maxresdefault.jpg"
                          onload="if (this.naturalWidth === 120 &amp;&amp; this.src.indexOf('hqdefault') === -1) this.src = 'https://img.youtube.com/vi/' + this.closest('.player-facade').dataset.videoId + '/hqdefault.jpg';"
                          onerror="this.onerror=null; this.src='https://img.youtube.com/vi/' + this.closest('.player-facade').dataset.videoId + '/hqdefault.jpg';">
                     <span class="player-facade__play" aria-hidden="true">
                         <svg viewBox="0 0 12 14"><path d="M11.2 6.15 1.8.28A1 1 0 0 0 .3 1.13v11.74a1 1 0 0 0 1.5.85l9.4-5.87a1 1 0 0 0 0-1.7Z"/></svg>
                     </span>
                 </button>
+                <!-- გაზიარებული ბმული (?s=<ID>): ყდას პირველ ხატვამდე ვცვლით, რომ
+                     ბოლო ქადაგება წამიერადაც არ გამოჩნდეს. დანარჩენს sanity-fetch.js აკეთებს. -->
+                <script>
+                    (function () {
+                        var m = /[?&]s=([\w-]{11})(?:&|$)/.exec(location.search);
+                        var f = document.getElementById('sermonFacade');
+                        if (!m || !f || f.getAttribute('data-video-id') === m[1]) return;
+                        f.setAttribute('data-video-id', m[1]);
+                        f.querySelector('.player-facade__thumb').src = 'https://img.youtube.com/vi/' + m[1] + '/maxresdefault.jpg';
+                    })();
+                </script>
                 <!-- enablejsapi=1 — ამის გარეშე დაკვრის დროს ვერ წავიკითხავთ
                      და „სად გაჩერდი“ ვერ დაგვემახსოვრება. src ცარიელია:
                      მისამართს playSermon() წერს პირველი დაჭერისას. -->
