@@ -651,10 +651,12 @@ ul {
    1920×760 და ტელეფონისთვის კვადრატული 900×900 -sm. ახალი გვერდისთვის
    ორივე ფაილი დაამატე და აქ ერთი ხაზი ორივე ბლოკში. data-hero-ს გარეშე
    გვერდი ძველ ბანერზე რჩება. team და consultation — განზრახ ადამიანების
-   სახეების გარეშე. */
+   სახეების გარეშე. ფოტოს შეცვლისას ფაილს ახალი სახელი დაარქვი
+   (მაგ. about-worship.webp): service worker სურათებს ქეშიდან აძლევს და
+   იმავე სახელზე ძველი დარჩებოდა. */
 .hero-section[data-hero] { background-position: center; }
 .hero-section[data-hero="new-here"]      { background-image: url('pages/images/headers/new-here.webp'); }
-.hero-section[data-hero="about"]         { background-image: url('pages/images/headers/about.webp'); }
+.hero-section[data-hero="about"]         { background-image: url('pages/images/headers/about-worship.webp'); }
 .hero-section[data-hero="family-groups"] { background-image: url('pages/images/headers/family-groups.webp'); }
 .hero-section[data-hero="youth"]         { background-image: url('pages/images/headers/youth.webp'); }
 .hero-section[data-hero="kids"]          { background-image: url('pages/images/headers/kids.webp'); }
@@ -668,7 +670,7 @@ ul {
 
 @media (max-width: 767px) {
     .hero-section[data-hero="new-here"]      { background-image: url('pages/images/headers/new-here-sm.webp'); }
-    .hero-section[data-hero="about"]         { background-image: url('pages/images/headers/about-sm.webp'); }
+    .hero-section[data-hero="about"]         { background-image: url('pages/images/headers/about-worship-sm.webp'); }
     .hero-section[data-hero="family-groups"] { background-image: url('pages/images/headers/family-groups-sm.webp'); }
     .hero-section[data-hero="youth"]         { background-image: url('pages/images/headers/youth-sm.webp'); }
     .hero-section[data-hero="kids"]          { background-image: url('pages/images/headers/kids-sm.webp'); }
