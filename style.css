@@ -650,7 +650,8 @@ ul {
    ფაილები pages/images/headers/-შია (Unsplash, უფასო ლიცენზია): ფართო
    1920×760 და ტელეფონისთვის კვადრატული 900×900 -sm. ახალი გვერდისთვის
    ორივე ფაილი დაამატე და აქ ერთი ხაზი ორივე ბლოკში. data-hero-ს გარეშე
-   გვერდი ძველ ბანერზე რჩება. */
+   გვერდი ძველ ბანერზე რჩება. team და consultation — განზრახ ადამიანების
+   სახეების გარეშე. */
 .hero-section[data-hero] { background-position: center; }
 .hero-section[data-hero="new-here"]      { background-image: url('pages/images/headers/new-here.webp'); }
 .hero-section[data-hero="about"]         { background-image: url('pages/images/headers/about.webp'); }
@@ -662,6 +663,8 @@ ul {
 .hero-section[data-hero="give"]          { background-image: url('pages/images/headers/give.webp'); }
 .hero-section[data-hero="contact"]       { background-image: url('pages/images/headers/contact.webp'); }
 .hero-section[data-hero="subscribed"]    { background-image: url('pages/images/headers/subscribed.webp'); }
+.hero-section[data-hero="team"]          { background-image: url('pages/images/headers/team.webp'); }
+.hero-section[data-hero="consultation"]  { background-image: url('pages/images/headers/consultation.webp'); }
 
 @media (max-width: 767px) {
     .hero-section[data-hero="new-here"]      { background-image: url('pages/images/headers/new-here-sm.webp'); }
@@ -674,6 +677,8 @@ ul {
     .hero-section[data-hero="give"]          { background-image: url('pages/images/headers/give-sm.webp'); }
     .hero-section[data-hero="contact"]       { background-image: url('pages/images/headers/contact-sm.webp'); }
     .hero-section[data-hero="subscribed"]    { background-image: url('pages/images/headers/subscribed-sm.webp'); }
+    .hero-section[data-hero="team"]          { background-image: url('pages/images/headers/team-sm.webp'); }
+    .hero-section[data-hero="consultation"]  { background-image: url('pages/images/headers/consultation-sm.webp'); }
 }
 
 .hero-overlay {
