@@ -208,7 +208,7 @@ function applyLatestSermonId(sermonId) {
   applyLatestSermonLinks(sermonId);
 }
 
-// მთავარი გვერდი: „უყურე ბოლო ქადაგებას“ და ვიდეოს ქვეშ სათაური.
+// მთავარი გვერდი: „უყურე ბოლო ქადაგებას“ და ვიდეოს ქვეშ თარიღი.
 // ?s=<ID> ქადაგებების გვერდს პირდაპირ პლეერზე ხსნის.
 function applyLatestSermonLinks(sermonId) {
   const links = document.querySelectorAll('[data-latest-sermon-link]');
@@ -216,9 +216,9 @@ function applyLatestSermonLinks(sermonId) {
   const href = links[0].getAttribute('href').split('?')[0] + '?s=' + encodeURIComponent(sermonId);
   links.forEach(a => { a.href = href; });
 
-  const titleEl = document.getElementById('latestSermonTitle');
-  if (!titleEl) return;
-  // სათაური არქივშია, ახლახან ატვირთული კი — მხოლოდ feed-ში.
+  const dateEl = document.getElementById('latestSermonDate');
+  if (!dateEl) return;
+  // თარიღი სათაურშია; სათაური არქივშია, ახლახან ატვირთული კი — მხოლოდ feed-ში.
   Promise.all([
     fetchSermonArchive(),
     currentSermonPlaylistId().then(fetchPlaylistFeed).catch(() => null)
@@ -227,9 +227,10 @@ function applyLatestSermonLinks(sermonId) {
     const hit = pool.find(item => item && item.id === sermonId);
     if (!hit || !hit.title) return;
     const parts = splitSermonTitle(hit.title, hit.pubDate || hit.date);
-    titleEl.innerHTML = escapeHtml(parts.title) +
-      (parts.date ? '<span class="latest-sermon-date">' + escapeHtml(parts.date) + '</span>' : '');
-    titleEl.hidden = false;
+    if (parts.date) {
+      dateEl.innerHTML = '<i class="fa-regular fa-calendar" aria-hidden="true"></i>' + escapeHtml(parts.date);
+      dateEl.hidden = false;
+    }
   });
 }
 

@@ -376,10 +376,17 @@
                 <div class="video-placeholder" role="button" tabindex="0" id="sanity-latest-sermon" aria-label="უყურეთ ბოლო ქადაგებას" data-video-id="qj7EVIvEEhI">
                     <i class="fa-solid fa-play" aria-hidden="true"></i>
                 </div>
-                <!-- სათაურს sanity-fetch.js ავსებს; სანამ ვერ გაიგო, დამალულია -->
+                <!-- სათაური ყდაზე ისედაც წერია — აქ მხოლოდ თარიღი (sanity-fetch.js
+                     ავსებს; სანამ ვერ გაიგო, დამალულია) და „ყველა ქადაგება“. -->
                 <div class="latest-sermon-meta">
-                    <a class="latest-sermon-title" id="latestSermonTitle" href="pages/sermons.html" data-latest-sermon-link hidden></a>
-                    <a class="latest-sermon-all" href="pages/sermons.html#weeklySermons">ყველა ქადაგება <i class="fa-solid fa-arrow-right-long" aria-hidden="true"></i></a>
+                    <div class="latest-sermon-foot">
+                        <span class="latest-sermon-date" id="latestSermonDate" hidden></span>
+                        <a class="latest-sermon-all" href="pages/sermons.html#weeklySermons">
+                            <i class="fa-solid fa-layer-group latest-sermon-all__lead" aria-hidden="true"></i>
+                            <span>ყველა ქადაგება</span>
+                            <span class="latest-sermon-all__arrow" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
+                        </a>
+                    </div>
                 </div>
                 <h3 class="bullet-title week-schedule-title">ამ კვირაში</h3>
                 <ul class="week-schedule" aria-label="Weekly schedule">

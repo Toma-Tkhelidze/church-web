@@ -1277,49 +1277,93 @@ video {
     color: var(--dark-900);
 }
 
-/* მთავარი გვერდი: ბოლო ქადაგების ქვეშ სათაური და „ყველა ქადაგება“.
+/* მთავარი გვერდი: ბოლო ქადაგების ქვეშ თარიღი და „ყველა ქადაგება“.
    ვიდეოს 40px ქვედა დაშორებას ვიყენებთ — ბლოკი ვიდეოს ეკვრის. */
 .latest-sermon-meta {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 16px;
     margin: -26px 0 40px;
 }
 
-.latest-sermon-title {
+.latest-sermon-foot {
     display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 0;
-    color: var(--dark-900);
-    font-weight: 600;
-    font-size: 0.95rem;
-    line-height: 1.4;
-    text-decoration: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
 }
-
-.latest-sermon-title[hidden] { display: none; }
-.latest-sermon-title:hover { color: var(--gold); }
 
 .latest-sermon-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
     color: #8a8a8a;
-    font-size: 0.8rem;
-    font-weight: 400;
+    font-size: 0.82rem;
 }
 
+.latest-sermon-date[hidden] { display: none; }
+.latest-sermon-date i { color: var(--gold); font-size: 0.8rem; }
+
+/* თარიღის გარეშეც მარჯვნივ რჩება */
 .latest-sermon-all {
-    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
     margin-left: auto;
-    color: var(--gold);
-    font-size: 0.85rem;
+    padding: 6px 6px 6px 14px;
+    border: 1px solid #e6dcc0;
+    border-radius: 999px;
+    background: #fbf8ef;
+    color: #6f5f2c;
+    font-size: 0.84rem;
     font-weight: 700;
+    letter-spacing: 0.2px;
     text-decoration: none;
     white-space: nowrap;
+    transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
 }
 
-.latest-sermon-all i { margin-left: 4px; transition: transform 0.2s ease; }
-.latest-sermon-all:hover i { transform: translateX(3px); }
+.latest-sermon-all__lead { color: var(--gold); font-size: 0.8rem; transition: color 0.25s ease; }
+
+.latest-sermon-all__arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: #ffffff;
+    font-size: 0.72rem;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background 0.25s ease, color 0.25s ease;
+}
+
+.latest-sermon-all:hover,
+.latest-sermon-all:focus-visible {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: #ffffff;
+    box-shadow: 0 8px 20px rgba(170, 149, 79, 0.25);
+    outline: none;
+}
+
+.latest-sermon-all:hover .latest-sermon-all__lead,
+.latest-sermon-all:focus-visible .latest-sermon-all__lead { color: #ffffff; }
+
+.latest-sermon-all:hover .latest-sermon-all__arrow,
+.latest-sermon-all:focus-visible .latest-sermon-all__arrow {
+    background: #ffffff;
+    color: var(--gold);
+    transform: translateX(3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .latest-sermon-all__arrow { transition: none; }
+}
+
+/* ტელეფონზე თარიღი და ღილაკი ერთ ხაზზე ვერ ეტევა — ღილაკი მთელ სიგანეზეა */
+@media (max-width: 480px) {
+    .latest-sermon-all { flex: 1 1 100%; padding: 8px 8px 8px 16px; }
+    .latest-sermon-all__arrow { margin-left: auto; width: 30px; height: 30px; }
+}
 
 .week-schedule {
     padding: 0;
