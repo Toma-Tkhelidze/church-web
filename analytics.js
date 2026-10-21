@@ -22,6 +22,8 @@
      app_installed         აპლიკაცია მთავარ ეკრანზე დაემატა
      sermon_play           ვიდეო ქადაგება ჩაირთო      {video_id, sermon_title}
      sermon_complete       ვიდეო ბოლომდე ნახეს        {video_id, sermon_title}
+     share                 ქადაგება გააზიარეს          {method, content_type, item_id}
+     sermon_later          „შემდეგში საყურებელში“ შეინახეს {video_id, sermon_title}
      audio_play            აუდიო ეპიზოდი ჩაირთო       {sermon_title}
      audio_complete        აუდიო ბოლომდე მოისმინეს    {sermon_title}
      video_play            სხვა ვიდეო (მისალმება, ბანაკი) {video_id, platform}

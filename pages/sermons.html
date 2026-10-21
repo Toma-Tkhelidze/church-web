@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="სახარების რწმენის ეკლესია – ქუთაისი – ქადაგებები და სწავლებები.">
     <title>ქადაგებები – სახარების რწმენის ეკლესია</title>
+    <!-- ზოგადი ბარათი გვერდის ბმულისთვის. კონკრეტულ ქადაგებას თავისი
+         ბარათი s/<ID>.html-ში აქვს (scripts/build-share-pages.js). -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="სახარების რწმენის ეკლესია – ქუთაისი">
+    <meta property="og:title" content="ონლაინ ქადაგებები – სახარების რწმენის ეკლესია">
+    <meta property="og:description" content="მოუსმინე და გაიზარდე რწმენაში — ყოველკვირეული ქადაგებები ვიდეოდ და აუდიოდ.">
+    <meta property="og:url" content="https://efckutaisi.ge/pages/sermons.html">
     <link rel="preconnect" href="https://f9j6xr69.apicdn.sanity.io" crossorigin>
     <link rel="dns-prefetch" href="https://f9j6xr69.apicdn.sanity.io">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1007,6 +1014,318 @@
         .weekly-item.is-watched .weekly-thumb img,
         .episode-item.is-watched .episode-title { opacity: 0.62; }
 
+        /* ── პლეერის ქვეშ: სათაური, შენახვა, გაზიარება ─────────── */
+        .player-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            max-width: 960px;
+            margin: 18px auto 0;
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        .player-actions[hidden] { display: none; }
+
+        .player-now {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .player-now-title {
+            color: #1d1d1d;
+            font-size: 1.08rem;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+
+        .player-now-date {
+            color: #8a8a8a;
+            font-size: 0.82rem;
+        }
+
+        .player-buttons {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .pa-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 42px;
+            padding: 0 18px;
+            border: 1px solid #e1d8bf;
+            border-radius: 999px;
+            background: #ffffff;
+            color: #3a3528;
+            font: inherit;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+        }
+
+        .pa-btn:hover { border-color: #aa954f; transform: translateY(-1px); }
+        .pa-btn:focus-visible { outline: 2px solid #aa954f; outline-offset: 2px; }
+        .pa-btn i { color: #aa954f; font-size: 0.95rem; }
+
+        .pa-btn.is-saved {
+            background: #fbf6e8;
+            border-color: #aa954f;
+            color: #6f5f2c;
+        }
+
+        .pa-btn--primary {
+            background: #aa954f;
+            border-color: #aa954f;
+            color: #ffffff;
+        }
+
+        .pa-btn--primary i { color: #ffffff; }
+        .pa-btn--primary:hover { background: #96823f; border-color: #96823f; }
+
+        .share-wrap { position: relative; }
+
+        .share-menu {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 8px);
+            z-index: 30;
+            width: 240px;
+            padding: 8px;
+            background: #ffffff;
+            border: 1px solid #ece3cb;
+            border-radius: 14px;
+            box-shadow: 0 18px 40px rgba(20, 18, 14, 0.16);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .share-menu[hidden] { display: none; }
+
+        .share-opt {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 9px 10px;
+            border: 0;
+            border-radius: 9px;
+            background: none;
+            color: #222;
+            font: inherit;
+            font-size: 0.9rem;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .share-opt[hidden] { display: none; }
+        .share-opt:hover, .share-opt:focus-visible { background: #f8f3e6; outline: none; }
+
+        .share-ic {
+            flex: 0 0 30px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 0.95rem;
+        }
+
+        .share-ic--fb { background: #1877f2; }
+        .share-ic--ms { background: #0866ff; }
+        .share-ic--vb { background: #7360f2; }
+        .share-ic--wa { background: #25d366; }
+        .share-ic--tg { background: #229ed9; }
+        .share-ic--cp { background: #ece3cb; color: #6f5f2c; }
+
+        .share-from {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 6px 2px 0;
+            padding: 10px 8px 4px;
+            border-top: 1px solid #f0e8d5;
+            color: #555;
+            font-size: 0.84rem;
+            cursor: pointer;
+        }
+
+        .share-from[hidden] { display: none; }
+        .share-from input { accent-color: #aa954f; width: 16px; height: 16px; }
+
+        @media (max-width: 600px) {
+            .player-actions { flex-direction: column; align-items: stretch; gap: 12px; }
+            .player-now-title { font-size: 1rem; }
+            .player-buttons > * { flex: 1 1 0; }
+            .pa-btn { width: 100%; justify-content: center; }
+            /* ტელეფონზე მენიუ ღილაკის ქვეშ მთელ სიგანეზე იშლება */
+            .share-menu { width: min(280px, calc(100vw - 32px)); }
+        }
+
+        /* ── სანიშნე ბარათზე ───────────────────────────────────── */
+        .weekly-card {
+            position: relative;
+            display: flex;
+            transition: transform 0.3s ease;
+        }
+
+        .weekly-card:hover { transform: translateY(-2px); }
+        .weekly-card .weekly-item { flex: 1; min-width: 0; padding-right: 46px; }
+        .weekly-card .weekly-item:hover { transform: none; }
+
+        .later-toggle {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 34px;
+            height: 34px;
+            border: 0;
+            border-radius: 50%;
+            background: transparent;
+            color: #b5aa8a;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+        }
+
+        .later-toggle:hover { background: #f8f3e6; color: #aa954f; }
+        .later-toggle:focus-visible { outline: 2px solid #aa954f; outline-offset: 1px; }
+        .later-toggle.is-saved { color: #aa954f; }
+        .later-toggle:active { transform: scale(0.9); }
+
+        /* ── „შემდეგში საყურებელი“ ──────────────────────────────── */
+        .later-bar {
+            max-width: 960px;
+            margin: 18px auto 0;
+            padding: 16px 18px 14px;
+            background: #ffffff;
+            border: 1px solid #e6dcc0;
+            border-radius: var(--radius-md);
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        .later-bar[hidden] { display: none; }
+
+        .later-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .later-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #96823f;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .later-count {
+            min-width: 22px;
+            padding: 0 7px;
+            border-radius: 999px;
+            background: #f3ecd8;
+            color: #6f5f2c;
+            font-size: 0.74rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .later-row {
+            display: flex;
+            gap: 14px;
+            overflow-x: auto;
+            scroll-snap-type: x proximity;
+            padding-bottom: 6px;
+            scrollbar-width: thin;
+        }
+
+        .later-item {
+            position: relative;
+            flex: 0 0 200px;
+            scroll-snap-align: start;
+        }
+
+        .later-open {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
+            padding: 0;
+            border: 0;
+            background: none;
+            font: inherit;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .later-thumb {
+            position: relative;
+            display: block;
+            aspect-ratio: 16 / 9;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #111;
+            margin-bottom: 4px;
+        }
+
+        .later-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.3s ease; }
+        .later-open:hover .later-thumb img { transform: scale(1.04); }
+        .later-item.is-playing .later-thumb { box-shadow: 0 0 0 2px #aa954f; }
+
+        .later-title {
+            color: #222;
+            font-size: 0.86rem;
+            font-weight: 600;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .later-date { color: #8a8a8a; font-size: 0.76rem; }
+
+        .later-remove {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 28px;
+            height: 28px;
+            border: 0;
+            border-radius: 50%;
+            background: rgba(20, 18, 14, 0.62);
+            color: #ffffff;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .later-remove:hover { background: rgba(20, 18, 14, 0.85); }
+
+        @media (max-width: 600px) {
+            .later-item { flex-basis: 160px; }
+        }
+
         /* ── „განაგრძე ყურება“ ──────────────────────────────────── */
         .resume-bar {
             display: flex;
@@ -1866,10 +2185,46 @@
             </div>
         </div>
 
+        <!-- პლეერში მყოფი ქადაგება: სათაური, შენახვა და გაზიარება.
+             ივსება sanity-fetch.js-ით (renderPlayerActions). -->
+        <div class="player-actions" id="playerActions" hidden>
+            <div class="player-now">
+                <span class="player-now-title" id="playerNowTitle"></span>
+                <span class="player-now-date" id="playerNowDate" hidden></span>
+            </div>
+            <div class="player-buttons">
+                <button type="button" class="pa-btn" id="laterBtn" aria-pressed="false">
+                    <i class="fa-regular fa-bookmark" aria-hidden="true"></i><span class="pa-btn-text">შემდეგში ვნახავ</span>
+                </button>
+                <div class="share-wrap">
+                    <button type="button" class="pa-btn pa-btn--primary" id="shareBtn" aria-haspopup="true" aria-expanded="false" aria-controls="shareMenu">
+                        <i class="fa-solid fa-share-nodes" aria-hidden="true"></i><span class="pa-btn-text">გაზიარება</span>
+                    </button>
+                    <div class="share-menu" id="shareMenu" role="menu" aria-label="გაზიარება" hidden>
+                        <button type="button" class="share-opt" role="menuitem" data-net="facebook"><i class="fa-brands fa-facebook-f share-ic share-ic--fb" aria-hidden="true"></i><span class="share-opt-text">Facebook</span></button>
+                        <button type="button" class="share-opt" role="menuitem" data-net="messenger" data-mobile-only><i class="fa-brands fa-facebook-messenger share-ic share-ic--ms" aria-hidden="true"></i><span class="share-opt-text">Messenger</span></button>
+                        <button type="button" class="share-opt" role="menuitem" data-net="viber"><i class="fa-brands fa-viber share-ic share-ic--vb" aria-hidden="true"></i><span class="share-opt-text">Viber</span></button>
+                        <button type="button" class="share-opt" role="menuitem" data-net="whatsapp"><i class="fa-brands fa-whatsapp share-ic share-ic--wa" aria-hidden="true"></i><span class="share-opt-text">WhatsApp</span></button>
+                        <button type="button" class="share-opt" role="menuitem" data-net="telegram"><i class="fa-brands fa-telegram share-ic share-ic--tg" aria-hidden="true"></i><span class="share-opt-text">Telegram</span></button>
+                        <button type="button" class="share-opt" role="menuitem" data-net="copy" id="shareCopy"><i class="fa-solid fa-link share-ic share-ic--cp" aria-hidden="true"></i><span class="share-opt-text">ბმულის კოპირება</span></button>
+                        <button type="button" class="share-opt" role="menuitem" data-net="native" id="shareNative" hidden><i class="fa-solid fa-ellipsis share-ic share-ic--cp" aria-hidden="true"></i><span class="share-opt-text">სხვა აპი…</span></button>
+                        <label class="share-from" id="shareFromHereBox" hidden>
+                            <input type="checkbox" id="shareFromHere">
+                            <span>დაიწყოს <strong id="shareFromHereTime">0:00</strong>-დან</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- ჩანს მხოლოდ მაშინ, თუ დაუსრულებელი ქადაგება არსებობს.
              განზრახ .player-wrapper-ის გარეთ: იქ line-height: 0 და შავი
              ფონია ვიდეოსთვის, რაც ტექსტს ანგრევდა. -->
         <div class="resume-bar" id="resumeBar" hidden></div>
+
+        <!-- „შემდეგში საყურებელი“ — ჩანს, როცა სიაში რამე დევს.
+             ინახება მხოლოდ ამ ბრაუზერში (localStorage, efc:later:v1). -->
+        <div class="later-bar" id="laterBar" hidden></div>
     </section>
 
     <!-- ცალკეული ყოველკვირეული ქადაგებები — YouTube-ის წლიური

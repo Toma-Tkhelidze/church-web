@@ -202,7 +202,9 @@ function applyLatestSermonId(sermonId) {
     }
   });
 
-  setSermonFacade(sermonId);
+  // გაზიარებული ბმულით (?s=<ID>) მოსულს სწორედ ის ქადაგება უნდა დახვდეს
+  // და არა ბოლო.
+  setSermonFacade(SHARED_SERMON ? SHARED_SERMON.id : sermonId);
 }
 
 // Sanity-ს CDN ორიგინალ ფაილს აბრუნებს — ატვირთული PNG რამდენიმე
@@ -985,7 +987,10 @@ function weeklySermonCard(item, showYear) {
   const badge = showYear && item.year
     ? `<span class="weekly-year-badge">${escapeHtml(item.year)}</span>`
     : '';
+  // სანიშნე ბარათის გვერდითაა და არა შიგნით — ღილაკში ღილაკი არ შეიძლება.
+  const saved = isLater(item.id);
   return `
+    <div class="weekly-card">
     <button type="button" class="weekly-item" data-video-id="${escapeHtml(item.id)}">
       <span class="weekly-thumb">
         <img src="https://img.youtube.com/vi/${encodeURIComponent(item.id)}/mqdefault.jpg" alt="" loading="lazy">
@@ -996,7 +1001,9 @@ function weeklySermonCard(item, showYear) {
         <span class="weekly-date">${escapeHtml(parts.date)}</span>
         ${badge}
       </span>
-    </button>`;
+    </button>
+    ${laterToggleHtml(item.id, saved)}
+    </div>`;
 }
 
 // ══ მუხლის მისამართი → ბიბლიის გვერდის ბმული ═══════════════════════
@@ -1357,6 +1364,8 @@ function saveWatchProgress(videoId, seconds, duration, title) {
     at: Date.now()
   };
   writeWatchMap(map);
+  // ბოლომდე ნანახი „შემდეგში საყურებლიდან“ თავისით ჩამოდის.
+  if (done) removeLater(videoId);
 }
 
 // წამები საათის სახით: 3725 → „1:02:05“
@@ -1454,6 +1463,8 @@ function setSermonFacade(videoId) {
   facade.dataset.videoId = videoId;
   const img = facade.querySelector('.player-facade__thumb');
   if (img) img.src = 'https://img.youtube.com/vi/' + encodeURIComponent(videoId) + '/maxresdefault.jpg';
+  currentSermonId = videoId;
+  renderPlayerActions();
 }
 
 /** სურათს პლეერით ვცვლით. */
@@ -1483,8 +1494,13 @@ function playSermon(videoId, title) {
   recordWatchNow();
 
   const entry = watchEntry(videoId);
-  const start = (entry && !entry.done && entry.t > WATCH_MIN_SECONDS) ? entry.t : 0;
-  ytPendingTitle = title || (entry && entry.title) || '';
+  let start = (entry && !entry.done && entry.t > WATCH_MIN_SECONDS) ? entry.t : 0;
+  // „ამ წუთიდან“ გაზიარებული ბმული — მხოლოდ პირველ დაკვრაზე.
+  if (sharedStart && sharedStart.id === videoId) { start = sharedStart.t; sharedStart = null; }
+  // სრული სათაური (თარიღიანი) სჯობს ბარათზე ნაჩვენებს — ზოლი მას თავად ჭრის.
+  ytPendingTitle = (knownSermons[videoId] && knownSermons[videoId].title) || title || (entry && entry.title) || '';
+  currentSermonId = videoId;
+  renderPlayerActions();
   if (window.efcTrack) {
     efcTrack('sermon_play', {
       video_id: videoId,
@@ -1551,6 +1567,8 @@ function refreshWatchUI() {
       mark.remove();
     }
   });
+  // ნანახი ქადაგება სიიდან შეიძლება ახლახან ჩამოვიდა.
+  refreshLaterUI();
 }
 
 /** „განაგრძე ყურება“ — ბოლო დაუსრულებელი ქადაგება პლეერის ქვემოთ. */
@@ -1599,8 +1617,332 @@ function renderResumeBar() {
     '</button>';
 }
 
+// ── ქადაგების ცნობარი ──────────────────────────────────────────────
+// სათაური და თარიღი ID-ით: პლეერის ქვეშ ზოლსა და გაზიარებას სჭირდება.
+// ივსება არქივიდან და ცოცხალი feed-იდან (renderWeeklySermons).
+const knownSermons = {};
+// არქივში მყოფ ქადაგებას s/<ID>.html გვერდი აქვს. feed-იდან ახლახან
+// მოსულს — ჯერ არა, ამიტომ მისი ბმული პირდაპირ sermons.html-ზე მიდის.
+const archivedIds = new Set();
+
+function rememberSermons(items, fromArchive) {
+  (items || []).forEach(item => {
+    if (!item || !item.id) return;
+    if (fromArchive) archivedIds.add(item.id);
+    if (!knownSermons[item.id] || fromArchive) {
+      knownSermons[item.id] = { title: item.title || '', pubDate: item.pubDate || item.date || '' };
+    }
+  });
+  renderPlayerActions();
+}
+
+// გაზიარებული ბმულიდან მოსვლა: ?s=<ID> და სურვილისამებრ ?t=<წამი>.
+const SHARED_SERMON = (function () {
+  try {
+    const q = new URLSearchParams(location.search);
+    const id = q.get('s');
+    if (!id || !/^[\w-]{11}$/.test(id)) return null;
+    const t = parseInt(q.get('t'), 10);
+    return { id: id, t: t > 0 ? t : 0 };
+  } catch (e) { return null; }
+})();
+let sharedStart = SHARED_SERMON && SHARED_SERMON.t ? { id: SHARED_SERMON.id, t: SHARED_SERMON.t } : null;
+
+// ქადაგება, რომელიც ახლა პლეერშია (ან მის ადგილას სურათად დგას).
+let currentSermonId = null;
+
+function sermonParts(id) {
+  const known = knownSermons[id];
+  const entry = watchEntry(id);
+  const raw = (known && known.title) || (entry && entry.title) || '';
+  return splitSermonTitle(raw, known ? known.pubDate : '');
+}
+
+// ── შემდეგში საყურებელი ───────────────────────────────────────────
+// მხოლოდ ამ ბრაუზერში ინახება — ანგარიში საიტს არ აქვს.
+const LATER_KEY = 'efc:later:v1';
+const LATER_MAX = 200;
+
+function readLater() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(LATER_KEY));
+    return Array.isArray(raw) ? raw.filter(e => e && e.id) : [];
+  } catch (e) { return []; }
+}
+
+function writeLater(list) {
+  try { localStorage.setItem(LATER_KEY, JSON.stringify(list.slice(0, LATER_MAX))); } catch (e) { /* private mode */ }
+}
+
+function isLater(id) {
+  return !!id && readLater().some(e => e.id === id);
+}
+
+function removeLater(id) {
+  const list = readLater();
+  const next = list.filter(e => e.id !== id);
+  if (next.length !== list.length) writeLater(next);
+}
+
+function toggleLater(id) {
+  if (!id) return false;
+  if (isLater(id)) { removeLater(id); refreshLaterUI(); return false; }
+  const list = readLater();
+  const known = knownSermons[id];
+  list.unshift({ id: id, title: (known && known.title) || sermonParts(id).title || '', at: Date.now() });
+  writeLater(list);
+  if (window.efcTrack) efcTrack('sermon_later', { video_id: id, sermon_title: (known && known.title) || '' });
+  refreshLaterUI();
+  return true;
+}
+
+function laterToggleHtml(id, saved) {
+  const label = saved ? 'შემდეგში საყურებლიდან ამოღება' : 'შემდეგში საყურებლად შენახვა';
+  return `<button type="button" class="later-toggle${saved ? ' is-saved' : ''}" data-video-id="${escapeHtml(id)}"
+      aria-pressed="${saved}" aria-label="${label}" title="${label}">
+      <i class="${saved ? 'fa-solid' : 'fa-regular'} fa-bookmark" aria-hidden="true"></i>
+    </button>`;
+}
+
+function paintLaterButton(btn, saved) {
+  const label = saved ? 'შემდეგში საყურებლიდან ამოღება' : 'შემდეგში საყურებლად შენახვა';
+  btn.classList.toggle('is-saved', saved);
+  btn.setAttribute('aria-pressed', String(saved));
+  btn.setAttribute('aria-label', label);
+  btn.title = label;
+  const icon = btn.querySelector('i');
+  if (icon) icon.className = (saved ? 'fa-solid' : 'fa-regular') + ' fa-bookmark';
+  const text = btn.querySelector('.pa-btn-text');
+  if (text) text.textContent = saved ? 'შენახულია' : 'შემდეგში ვნახავ';
+}
+
+let laterSignature = null;
+function refreshLaterUI() {
+  const list = readLater();
+  const ids = new Set(list.map(e => e.id));
+
+  document.querySelectorAll('.later-toggle').forEach(btn => {
+    paintLaterButton(btn, ids.has(btn.getAttribute('data-video-id')));
+  });
+  const main = document.getElementById('laterBtn');
+  if (main) paintLaterButton(main, ids.has(currentSermonId));
+
+  const box = document.getElementById('laterBar');
+  if (!box) return;
+  // ყოველ 5 წამში (პროგრესის ჩაწერისას) თავიდან აგება ზედმეტია.
+  const signature = list.map(e => e.id).join(',') + '|' + currentSermonId;
+  if (signature === laterSignature) return;
+  laterSignature = signature;
+
+  if (!list.length) { box.hidden = true; box.innerHTML = ''; return; }
+  const map = readWatchMap();
+  box.hidden = false;
+  box.innerHTML =
+    '<div class="later-head">' +
+      '<span class="later-label"><i class="fa-solid fa-bookmark" aria-hidden="true"></i>შემდეგში საყურებელი</span>' +
+      '<span class="later-count">' + list.length + '</span>' +
+    '</div>' +
+    '<div class="later-row">' +
+      list.map(e => {
+        const known = knownSermons[e.id];
+        const parts = splitSermonTitle((known && known.title) || e.title, known ? known.pubDate : '');
+        const w = map[e.id];
+        const pct = (w && !w.done && w.d) ? Math.min(100, Math.round(w.t / w.d * 100)) : 0;
+        return '<div class="later-item' + (e.id === currentSermonId ? ' is-playing' : '') + '">' +
+          '<button type="button" class="later-open" data-video-id="' + escapeHtml(e.id) + '">' +
+            '<span class="later-thumb"><img src="https://img.youtube.com/vi/' + encodeURIComponent(e.id) + '/mqdefault.jpg" alt="" loading="lazy">' +
+              (pct ? '<span class="watch-progress"><span class="watch-progress-fill" style="width:' + pct + '%"></span></span>' : '') +
+            '</span>' +
+            '<span class="later-title">' + escapeHtml(parts.title || 'ქადაგება') + '</span>' +
+            (parts.date ? '<span class="later-date">' + escapeHtml(parts.date) + '</span>' : '') +
+          '</button>' +
+          '<button type="button" class="later-remove" data-video-id="' + escapeHtml(e.id) + '" aria-label="სიიდან ამოღება" title="სიიდან ამოღება">' +
+            '<i class="fa-solid fa-xmark" aria-hidden="true"></i>' +
+          '</button>' +
+        '</div>';
+      }).join('') +
+    '</div>';
+}
+
+// ── გაზიარება ─────────────────────────────────────────────────────
+// ბმული ყოველთვის საიტის ნამდვილ მისამართზეა, ლოკალურ ასლზეც.
+const SHARE_BASE = 'https://efckutaisi.ge/';
+
+function shareUrl(id, seconds) {
+  const t = seconds > 0 ? Math.floor(seconds) : 0;
+  if (archivedIds.has(id)) {
+    return SHARE_BASE + 's/' + encodeURIComponent(id) + '.html' + (t ? '?t=' + t : '');
+  }
+  return SHARE_BASE + 'pages/sermons.html?s=' + encodeURIComponent(id) + (t ? '&t=' + t : '');
+}
+
+// რამდენ წამზეა ახლა ეს ქადაგება — „ამ წუთიდან“ გაზიარებისთვის.
+function currentSermonTime() {
+  if (!ytPlayer || !ytPlayer.getCurrentTime || playingVideoId() !== currentSermonId) return 0;
+  try { return ytPlayer.getCurrentTime() || 0; } catch (e) { return 0; }
+}
+
+const SHARE_NETWORKS = {
+  facebook: url => 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url),
+  messenger: url => 'fb-messenger://share/?link=' + encodeURIComponent(url),
+  viber: (url, title) => 'viber://forward?text=' + encodeURIComponent(title + '\n' + url),
+  whatsapp: (url, title) => 'https://wa.me/?text=' + encodeURIComponent(title + '\n' + url),
+  telegram: (url, title) => 'https://t.me/share/url?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(title)
+};
+
+function trackShare(method) {
+  if (window.efcTrack) efcTrack('share', { method: method, content_type: 'sermon', item_id: currentSermonId || '' });
+}
+
+function copyText(text) {
+  if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+  return new Promise((resolve, reject) => {
+    const area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly', '');
+    area.style.position = 'fixed';
+    area.style.opacity = '0';
+    document.body.appendChild(area);
+    area.select();
+    try { document.execCommand('copy') ? resolve() : reject(); } catch (e) { reject(e); }
+    area.remove();
+  });
+}
+
+function renderPlayerActions() {
+  const bar = document.getElementById('playerActions');
+  if (!bar || !currentSermonId) return;
+  const parts = sermonParts(currentSermonId);
+  const titleEl = document.getElementById('playerNowTitle');
+  const dateEl = document.getElementById('playerNowDate');
+  if (titleEl) titleEl.textContent = parts.title || 'ქადაგება';
+  if (dateEl) { dateEl.textContent = parts.date || ''; dateEl.hidden = !parts.date; }
+  bar.hidden = false;
+  refreshLaterUI();
+}
+
+function initPlayerActions() {
+  const shareBtn = document.getElementById('shareBtn');
+  const menu = document.getElementById('shareMenu');
+  const laterBtn = document.getElementById('laterBtn');
+  if (!shareBtn || !menu) return;
+
+  const fromHere = document.getElementById('shareFromHere');
+  const fromHereBox = document.getElementById('shareFromHereBox');
+  const fromHereTime = document.getElementById('shareFromHereTime');
+  const copyBtn = document.getElementById('shareCopy');
+  const nativeBtn = document.getElementById('shareNative');
+  // Messenger-ის ბმული მხოლოდ ტელეფონზე, აპით იხსნება; კომპიუტერზე
+  // Facebook-ის აპის რეგისტრაციას ითხოვს — იქ კოპირება ჯობია.
+  const touch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  menu.querySelectorAll('[data-mobile-only]').forEach(el => { el.hidden = !touch; });
+  if (nativeBtn) nativeBtn.hidden = !navigator.share;
+
+  function link() {
+    const t = fromHere && fromHere.checked ? currentSermonTime() : 0;
+    return shareUrl(currentSermonId, t);
+  }
+
+  function title() {
+    return sermonParts(currentSermonId).title || 'ქადაგება';
+  }
+
+  function open() {
+    const t = currentSermonTime();
+    if (fromHereBox) {
+      fromHereBox.hidden = t < WATCH_MIN_SECONDS;
+      if (fromHere && fromHereBox.hidden) fromHere.checked = false;
+      if (fromHereTime) fromHereTime.textContent = formatWatchTime(t);
+    }
+    if (copyBtn) copyBtn.querySelector('.share-opt-text').textContent = 'ბმულის კოპირება';
+    menu.hidden = false;
+    shareBtn.setAttribute('aria-expanded', 'true');
+    const first = menu.querySelector('.share-opt:not([hidden])');
+    if (first) first.focus({ preventScroll: true });
+  }
+
+  function close(focusBack) {
+    if (menu.hidden) return;
+    menu.hidden = true;
+    shareBtn.setAttribute('aria-expanded', 'false');
+    if (focusBack) shareBtn.focus({ preventScroll: true });
+  }
+
+  shareBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    if (menu.hidden) open(); else close(false);
+  });
+
+  menu.addEventListener('click', e => {
+    e.stopPropagation();
+    const opt = e.target.closest('.share-opt');
+    if (!opt || !currentSermonId) return;
+    const net = opt.getAttribute('data-net');
+
+    if (net === 'copy') {
+      copyText(link()).then(() => {
+        opt.querySelector('.share-opt-text').textContent = 'დაკოპირდა ✓';
+        trackShare('copy');
+        setTimeout(() => close(false), 1200);
+      }, () => {
+        // ბრაუზერმა არ მოგვცა — ბმულს ვაჩვენებთ, ხელით დააკოპიროს.
+        window.prompt('დააკოპირე ბმული:', link());
+      });
+      return;
+    }
+
+    if (net === 'native') {
+      navigator.share({ title: title(), text: title(), url: link() })
+        .then(() => trackShare('native'), () => { /* ფანჯარა დახურეს */ });
+      close(false);
+      return;
+    }
+
+    const build = SHARE_NETWORKS[net];
+    if (!build) return;
+    const url = build(link(), title());
+    if (net === 'facebook') {
+      // noopener-ით window.open ყოველთვის null-ს აბრუნებს — ამიტომ ხელით.
+      const w = window.open(url, 'efc-share', 'width=620,height=560');
+      if (w) w.opener = null; else location.href = url;
+    } else if (/^https:/.test(url)) {
+      window.open(url, '_blank', 'noopener');
+    } else {
+      // viber:// და fb-messenger:// — აპს ხსნის, ცარიელი ჩანართის გარეშე.
+      location.href = url;
+    }
+    trackShare(net);
+    close(false);
+  });
+
+  document.addEventListener('click', () => close(false));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') close(true); });
+
+  if (laterBtn) {
+    laterBtn.addEventListener('click', () => { toggleLater(currentSermonId); });
+  }
+
+  const laterBar = document.getElementById('laterBar');
+  if (laterBar) {
+    laterBar.addEventListener('click', e => {
+      const remove = e.target.closest('.later-remove');
+      if (remove) { removeLater(remove.getAttribute('data-video-id')); refreshLaterUI(); return; }
+      const openBtn = e.target.closest('.later-open');
+      if (openBtn) playSermon(openBtn.getAttribute('data-video-id'));
+    });
+  }
+}
+
 function initSermonWatch() {
   if (!sermonFrame()) return;
+
+  initPlayerActions();
+  if (SHARED_SERMON) {
+    setSermonFacade(SHARED_SERMON.id);
+    // ბმულით მოსული პირდაპირ პლეერთან უნდა აღმოჩნდეს და არა სათაურთან.
+    const zone = document.getElementById('playerZone');
+    if (zone) requestAnimationFrame(() => zone.scrollIntoView({ block: 'start' }));
+  }
 
   // script.js დიდი პაუზის შემდეგ გვერდს თავიდან ტვირთავს — მიმდინარე
   // დაკვრა ამას არ უნდა შეეწიროს.
@@ -1739,6 +2081,8 @@ function renderWeeklySermons() {
       }
 
       yearItems = items.map(item => Object.assign({ year: year }, item));
+      if (stored) rememberSermons(stored, true);
+      rememberSermons(yearItems, false);
 
       // ცოცხალმა feed-მა შეიძლება არქივში ჯერ არარსებული ქადაგება
       // მოიტანოს — საერთო ნუსხაშიც ვასწორებთ, რომ ძებნამ იპოვოს.
@@ -1762,6 +2106,8 @@ function renderWeeklySermons() {
   // ქადაგება ზემოთ, უკვე არსებულ პლეერში იხსნება — ვიზიტორი საიტზე რჩება.
   // playSermon თავად აგრძელებს იქიდან, სადაც წინა ჯერზე გაჩერდა.
   list.addEventListener('click', e => {
+    const later = e.target.closest('.later-toggle');
+    if (later) { toggleLater(later.getAttribute('data-video-id')); return; }
     const item = e.target.closest('.weekly-item');
     if (!item) return;
     const titleEl = item.querySelector('.weekly-title');
@@ -1798,6 +2144,7 @@ function renderWeeklySermons() {
         if (!stored) return acc;
         return acc.concat(stored.map(item => Object.assign({ year: pl.year }, item)));
       }, []);
+      rememberSermons(allSermons, true);
     }
 
     tabsBox.innerHTML = playlists.map((pl, i) =>
