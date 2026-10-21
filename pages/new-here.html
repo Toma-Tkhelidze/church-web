@@ -85,6 +85,82 @@
             gap: 24px;
         }
         .visit-expect-grid > div { padding: 35px 32px; }
+        /* ხშირად დასმული კითხვები — იგივე აკორდეონი, რაც ახალგაზრდულ გვერდზეა */
+        .faq-section {
+            padding: 80px 20px;
+            background-color: #ffffff;
+            text-align: center;
+        }
+
+        .faq-container {
+            max-width: 800px;
+            margin: 40px auto 0;
+            text-align: left;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid #f3eedf;
+            padding: 5px 0;
+        }
+
+        .faq-item:first-child {
+            border-top: 1px solid #f3eedf;
+        }
+
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 22px 10px;
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.2s ease;
+        }
+
+        .faq-question h3 {
+            font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif;
+            font-weight: 600;
+            font-size: 1.25rem;
+            color: #111;
+            margin: 0;
+            transition: color 0.2s ease;
+        }
+
+        .faq-question:hover h3 {
+            color: #aa954f;
+        }
+
+        .faq-icon {
+            font-size: 0.9rem;
+            color: #aa954f;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s cubic-bezier(0.16, 1, 0.3, 1), padding 0.3s ease;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        .faq-answer p {
+            font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif;
+            font-size: 0.95rem;
+            color: #555;
+            line-height: 1.7;
+            margin: 0;
+            padding-bottom: 22px;
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer a { color: #aa954f; font-weight: 600; text-decoration: underline; }
+        @media (max-width: 640px) {
+            .faq-question h3 { font-size: 1.05rem; line-height: 1.45; padding-right: 12px; }
+        }
         @media (max-width: 640px) {
             .visit-expect-grid { grid-template-columns: 1fr; }
             .visit-expect-grid > div { padding: 32px 25px; }
@@ -207,18 +283,27 @@
             </div>
         </section>
 
-        <section style="padding: 60px 0; background-color: #ffffff;">
-            <div class="responsive-two-col">
-                
-                <div style="display: flex; flex-direction: column; justify-content: flex-start;">
-                    <h3 class="bullet-title">ბოლო ქადაგება</h3>
-
-                    <div class="video-placeholder" role="button" tabindex="0" id="sanity-latest-sermon" aria-label="უყურეთ ბოლო ქადაგებას" data-video-id="TS3WPriJtEA" style="margin-bottom: 0;">
-                        <i class="fa-solid fa-play" aria-hidden="true"></i>
-                    </div>
+        <!-- მისალმება მარცხნივ, ბოლო ქადაგება და განრიგი მარჯვნივ — როგორც
+             მთავარ და „ვინ ვართ ჩვენ“ გვერდებზე. განრიგს .week-schedule-title
+             განზრახ არ აქვს: აქ ის ტელეფონზეც უნდა ჩანდეს. -->
+        <section class="info-grid-section" aria-label="მისალმება და ბოლო ქადაგება">
+            <div class="info-grid-container">
+                <div class="left-column visit-welcome">
+                    <span class="grid-uppertitle">კეთილი იყოს შენი მობრძანება</span>
+                    <h2>პირველად მოდიხარ?<br>ძალიან გვიხარია</h2>
+                    <p>ჩვენ ვიცით, რომ ახალ ადგილას პირველად მოსვლა შეიძლება ცოტა ამაღელვებელი იყოს. სწორედ ამიტომ, ყველაფერს ვაკეთებთ იმისათვის, რომ თავი კომფორტულად, მშვიდად და დაფასებულად იგრძნოთ. <strong>სახარების რწმენის ეკლესია</strong> არ არის მხოლოდ საეკლესიო შენობა — ეს არის დიდი, მოსიყვარულე ოჯახი, სადაც თითოეული ადამიანის მიღება და მხარდაჭერა ჩვენი პრიორიტეტია.</p>
+                    <ul class="visit-facts">
+                        <li><i class="fa-regular fa-clock" aria-hidden="true"></i><span><strong>კვირა, 11:00</strong> — საკვირაო ღვთისმსახურება</span></li>
+                        <li><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span><a href="https://maps.app.goo.gl/vRDFyab5jMPhwHNh7" target="_blank" rel="noopener noreferrer"><strong>მესხის ქ. 42</strong>, ქუთაისი</a></span></li>
+                        <li><i class="fa-solid fa-child-reaching" aria-hidden="true"></i><span>ბავშვებისთვის — <a href="kids.html">საკვირაო სკოლა</a> იმავე დროს</span></li>
+                    </ul>
                 </div>
 
-                <div class="visit-aside">
+                <div class="right-column">
+                    <h3 class="bullet-title">ბოლო ქადაგება</h3>
+                    <div class="video-placeholder" role="button" tabindex="0" id="sanity-latest-sermon" aria-label="უყურეთ ბოლო ქადაგებას" data-video-id="TS3WPriJtEA">
+                        <i class="fa-solid fa-play" aria-hidden="true"></i>
+                    </div>
                     <h3 class="bullet-title">შემოგვიერთდით ამ კვირაში</h3>
                     <ul class="week-schedule" aria-label="Weekly schedule">
                         <li><strong>კვირა 11:00</strong><span>საკვირაო ღვთისმსახურება</span></li>
@@ -235,10 +320,6 @@
                 <div style="text-align: center; margin-bottom: 45px;">
                     <span class="grid-uppertitle">გზამკვლევი სტუმრებისთვის</span>
                     <h2 style="font-size: 2.2rem; color: #222; font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-weight: 700;">რას უნდა ელოდოთ პირველი ვიზიტისას?</h2>
-                </div>
-
-                <div style="width: 100%; box-sizing: border-box; color: #444; font-size: 1.1rem; line-height: 1.8; text-align: center; max-width: 900px; margin: 0 auto 50px auto;">
-                    <p>ჩვენ ვიცით, რომ ახალ ადგილას პირველად მოსვლა შეიძლება ცოტა ამაღელვებელი იყოს. სწორედ ამიტომ, ყველაფერს ვაკეთებთ იმისათვის, რომ თავი კომფორტულად, მშვიდად და დაფასებულად იგრძნოთ. <strong>სახარების რწმენის ეკლესია</strong> არ არის მხოლოდ საეკლესიო შენობა — ეს არის დიდი, მოსიყვარულე ოჯახი, სადაც თითოეული ადამიანის მიღება და მხარდაჭერა ჩვენი პრიორიტეტია.</p>
                 </div>
 
                 <div class="visit-expect-grid">
@@ -267,7 +348,65 @@
             </div>
         </section>
 
-        
+        <!-- ხშირად დასმული კითხვები — პასუხებში მხოლოდ ის ფაქტებია, რაც საიტზე
+             უკვე წერია (დრო, მისამართი, ბავშვების ჯგუფები). -->
+        <section class="faq-section" aria-labelledby="faqTitle">
+            <span class="cursive-text" style="color: #aa954f; display: block; margin-bottom: 10px; font-size: 1.2rem;">კითხვა-პასუხი</span>
+            <h2 id="faqTitle" style="font-family: 'Playfair Display', 'Noto Sans Georgian', serif; font-weight: 300; font-size: clamp(2rem, 5vw, 2.6rem); color: #111; margin: 0 0 10px 0;">ხშირად დასმული კითხვები</h2>
+            <div class="faq-container">
+
+                    <div class="faq-item">
+                        <div class="faq-question" role="button" tabindex="0" aria-expanded="false">
+                            <h3>როდის და სად ტარდება საკვირაო მსახურება?</h3>
+                            <i class="fa-solid fa-chevron-down faq-icon" aria-hidden="true"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>საკვირაო ღვთისმსახურება ყოველ კვირას, 11:00 საათზე იწყება, ეკლესიის შენობაში: <a href="https://maps.app.goo.gl/vRDFyab5jMPhwHNh7" target="_blank" rel="noopener noreferrer">მესხის ქ. 42, ქუთაისი</a>. კართან ჩვენი მასპინძლები დაგხვდებიან და დაგეხმარებიან.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" role="button" tabindex="0" aria-expanded="false">
+                            <h3>უნდა ვიყო მორწმუნე ან ეკლესიის წევრი, რომ მოვიდე?</h3>
+                            <i class="fa-solid fa-chevron-down faq-icon" aria-hidden="true"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>არა. ჩვენთან ყველა მისასალმებელია — ისიც, ვინც დიდი ხანია რწმენით ცხოვრობს, და ისიც, ვინც ჯერ მხოლოდ კითხვებს სვამს. შეგიძლია უბრალოდ მოხვიდე, მოისმინო და თავად გადაწყვიტო, გინდა თუ არა დაბრუნება.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" role="button" tabindex="0" aria-expanded="false">
+                            <h3>რა ვქნა ბავშვებთან ერთად?</h3>
+                            <i class="fa-solid fa-chevron-down faq-icon" aria-hidden="true"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>მსახურების დროს ბავშვებისთვის <a href="kids.html">საკვირაო სკოლა</a> მიმდინარეობს — სამ ჯგუფად, 3–6, 7–10 და 11–13 წლის ბავშვებისთვის, თითოეულის ასაკის შესაბამისად. მათზე ჩვენი მასწავლებლები ზრუნავენ.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" role="button" tabindex="0" aria-expanded="false">
+                            <h3>კვირას ვერ მოვდივარ. შემიძლია ქადაგება ონლაინ ვნახო?</h3>
+                            <i class="fa-solid fa-chevron-down faq-icon" aria-hidden="true"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>რა თქმა უნდა. ყოველი კვირის ქადაგება ჩვენს <a href="sermons.html">ქადაგებების გვერდზე</a> ჩნდება — ვიდეოდაც და აუდიოდაც. შეგიძლია იქიდან გააგრძელო ყურება, სადაც გაჩერდი.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" role="button" tabindex="0" aria-expanded="false">
+                            <h3>პირველი ვიზიტის შემდეგ რა არის შემდეგი ნაბიჯი?</h3>
+                            <i class="fa-solid fa-chevron-down faq-icon" aria-hidden="true"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>თუ გინდა ჩვენი საზოგადოების ნაწილი გახდე, საუკეთესო დასაწყისია <a href="family-groups.html">საოჯახო ჯგუფი</a> (ოთხშაბათობით, 19:00) ან, თუ 14–25 წლის ხარ, <a href="youth.html">ახალგაზრდული მსახურება</a> (შაბათობით, 16:00). მეტი იხილე გვერდზე <a href="next-steps.html">„რა არის შემდეგი ნაბიჯი?“</a></p>
+                        </div>
+                    </div>
+
+            </div>
+        </section>
 
     </main>
 
@@ -448,6 +587,43 @@
 <script src="../analytics.js"></script>
 <script src="../script.js"></script>
 <script src="../sanity-fetch.js"></script>
+<script>
+    // ხშირად დასმული კითხვები: ერთ ჯერზე ერთი პასუხი იხსნება (იგივე, რაც youth.html-ზე)
+    document.querySelectorAll(".faq-question").forEach(question => {
+        const toggleFaq = () => {
+            const item = question.parentElement;
+            const answer = item.querySelector(".faq-answer");
+            const isActive = item.classList.contains("active");
+
+            document.querySelectorAll(".faq-item.active").forEach(activeItem => {
+                if (activeItem !== item) {
+                    activeItem.classList.remove("active");
+                    activeItem.querySelector(".faq-answer").style.maxHeight = null;
+                    activeItem.querySelector(".faq-question").setAttribute("aria-expanded", "false");
+                }
+            });
+
+            if (isActive) {
+                item.classList.remove("active");
+                answer.style.maxHeight = null;
+                question.setAttribute("aria-expanded", "false");
+            } else {
+                item.classList.add("active");
+                answer.style.maxHeight = answer.scrollHeight + "px";
+                question.setAttribute("aria-expanded", "true");
+            }
+        };
+
+        question.addEventListener("click", toggleFaq);
+        question.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                toggleFaq();
+            }
+        });
+    });
+</script>
+
 
 
 

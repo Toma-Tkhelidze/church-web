@@ -4279,48 +4279,57 @@ a.next-service .ns-where, .next-service a.ns-where {
 .event-card { scroll-margin-top: 110px; }
 
 /* ==========================================================================
-   „მე ახალი ვარ აქ“ — გვერდითი სვეტი
-   იყენებს იმავე .bullet-title / .week-schedule / .video-placeholder
-   ელემენტებს, რაც მთავარ გვერდზეა, ინლაინ სტილების ნაცვლად.
+   „მე ახალი ვარ აქ“ — მისალმება
+   მარჯვენა სვეტი (ბოლო ქადაგება + განრიგი) მთავარი გვერდის .right-column-ია;
+   აქ მხოლოდ მარცხენა ბლოკის მოკლე ფაქტებია: როდის, სად, ბავშვები.
    ========================================================================== */
-.visit-aside {
-    padding-top: 10px;
+.visit-welcome p {
+    color: #555;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    margin: 0 0 28px;
 }
 
-.visit-aside .week-schedule {
-    margin: 0 0 40px 0;
+.visit-facts {
     list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 14px;
 }
 
-/* ვიდეო სვეტის ბოლო ელემენტია — ქვედა დაშორება ზედმეტია */
-.visit-aside .video-placeholder {
-    margin-bottom: 0;
-}
-
-/* განრიგი ვიდეოსთან გვერდიგვერდ დგას და ვიდეოსთან შედარებით პატარა არ უნდა ჩანდეს:
-   სვეტი უფრო განიერია, ტექსტი და დაშორებები — გაზრდილი (მხოლოდ ამ გვერდზე) */
-.responsive-two-col:has(> .visit-aside) {
-    grid-template-columns: 1.7fr 1fr;
-}
-
-/* ორივე სვეტის სათაური (.bullet-title) მთავარი გვერდის იდენტურია და ერთ ხაზზე იწყება */
-.responsive-two-col > .visit-aside {
-    padding-top: 0;
-}
-
-.visit-aside .week-schedule li {
-    margin-bottom: 22px;
-    padding-bottom: 20px;
-    gap: 8px;
-}
-
-.visit-aside .week-schedule li strong {
-    font-size: 24px;
-}
-
-.visit-aside .week-schedule li span {
-    font-size: 17px;
+.visit-facts li {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    color: #444;
+    font-size: 1rem;
     line-height: 1.5;
+}
+
+.visit-facts i {
+    flex: 0 0 18px;
+    color: var(--gold);
+    text-align: center;
+}
+
+.visit-facts a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--gold-dim);
+    text-underline-offset: 3px;
+    transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+
+.visit-facts a:hover {
+    color: var(--gold);
+    text-decoration-color: var(--gold);
+}
+
+/* ვიწრო ეკრანზე ვიდეოს ქვედა დაშორება ნულდება (იქ ის, ჩვეულებრივ, ბოლოა).
+   აქ მას განრიგი მოსდევს — სათაურს თავისი დაშორება სჭირდება. */
+.right-column .video-placeholder + .bullet-title:not(.week-schedule-title) {
+    margin-top: 32px;
 }
 
 /* ==========================================================================
