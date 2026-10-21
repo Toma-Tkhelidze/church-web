@@ -52,6 +52,9 @@
                 const url = 'https://img.youtube.com/vi/' + videoId + '/' + filename;
                 const tempImg = new Image();
                 tempImg.onload = function() {
+                    // ძველი ID-ის სურათი გვიან ჩაიტვირთა — ახალს აღარ გადავაწეროთ.
+                    const current = el.getAttribute('data-video-id');
+                    if (current && current !== videoId) return;
                     if (tempImg.naturalWidth === 120 && index < stages.length - 1) {
                         index++;
                         tryLoad();
