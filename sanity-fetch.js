@@ -205,6 +205,32 @@ function applyLatestSermonId(sermonId) {
   // გაზიარებული ბმულით (?s=<ID>) მოსულს სწორედ ის ქადაგება უნდა დახვდეს
   // და არა ბოლო.
   setSermonFacade(SHARED_SERMON ? SHARED_SERMON.id : sermonId);
+  applyLatestSermonLinks(sermonId);
+}
+
+// მთავარი გვერდი: „უყურე ბოლო ქადაგებას“ და ვიდეოს ქვეშ სათაური.
+// ?s=<ID> ქადაგებების გვერდს პირდაპირ პლეერზე ხსნის.
+function applyLatestSermonLinks(sermonId) {
+  const links = document.querySelectorAll('[data-latest-sermon-link]');
+  if (!links.length) return;
+  const href = links[0].getAttribute('href').split('?')[0] + '?s=' + encodeURIComponent(sermonId);
+  links.forEach(a => { a.href = href; });
+
+  const titleEl = document.getElementById('latestSermonTitle');
+  if (!titleEl) return;
+  // სათაური არქივშია, ახლახან ატვირთული კი — მხოლოდ feed-ში.
+  Promise.all([
+    fetchSermonArchive(),
+    currentSermonPlaylistId().then(fetchPlaylistFeed).catch(() => null)
+  ]).then(([archive, feed]) => {
+    const pool = [].concat(feed || [], ...Object.values((archive && archive.years) || {}));
+    const hit = pool.find(item => item && item.id === sermonId);
+    if (!hit || !hit.title) return;
+    const parts = splitSermonTitle(hit.title, hit.pubDate || hit.date);
+    titleEl.innerHTML = escapeHtml(parts.title) +
+      (parts.date ? '<span class="latest-sermon-date">' + escapeHtml(parts.date) + '</span>' : '');
+    titleEl.hidden = false;
+  });
 }
 
 // Sanity-ს CDN ორიგინალ ფაილს აბრუნებს — ატვირთული PNG რამდენიმე

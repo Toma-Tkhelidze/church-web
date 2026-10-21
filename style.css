@@ -1277,6 +1277,50 @@ video {
     color: var(--dark-900);
 }
 
+/* მთავარი გვერდი: ბოლო ქადაგების ქვეშ სათაური და „ყველა ქადაგება“.
+   ვიდეოს 40px ქვედა დაშორებას ვიყენებთ — ბლოკი ვიდეოს ეკვრის. */
+.latest-sermon-meta {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin: -26px 0 40px;
+}
+
+.latest-sermon-title {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    color: var(--dark-900);
+    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    text-decoration: none;
+}
+
+.latest-sermon-title[hidden] { display: none; }
+.latest-sermon-title:hover { color: var(--gold); }
+
+.latest-sermon-date {
+    color: #8a8a8a;
+    font-size: 0.8rem;
+    font-weight: 400;
+}
+
+.latest-sermon-all {
+    flex-shrink: 0;
+    margin-left: auto;
+    color: var(--gold);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.latest-sermon-all i { margin-left: 4px; transition: transform 0.2s ease; }
+.latest-sermon-all:hover i { transform: translateX(3px); }
+
 .week-schedule {
     padding: 0;
 }
@@ -3325,6 +3369,10 @@ a.next-service .ns-where, .next-service a.ns-where {
        დატოვებული ქვედა დაშორება აღარ სცილდება */
     .info-grid-container .right-column .video-placeholder {
         margin-bottom: 0;
+    }
+
+    .latest-sermon-meta {
+        margin: 14px 0 0;
     }
 }
 

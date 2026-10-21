@@ -186,7 +186,10 @@
         <div class="hero-content">
             <h1 id="sanity-main-title">ქუთაისის სახარების რწმენის ეკლესია</h1>
             <p class="cursive-text">შენი ადგილი აქ არის.</p>
-            <a href="#welcome" class="btn btn-hero">გაიგე მეტი</a>
+            <!-- ქადაგებები კომპიუტერის მენიუში „რესურსებშია“ დამალული — აქედან
+                 პირდაპირ მიდის. href-ს sanity-fetch.js ბოლო ქადაგების ID-ით
+                 ავსებს (?s=<ID>), რომ გვერდი პლეერზე გაიხსნას. -->
+            <a href="pages/sermons.html" class="btn btn-hero" data-latest-sermon-link><i class="fa-solid fa-play" aria-hidden="true"></i> უყურე ბოლო ქადაგებას</a>
 
         </div>
     </section>
@@ -372,6 +375,11 @@
                 <h3 class="bullet-title">ბოლო ქადაგება</h3>
                 <div class="video-placeholder" role="button" tabindex="0" id="sanity-latest-sermon" aria-label="უყურეთ ბოლო ქადაგებას" data-video-id="qj7EVIvEEhI">
                     <i class="fa-solid fa-play" aria-hidden="true"></i>
+                </div>
+                <!-- სათაურს sanity-fetch.js ავსებს; სანამ ვერ გაიგო, დამალულია -->
+                <div class="latest-sermon-meta">
+                    <a class="latest-sermon-title" id="latestSermonTitle" href="pages/sermons.html" data-latest-sermon-link hidden></a>
+                    <a class="latest-sermon-all" href="pages/sermons.html#weeklySermons">ყველა ქადაგება <i class="fa-solid fa-arrow-right-long" aria-hidden="true"></i></a>
                 </div>
                 <h3 class="bullet-title week-schedule-title">ამ კვირაში</h3>
                 <ul class="week-schedule" aria-label="Weekly schedule">
