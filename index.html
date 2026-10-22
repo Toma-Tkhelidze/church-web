@@ -198,74 +198,36 @@
         </div>
     </section>
 
-    <div class="welcome-row" id="welcome">
-    <section class="welcome-banner floating-banner" aria-label="Welcome section">
-        <div class="welcome-container">
-            <div class="welcome-text-block">
-                <p class="subtitle">კეთილი იყოს თქვენი მობრძანება</p>
-                <h2>შემოგვიერთდით!</h2>
-                <p>იპოვეთ ადგილი თქვენთვის და თქვენი ოჯახის თითოეული წევრისთვის, რათა იპოვოთ პასუხები ცხოვრებისეულ გამოწვევებზე.</p>
-            </div>
-
-            <div class="schedule-grid" role="list" aria-label="Service schedule">
-
-                <div class="schedule-item" role="listitem" onclick="window.location.href='pages/new-here.html';">
-                    <div class="clock-wrap" aria-label="საათი აჩვენებს 11:00-ს">
-                        <svg class="clock-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                            <circle cx="50" cy="50" r="44" fill="none" stroke="currentColor" stroke-width="3.5" opacity="0.45"/>
-                            <line x1="50" y1="6"  x2="50" y2="16" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-                            <line x1="94" y1="50" x2="84" y2="50" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-                            <line x1="50" y1="94" x2="50" y2="84" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-                            <line x1="6"  y1="50" x2="16" y2="50" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-                            <line x1="50" y1="50" x2="50" y2="20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-                            <line x1="50" y1="50" x2="40" y2="33" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
-                            <circle cx="50" cy="50" r="4" fill="currentColor"/>
-                        </svg>
-                    </div>
-                    <h3>11:00</h3>
-                    <p class="schedule-day">კვირა</p>
-                    <span class="schedule-label">საკვირაო ღვთისმსახურება</span>
-                </div>
-
-                <div class="schedule-item" role="listitem" onclick="window.location.href='pages/youth.html';">
-                    <div class="clock-wrap" aria-label="საათი აჩვენებს 16:00-ს">
-                        <svg class="clock-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                            <circle cx="50" cy="50" r="44" fill="none" stroke="currentColor" stroke-width="3.5" opacity="0.45"/>
-                            <line x1="50" y1="6"  x2="50" y2="16" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-                            <line x1="94" y1="50" x2="84" y2="50" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-                            <line x1="50" y1="94" x2="50" y2="84" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-                            <line x1="6"  y1="50" x2="16" y2="50" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-                            <line x1="50" y1="50" x2="50" y2="20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-                            <line x1="50" y1="50" x2="67" y2="60" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
-                            <circle cx="50" cy="50" r="4" fill="currentColor"/>
-                        </svg>
-                    </div>
-                    <h3>16:00</h3>
-                    <p class="schedule-day">შაბათი</p>
-                    <span class="schedule-label">ახალგაზრდული მსახურება</span>
-                </div>
-
-                <div class="schedule-item" role="listitem" onclick="window.location.href='pages/family-groups.html';">
-                    <div class="clock-wrap" aria-label="საათი აჩვენებს 19:00-ს">
-                        <svg class="clock-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                            <circle cx="50" cy="50" r="44" fill="none" stroke="currentColor" stroke-width="3.5" opacity="0.45"/>
-                            <line x1="50" y1="6"  x2="50" y2="16" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-                            <line x1="94" y1="50" x2="84" y2="50" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-                            <line x1="50" y1="94" x2="50" y2="84" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-                            <line x1="6"  y1="50" x2="16" y2="50" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-                            <line x1="50" y1="50" x2="50" y2="20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-                            <line x1="50" y1="50" x2="40" y2="67" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
-                            <circle cx="50" cy="50" r="4" fill="currentColor"/>
-                        </svg>
-                    </div>
-                    <h3>19:00</h3>
-                    <p class="schedule-day">ოთხშაბათი</p>
-                    <span class="schedule-label">საოჯახო ჯგუფები</span>
-                </div>
-
-            </div>
+    <!-- მისალმება + კვირის განრიგი + მომდევნო მსახურება — ერთ მუქ ზოლში.
+         ამთვლელი (#nextService) და „შემდეგი“ ნიშანი script.js-ის მე-9 ნაწილშია. -->
+    <section class="welcome-band" id="welcome" aria-label="მისალმება და განრიგი">
+        <div class="welcome-text-block wb-welcome">
+            <p class="subtitle">კეთილი იყოს თქვენი მობრძანება</p>
+            <h2>შემოგვიერთდით!</h2>
+            <p>აქ ადგილი გაქვს შენც და შენი ოჯახის ყველა წევრსაც — მოდი, ერთად ვეძებოთ პასუხები ცხოვრების კითხვებზე.</p>
+            <a class="wb-link" href="pages/new-here.html">პირველად მოდიხარ? <i class="fa-solid fa-arrow-right-long" aria-hidden="true"></i></a>
         </div>
-    </section>
+
+        <div class="wb-week">
+            <span class="ns-eyebrow">ამ კვირაში</span>
+            <ul class="wb-list" aria-label="კვირის განრიგი">
+                <li data-day="0"><a href="pages/new-here.html">
+                    <span class="wb-when">11:00<small>კვირა</small></span>
+                    <span class="wb-name">საკვირაო ღვთისმსახურება <span class="wb-chip">შემდეგი</span></span>
+                    <i class="fa-solid fa-chevron-right wb-chev" aria-hidden="true"></i>
+                </a></li>
+                <li data-day="6"><a href="pages/youth.html">
+                    <span class="wb-when">16:00<small>შაბათი</small></span>
+                    <span class="wb-name">ახალგაზრდული მსახურება <span class="wb-chip">შემდეგი</span></span>
+                    <i class="fa-solid fa-chevron-right wb-chev" aria-hidden="true"></i>
+                </a></li>
+                <li data-day="3"><a href="pages/family-groups.html">
+                    <span class="wb-when">19:00<small>ოთხშაბათი</small></span>
+                    <span class="wb-name">საოჯახო ჯგუფები <span class="wb-chip">შემდეგი</span></span>
+                    <i class="fa-solid fa-chevron-right wb-chev" aria-hidden="true"></i>
+                </a></li>
+            </ul>
+        </div>
 
         <aside class="next-service" id="nextService" aria-label="მომდევნო ღვთისმსახურება">
             <span class="ns-eyebrow">მომდევნო მსახურება</span>
@@ -291,7 +253,7 @@
                 <i class="fa-solid fa-arrow-up-right-from-square ns-where-ext" aria-hidden="true"></i>
             </a>
         </aside>
-    </div>
+    </section>
 
     <section class="building-section" aria-label="Church Building Support">
         <div class="building-container">
