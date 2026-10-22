@@ -49,8 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ──────────────────────────────────────────────
     // 2. WELCOME BANNER - გლუვი გამოჩენა სქროლისას (ხელუხლებელი)
     // ──────────────────────────────────────────────
-    // ძველი ოქროსფერი ბანერი ან ახალი მუქი ზოლი (მთავარი გვერდი)
-    const welcomeBanner = document.querySelector('.welcome-banner.floating-banner, .welcome-band');
+    const welcomeBanner = document.querySelector('.welcome-banner.floating-banner');
 
     if (welcomeBanner) {
         const revealBanner = () => {
@@ -611,8 +610,6 @@ window.unlockBodyScroll = function() {
     ];
 
     const eyebrow = panel.querySelector('.ns-eyebrow');
-    // კვირის განრიგის სია მისასალმებელ ზოლში — მომდევნოს „შემდეგი“ ნიშანი ედება.
-    const weekRows = document.querySelectorAll('.wb-list li[data-day]');
     const titleLink = panel.querySelector('.ns-title-link');
     const titleText = panel.querySelector('.ns-title-text');
     const when = panel.querySelector('.ns-when');
@@ -658,12 +655,6 @@ window.unlockBodyScroll = function() {
         if (!best) return;
 
         titleText.textContent = best.svc.title;
-        weekRows.forEach(li => {
-            const on = Number(li.dataset.day) === best.svc.day;
-            li.classList.toggle('is-next', on);
-            const chip = li.querySelector('.wb-chip');
-            if (chip) chip.textContent = on && best.state.live ? 'ახლა' : 'შემდეგი';
-        });
         if (best.svc.href) titleLink.setAttribute('href', best.svc.href);
 
         if (best.state.live) {
@@ -694,8 +685,7 @@ window.unlockBodyScroll = function() {
 
     // პანელი ბანერთან ერთად ჩნდება — ბანერის კლასს ვადევნებთ თვალს,
     // რომ გამოჩენის ლოგიკა ერთ ადგილას დარჩეს.
-    // ახალ ზოლში ამთვლელი ზოლის ნაწილია და თავისით არ ჩნდება — ზოლს მიჰყვება.
-    const banner = document.querySelector('.welcome-banner.floating-banner, .welcome-band');
+    const banner = document.querySelector('.welcome-banner.floating-banner');
     if (!banner) {
         panel.classList.add('is-revealed');
         return;
