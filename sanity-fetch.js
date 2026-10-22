@@ -258,6 +258,23 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
+// რეგისტრაციის ბარათში ბანაკის აღწერა იხსენიებს თიზერს — ეს სიტყვები
+// ბმულად ვაქციოთ, რომელიც ბანაკის გვერდზე ვიდეოსთან მიდის.
+const CAMP_TEASER_PAGES = { 'youth-camp': 'youth.html#camp', 'kids-camp': 'kids.html#camp' };
+function linkCampTeaser(el, eventId) {
+  const href = CAMP_TEASER_PAGES[eventId];
+  const phrase = 'უყურეთ წინა წლის თიზერს';
+  const text = el.textContent;
+  const i = text.indexOf(phrase);
+  if (!href || i < 0) return;
+  const a = document.createElement('a');
+  a.href = href;
+  a.className = 'event-teaser-link';
+  a.textContent = phrase;
+  el.textContent = text.slice(0, i);
+  el.append(a, text.slice(i + phrase.length));
+}
+
 // საოჯახო ჯგუფების ბარათები. მარკაპი იმეორებს გვერდზე არსებულ სტატიკურ
 // ბარათებს ერთ-ერთში, რომ იერი არ შეიცვალოს.
 function renderFamilyGroups(groups) {
@@ -843,7 +860,10 @@ function updatePageContent() {
 
               // Update description
               const desc = card.querySelector('.event-description');
-              if (desc && evt.description) desc.textContent = evt.description;
+              if (desc && evt.description) {
+                desc.textContent = evt.description;
+                linkCampTeaser(desc, evt.eventId);
+              }
 
               // Update button
               const button = card.querySelector('.btn-register-cta');
