@@ -3485,6 +3485,10 @@ a.next-service .ns-where, .next-service a.ns-where {
 
 .welcome-band > * {
     min-width: 0;
+    /* სამივე ნაწილი ვერტიკალურად ცენტრშია — როგორც ამთვლელი */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     padding: clamp(26px, 3vw, 46px) clamp(22px, 2.6vw, 40px);
 }
 
@@ -3495,24 +3499,29 @@ a.next-service .ns-where, .next-service a.ns-where {
 
 .welcome-band .wb-welcome .subtitle { color: var(--gold-light) !important; }
 
+/* ტექსტი დიდია, რომ ორივე ნაწილი ამთვლელის სიმაღლეს შეავსოს */
 .welcome-band .wb-welcome h2 {
-    font-size: clamp(1.6rem, 2.4vw, 2.2rem);
-    margin-bottom: 12px;
+    font-size: clamp(1.8rem, 2.5vw, 2.4rem);
+    margin-bottom: 16px;
+    /* სიტყვა შუაზე არ უნდა გაწყდეს (.hero-content-ის anywhere აქ არ გვინდა) */
+    overflow-wrap: normal;
+    word-break: keep-all;
 }
 
 .welcome-band .wb-welcome p:not(.subtitle) {
     margin-bottom: 0;
-    line-height: 1.65;
+    font-size: clamp(1.05rem, 1.2vw, 1.2rem);
+    line-height: 1.7;
 }
 
 .wb-link {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    margin-top: 22px;
+    margin-top: 26px;
     color: var(--gold-light);
     text-decoration: none;
-    font-size: 0.95rem;
+    font-size: 1.08rem;
     transition: color 0.2s ease;
 }
 
@@ -3541,10 +3550,10 @@ a.next-service .ns-where, .next-service a.ns-where {
 
 .wb-list a {
     display: grid;
-    grid-template-columns: 104px minmax(0, 1fr) auto;
+    grid-template-columns: 124px minmax(0, 1fr) auto;
     align-items: center;
-    gap: 12px;
-    padding: 11px 12px;
+    gap: 14px;
+    padding: 15px 14px;
     border-radius: 10px;
     color: var(--white);
     text-decoration: none;
@@ -3560,17 +3569,19 @@ a.next-service .ns-where, .next-service a.ns-where {
 .wb-list a:focus-visible { box-shadow: 0 0 0 2px var(--gold); }
 
 .wb-when {
-    font-size: 1.05rem;
+    font-size: 1.4rem;
+    line-height: 1.2;
     font-variant-numeric: tabular-nums;
 }
 
 .wb-when small {
     display: block;
-    font-size: 0.72rem;
+    margin-top: 2px;
+    font-size: 0.82rem;
     color: rgba(255, 255, 255, 0.6);
 }
 
-.wb-name { font-size: 0.95rem; line-height: 1.4; }
+.wb-name { font-size: 1.1rem; line-height: 1.4; }
 .wb-chev { color: rgba(255, 255, 255, 0.4); font-size: 0.75rem; }
 
 .wb-chip {
@@ -3624,7 +3635,9 @@ a.next-service .ns-where, .next-service a.ns-where {
 }
 
 @media (max-width: 480px) {
-    .wb-list a { grid-template-columns: 86px minmax(0, 1fr) auto; padding: 10px 8px; }
+    .wb-list a { grid-template-columns: 92px minmax(0, 1fr) auto; padding: 12px 8px; }
+    .wb-when { font-size: 1.2rem; }
+    .wb-name { font-size: 1rem; }
     .welcome-band .next-service .ns-unit strong { font-size: 1.5rem; }
 }
 
