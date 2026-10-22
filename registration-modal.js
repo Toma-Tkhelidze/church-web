@@ -136,7 +136,7 @@ const REG_FIELDS = {
     validate: v => v !== ''
   },
   question: {
-    label: 'გაქვს რამე კითხვა? (არასავალდებულო)', type: 'textarea', placeholder: 'მაგ: რა ჩავიცვა, რამდენ ხანს გრძელდება შეხვედრა…',
+    label: 'გაქვს რამე კითხვა? (არასავალდებულო)', type: 'textarea', placeholder: 'მაგ: რამდენ ხანს გრძელდება შეხვედრა…',
     validate: () => true
   }
 };
