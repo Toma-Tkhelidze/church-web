@@ -130,7 +130,13 @@
         .event-meta { font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-size: 0.88rem; color: #666; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
         .event-meta i { color: #aa954f; }
         .event-description { font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; font-size: 0.9rem; color: #555; line-height: 1.6; margin: 15px 0 25px 0; }
-        .event-teaser-link { color: #aa954f; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+        /* თიზერის ბმული ბანაკის აღწერაში — ოქროსფერი ჩიპი თამაშის ხატულით */
+        .event-teaser-link { display: inline-flex; align-items: center; gap: 7px; margin: 2px 2px; padding: 3px 12px 3px 4px; border-radius: 999px; background: rgba(170, 149, 79, 0.12); border: 1px solid rgba(170, 149, 79, 0.35); color: #8a7535; font-weight: 600; text-decoration: none; line-height: 1.5; white-space: nowrap; transition: background 0.25s, color 0.25s, border-color 0.25s, box-shadow 0.25s; }
+        .event-teaser-link i { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: #aa954f; color: #fff; font-size: 0.55rem; padding-left: 2px; box-sizing: border-box; transition: transform 0.25s; }
+        .event-teaser-link:hover, .event-teaser-link:focus-visible { background: #aa954f; border-color: #aa954f; color: #fff; box-shadow: 0 6px 16px rgba(170, 149, 79, 0.3); }
+        .event-teaser-link:hover i, .event-teaser-link:focus-visible i { background: #fff; color: #aa954f; transform: scale(1.08); }
+        .event-teaser-link:focus-visible { outline: 2px solid #aa954f; outline-offset: 2px; }
+        @media (max-width: 400px) { .event-teaser-link { white-space: normal; } }
 
         /* პრემიუმ ღილაკები */
         .btn-register-cta {

@@ -270,7 +270,8 @@ function linkCampTeaser(el, eventId) {
   const a = document.createElement('a');
   a.href = href;
   a.className = 'event-teaser-link';
-  a.textContent = phrase;
+  a.innerHTML = '<i class="fa-solid fa-play" aria-hidden="true"></i>';
+  a.append(phrase);
   el.textContent = text.slice(0, i);
   el.append(a, text.slice(i + phrase.length));
 }
