@@ -3431,30 +3431,56 @@ a.next-service .ns-where, .next-service a.ns-where {
 }
 
 /* ==========================================================================
-   მისასალმებელი ზოლი (2026-10-23): მისალმება · კვირის განრიგი · ამთვლელი
-   ერთ მუქ ზოლში. ორ ცალკე ბარათს (ოქროსფერი .welcome-row და მუქი
-   .next-service) ცვლის — ზემოთა .welcome-row/.welcome-banner წესები
-   მთავარ გვერდზე აღარ ემთხვევა არაფერს.
-   ფონი სუფთა შავია; ოქროსფერი შეფერილობა მხოლოდ მისალმების უკანაა (როგორც
-   „მუქ ესკიზში“), ზედა კიდეზე წვრილი ოქროსფერი ხაზი, სვეტებს შორის თხელი
-   გამყოფები. შუა სვეტის ნათება მოხსნილია — „ნახატივით“ გამოიყურებოდა.
-   ამთვლელი იგივე #nextService-ია (script.js §9); აქ მხოლოდ საკუთარი
-   ბარათის იერი ეხსნება, რომ ზოლის ნაწილი გახდეს.
+   მისასალმებელი ზოლი — მინა ფოტოზე (2026-10-23)
+   მისალმება · კვირის განრიგი · ამთვლელი ერთ ნახევრად გამჭვირვალე, ბუნდოვან
+   „მინაში“: მის მიღმა მთავარი ფოტო რბილად ჩანს, ამიტომ ზოლი სცენის
+   ნაწილად აღიქმება და არა დადებულ ფიგურად. ოქრო მხოლოდ ციფრებსა და
+   პატარა სათაურებშია, ნაწილებს წვრილი ხაზები ყოფს.
+
+   მინა მხოლოდ მუქზე მუშაობს — თეთრზე ნაცრისფრად იმღვრევა. ამიტომ:
+   - ზოლი ფოტოზე მაღლა ზის (უარყოფითი margin-top), მთავარ ბანერს კი ქვემოთ
+     დამატებითი ადგილი აქვს, რომ სათაური და ღილაკი არ დაიფაროს;
+   - .welcome-stage ზოლის ქვეშ მუქი ფონია, რომელიც მშენებლობის სექციის
+     ფერში (--dark-800) გადადის — თეთრი შუალედი აღარ რჩება.
+   ამთვლელი იგივე #nextService-ია (script.js §9).
    ========================================================================== */
-.welcome-band {
+.welcome-stage {
     position: relative;
     z-index: 10;
-    margin: -60px clamp(16px, 3vw, 40px) -40px;
+    /* ზოლის უარყოფითი margin-top მშობელში არ უნდა „გაჟონოს“ — თორემ მუქი
+       ფონი თავადაც მაღლა იწევს და ფოტოს ბოლოს ფარავს */
+    display: flow-root;
+    background: var(--dark-800);
+    padding: 0 clamp(16px, 3vw, 40px);
+}
+
+/* ზოლის ქვედა ნაწილი მშენებლობის სექციას ეკვრის — ზედა დაშორება ნაკლებია */
+.welcome-stage + .building-section { padding-top: 70px; }
+
+/* ადგილი ზოლისთვის ფოტოს ბოლოში: შიგთავსი (სათაური, ღილაკი) ზემოთ იწევს */
+#sanity-main-image.hero-section { padding-bottom: 260px; }
+
+.welcome-band {
+    position: relative;
+    margin: -230px auto 0;
+    max-width: 1320px;
     display: grid;
     grid-template-columns: 1.15fr 1.25fr 1fr;
-    background: rgba(17, 17, 17, 0.97);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    overflow: hidden;
     color: var(--white);
+    border-radius: 18px;
+    overflow: hidden;
+
+    /* მინა: ზემოდან მსუბუქი ანარეკლი, მიღმა ფოტო ბუნდოვნად */
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.03)),
+        rgba(24, 21, 16, 0.44);
+    backdrop-filter: blur(22px) saturate(1.25);
+    -webkit-backdrop-filter: blur(22px) saturate(1.25);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.18),
+        0 24px 50px rgba(0, 0, 0, 0.35);
+
     font-family: 'FiraGoBold', 'Noto Sans Georgian', 'NotoSansGeorgian', sans-serif;
     font-feature-settings: "case" on;
 
@@ -3467,14 +3493,9 @@ a.next-service .ns-where, .next-service a.ns-where {
         transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* ზედა კიდის წვრილი ოქროსფერი ხაზი: მისალმებიდან მარჯვნივ ქრება */
-.welcome-band::before {
-    content: "";
-    position: absolute;
-    inset: 0 0 auto;
-    height: 2px;
-    background: linear-gradient(90deg, var(--gold) 0%, rgba(170, 149, 79, 0.35) 45%, rgba(170, 149, 79, 0) 85%);
-    pointer-events: none;
+/* backdrop-filter-ის გარეშე (ძველი ბრაუზერები) მინა უფრო მუქი უნდა იყოს */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .welcome-band { background: rgba(24, 21, 16, 0.9); }
 }
 
 .welcome-band.banner-visible {
@@ -3489,17 +3510,14 @@ a.next-service .ns-where, .next-service a.ns-where {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: clamp(26px, 3vw, 46px) clamp(22px, 2.6vw, 40px);
+    padding: clamp(26px, 3vw, 44px) clamp(22px, 2.6vw, 40px);
 }
 
-/* — მისალმება: რბილი ოქროსფერი შეფერილობა, კუთხიდან ქრება — */
-.welcome-band .wb-welcome {
-    background: linear-gradient(160deg, rgba(170, 149, 79, 0.24) 0%, rgba(170, 149, 79, 0.05) 60%, rgba(170, 149, 79, 0) 100%);
-}
+.welcome-band > * + * { border-left: 1px solid rgba(255, 255, 255, 0.12); }
 
+/* — მისალმება — */
 .welcome-band .wb-welcome .subtitle { color: var(--gold-light) !important; }
 
-/* ტექსტი დიდია, რომ ორივე ნაწილი ამთვლელის სიმაღლეს შეავსოს */
 .welcome-band .wb-welcome h2 {
     font-size: clamp(1.8rem, 2.5vw, 2.4rem);
     margin-bottom: 16px;
@@ -3512,93 +3530,91 @@ a.next-service .ns-where, .next-service a.ns-where {
     margin-bottom: 0;
     font-size: clamp(1.05rem, 1.2vw, 1.2rem);
     line-height: 1.7;
+    color: rgba(255, 255, 255, 0.88) !important;
 }
 
+/* ბმული: ტექსტი და მის გვერდით წვრილი ხაზი, რომელიც მაუსზე გრძელდება */
 .wb-link {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     margin-top: 26px;
-    color: var(--gold-light);
+    color: var(--white);
     text-decoration: none;
-    font-size: 1.08rem;
-    transition: color 0.2s ease;
+    font-size: 1.02rem;
+    letter-spacing: 0.04em;
 }
 
-.wb-link i { transition: transform 0.25s ease; }
-.wb-link:hover { color: var(--white); }
-.wb-link:hover i { transform: translateX(4px); }
+.wb-link i { display: none; }
 
-/* — კვირის განრიგი და ამთვლელი: სუფთა შავი, თხელი გამყოფით — */
-.wb-week,
-.welcome-band .next-service {
-    border-left: 1px solid rgba(255, 255, 255, 0.08);
+.wb-link::after {
+    content: "";
+    width: 28px;
+    height: 1px;
+    background: currentColor;
+    transition: width 0.25s ease;
 }
 
-/* სტრიქონებს შორის ძალიან თხელი ხაზი — „ცხრილის“ შეგრძნება */
-.wb-list li + li a { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06); }
-.wb-list li.is-next a,
-.wb-list li.is-next + li a { box-shadow: none; }
+.wb-link:hover::after { width: 44px; }
+.wb-link:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 4px; }
 
+/* — კვირის განრიგი: სტრიქონები წვრილი ხაზებით, ფონის გარეშე — */
 .wb-list {
     list-style: none;
     margin: 0;
     padding: 0;
-    display: grid;
-    gap: 2px;
 }
 
 .wb-list a {
     display: grid;
-    grid-template-columns: 124px minmax(0, 1fr) auto;
-    align-items: center;
+    grid-template-columns: 116px minmax(0, 1fr) 16px;
+    align-items: baseline;
     gap: 14px;
-    padding: 15px 14px;
-    border-radius: 10px;
+    padding: 15px 4px;
     color: var(--white);
     text-decoration: none;
-    transition: background 0.2s ease;
 }
 
-.wb-list a:hover,
-.wb-list a:focus-visible {
-    background: rgba(255, 255, 255, 0.07);
-    outline: none;
-}
-
-.wb-list a:focus-visible { box-shadow: 0 0 0 2px var(--gold); }
+.wb-list li + li a { border-top: 1px solid rgba(255, 255, 255, 0.12); }
+.wb-list a:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; border-radius: 4px; }
 
 .wb-when {
-    font-size: 1.4rem;
-    line-height: 1.2;
+    font-size: 1.45rem;
+    line-height: 1.1;
     font-variant-numeric: tabular-nums;
 }
 
 .wb-when small {
     display: block;
-    margin-top: 2px;
-    font-size: 0.82rem;
-    color: rgba(255, 255, 255, 0.6);
+    margin-top: 6px;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.62);
 }
 
-.wb-name { font-size: 1.1rem; line-height: 1.4; }
-.wb-chev { color: rgba(255, 255, 255, 0.4); font-size: 0.75rem; }
+.wb-name { font-size: 1.08rem; line-height: 1.4; }
 
+.wb-chev {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.75rem;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.wb-list a:hover .wb-chev { transform: translateX(3px); color: var(--gold-light); }
+.wb-list a:hover .wb-name { color: var(--gold-light); }
+
+/* „შემდეგი“ — ფონის გარეშე, მხოლოდ ოქროსფერი წარწერა */
 .wb-chip {
     display: none;
     margin-left: 6px;
-    padding: 1px 9px;
-    border-radius: 999px;
-    background: var(--gold);
-    color: #111;
-    font-size: 0.68rem;
-    vertical-align: 2px;
+    color: var(--gold-light);
+    font-size: 0.74rem;
+    letter-spacing: 0.08em;
     white-space: nowrap;
 }
 
-.wb-list li.is-next a { background: rgba(201, 178, 106, 0.14); }
+.wb-chip::before { content: "· "; }
 .wb-list li.is-next .wb-when { color: var(--gold-light); }
-.wb-list li.is-next .wb-chip { display: inline-block; }
+.wb-list li.is-next .wb-chip { display: inline; }
 
 /* — ამთვლელი: ბარათის საკუთარი იერი აღარ სჭირდება — */
 .welcome-band .next-service {
@@ -3617,25 +3633,36 @@ a.next-service .ns-where, .next-service a.ns-where {
 }
 
 .welcome-band .next-service .ns-title { font-size: clamp(1.25rem, 1.8vw, 1.6rem); }
+.welcome-band .ns-eyebrow { color: var(--gold-light); }
 
 @media (max-width: 991px) {
+    #sanity-main-image.hero-section { padding-bottom: 150px; }
+
+    .welcome-stage { padding: 0 16px; }
+
     .welcome-band {
         grid-template-columns: 1fr;
-        margin: -60px 16px -40px;
-    }
-
-    /* ერთმანეთის ქვეშ — გამყოფი ზემოთ, არა მარცხნივ */
-    .wb-week,
-    .welcome-band .next-service {
-        border-left: 0;
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        margin-top: -110px;
     }
 
     .welcome-band > * { padding: 26px 22px; }
+
+    .welcome-band > * + * {
+        border-left: 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .welcome-stage + .building-section { padding-top: 56px; }
+}
+
+@media (max-width: 767px) {
+    /* ტელეფონზე ბანერს ქვედა ზოლის ადგილიც სჭირდება (.mobile-tabbar) */
+    /* html-ით უფრო ძლიერია, ვიდრე ფაილის ბოლოს მდგომი ტელეფონის !important წესი */
+    html #sanity-main-image.hero-section { padding-bottom: calc(var(--tabbar-space, 80px) + 110px) !important; }
 }
 
 @media (max-width: 480px) {
-    .wb-list a { grid-template-columns: 92px minmax(0, 1fr) auto; padding: 12px 8px; }
+    .wb-list a { grid-template-columns: 92px minmax(0, 1fr) 12px; padding: 13px 2px; }
     .wb-when { font-size: 1.2rem; }
     .wb-name { font-size: 1rem; }
     .welcome-band .next-service .ns-unit strong { font-size: 1.5rem; }
@@ -3643,7 +3670,8 @@ a.next-service .ns-where, .next-service a.ns-where {
 
 @media (prefers-reduced-motion: reduce) {
     .welcome-band,
-    .wb-link i { transition: none; }
+    .wb-link::after,
+    .wb-chev { transition: none; }
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
