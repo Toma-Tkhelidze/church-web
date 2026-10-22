@@ -3620,19 +3620,24 @@ a.next-service .ns-where, .next-service a.ns-where {
 .wb-list a:hover .wb-chev { transform: translateX(3px); color: var(--gold-light); }
 .wb-list a:hover .wb-name { color: var(--gold-light); }
 
-/* „შემდეგი“ — ფონის გარეშე, მხოლოდ ოქროსფერი წარწერა */
+/* „შემდეგი“ — პატარა ოქროსფერი ნიშანი (მინაზე მკვრივი ფერი კარგად ჩანს) */
 .wb-chip {
     display: none;
-    margin-left: 6px;
-    color: var(--gold-light);
-    font-size: 0.74rem;
-    letter-spacing: 0.08em;
+    margin-left: 8px;
+    padding: 2px 10px 3px;
+    border-radius: 999px;
+    background: var(--gold-light);
+    color: #15130f;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    line-height: 1.4;
     white-space: nowrap;
+    vertical-align: 2px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
-.wb-chip::before { content: "· "; }
 .wb-list li.is-next .wb-when { color: var(--gold-light); }
-.wb-list li.is-next .wb-chip { display: inline; }
+.wb-list li.is-next .wb-chip { display: inline-block; }
 
 /* — ამთვლელი: ბარათის საკუთარი იერი აღარ სჭირდება — */
 .welcome-band .next-service {
