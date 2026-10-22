@@ -153,7 +153,7 @@
                 </li>
 
                 <li><a href="pages/contact.html">დაგვიკავშირდი</a></li>
-                <li class="nav-give-item"><a href="pages/give.html" class="btn-nav-give">გაეცი</a></li>
+                <li class="nav-give-item"><a href="pages/give.html" class="btn-nav-give">შემოწირულობა</a></li>
             </ul>
 
             <div class="mobile-socials">
@@ -188,7 +188,7 @@
         <div class="hero-overlay" aria-hidden="true"></div>
         <div class="hero-content">
             <h1 id="sanity-main-title">ქუთაისის სახარების რწმენის ეკლესია</h1>
-            <p class="cursive-text">შენი ადგილი აქ არის.</p>
+            <p class="cursive-text">შენი ადგილი აქ არის</p>
             <!-- ქადაგებები კომპიუტერის მენიუში „რესურსებშია“ დამალული — აქედან
                  პირდაპირ მიდის. href-ს sanity-fetch.js ბოლო ქადაგების ID-ით
                  ავსებს (?s=<ID>), რომ გვერდი პლეერზე გაიხსნას. ტექსტი ზოგადია,
@@ -251,7 +251,7 @@
             </div>
             <a class="ns-where" href="https://maps.app.goo.gl/vRDFyab5jMPhwHNh7" target="_blank" rel="noopener noreferrer">
                 <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
-                <span>მესხის ქ. 42, ქუთაისი</span>
+                <span>სერგო მესხის ქ. №42, ქუთაისი</span>
                 <i class="fa-solid fa-arrow-up-right-from-square ns-where-ext" aria-hidden="true"></i>
             </a>
         </aside>
@@ -336,13 +336,13 @@
         <div class="info-grid-container">
             <div class="left-column">
                 <span class="grid-uppertitle">ადგილი, სადაც</span>
-                <h2>ყველას უყვარს <br>მოსვლა და <br>დროის გატარება</h2>
-                <p>გმადლობთ, რომ გვესტუმრეთ ჩვენს ვებ-გვერდზე. ვიმედოვნებთ, რომ გვესტუმრებით ამ კვირას. ჩვენთან მიიღებთ თბილ მიღებას, ისიამოვნებთ საოცარი მუსიკით და მოუსმენთ სწავლებას, რომელიც შთაგაგონებთ და გაგამხნევებთ.</p>
+                <h2>ყველას უყვარს <br>მოსვლა და <br>ერთად ყოფნა</h2>
+                <p>გმადლობთ, რომ გვესტუმრეთ ჩვენს ვებ-გვერდზე. ვიმედოვნებთ, რომ მალე შევხვდებით. ჩვენთან დაგხვდებთ თბილი გარემო, ისიამოვნებთ გალობით და მოუსმენთ სწავლებას, რომელიც შთაგაგონებთ და გაგამხნევებთ.</p>
                 <p>ქუთაისის სახარების რწმენის ეკლესია არის ბიბლიაზე დაფუძნებული, ევანგელისტური და სულით აღვსილი ეკლესია, რომელიც მდებარეობს ქუთაისში, საქართველოში. ჩვენი წევრები არიან სხვადასხვა სოციალური ფენის, განსხვავებული რასისა და წარმომავლობის ადამიანები.</p>
             </div>
             <div class="right-column">
-                <h3 class="bullet-title">ბოლო ქადაგება</h3>
-                <div class="video-placeholder" role="button" tabindex="0" id="sanity-latest-sermon" aria-label="უყურეთ ბოლო ქადაგებას" data-video-id="TS3WPriJtEA">
+                <h3 class="bullet-title">უახლესი ქადაგება</h3>
+                <div class="video-placeholder" role="button" tabindex="0" id="sanity-latest-sermon" aria-label="უყურეთ უახლეს ქადაგებას" data-video-id="TS3WPriJtEA">
                     <i class="fa-solid fa-play" aria-hidden="true"></i>
                 </div>
                 <!-- სათაური ყდაზე ისედაც წერია — აქ მხოლოდ თარიღი (sanity-fetch.js
@@ -374,16 +374,14 @@
         <div class="weekly-container">
 
             <div class="weekly-head">
-                <span class="grid-uppertitle">ერთი წუთი სიჩუმისთვის</span>
-                <h2>დღის მუხლი და ლოცვა</h2>
-                <p>თითოეული დღისთვის ერთი მუხლი ამ კვირის ქადაგებიდან. აქვე შეგიძლია გაგვიზიარო შენი ლოცვითი საჭიროება.</p>
+                <h2 class="visually-hidden">დღის ბიბლიური ციტატა და ლოცვითი საჭიროება</h2>
             </div>
 
             <div class="weekly-grid">
 
                 <!-- კვირის მუხლი (ტექსტს Sanity ცვლის; აქ სარეზერვო ვარიანტია) -->
                 <figure class="verse-card">
-                    <span class="verse-eyebrow">დღის მუხლი</span>
+                    <span class="verse-eyebrow">დღის ბიბლიური ციტატა</span>
 
                     <!-- კვირის დღეები — ღილაკებს sanity-fetch.js ქმნის მხოლოდ
                          მაშინ, როცა CMS-ში ერთზე მეტი მუხლია -->
@@ -426,7 +424,7 @@
                 <div class="prayer-card">
                     <span class="prayer-eyebrow">ლოცვითი საჭიროება</span>
                     <h3>რაზე ვილოცოთ შენთვის?</h3>
-                    <p class="prayer-note">ჩვენი სალოცავი გუნდი ყოველ კვირას ლოცულობს მიღებულ თხოვნებზე. თქვენი თხოვნა კონფიდენციალურია.</p>
+                    <p class="prayer-note">ჩვენი ლოცვის გუნდი ყოველ კვირას ლოცულობს საჭიროებებზე. თქვენი ლოცვითი სათხოვრები კონფიდენციალურია.</p>
 
                     <form id="prayerForm" novalidate>
                         <label class="visually-hidden" for="prayerText">ლოცვითი საჭიროება</label>
@@ -443,7 +441,7 @@
 
                         <label class="prayer-check">
                             <input type="checkbox" id="prayerAnon">
-                            <span>ანონიმურად გავაგზავნო</span>
+                            <span>ანონიმურად გაგზავნა</span>
                         </label>
 
                         <p class="prayer-error" role="alert" hidden></p>
@@ -476,14 +474,14 @@
         <div class="contact-info-col">
             <span class="contact-eyebrow">მოგვძებნეთ</span>
             <h2 class="contact-heading">გვეწვიეთ ეკლესიაში</h2>
-            <p class="contact-intro">მოხარული ვიქნებით თქვენი სტუმრობით ამ კვირას. ჩვენი კარები ყოველთვის ღიაა — მობრძანდით თქვენს ოჯახთან ერთად და შეიგრძენით ჩვენი საზოგადოება.</p>
+            <p class="contact-intro">მოხარული ვიქნებით თქვენი სტუმრობით ამ კვირას. ჩვენი კარი ყოველთვის ღიაა — მობრძანდით თქვენს ოჯახთან ერთად და შეიგრძენით ჩვენი საზოგადოება.</p>
 
             <div class="contact-block">
                 <div class="contact-icon-wrap" aria-hidden="true">
                     <i class="fa-solid fa-location-dot"></i>
                 </div>
                 <div class="contact-block-text">
-                    <p class="contact-label">ფიზიკური მისამართი</p>
+                    <p class="contact-label">მისამართი</p>
                     <a
                         href="https://maps.app.goo.gl/vRDFyab5jMPhwHNh7"
                         target="_blank"
@@ -491,7 +489,7 @@
                         class="contact-address-link"
                         aria-label="Open address in Google Maps"
                     >
-                        მესხის ქ. 42<br>ქუთაისი, საქართველო
+                        სერგო მესხის ქ. №42<br>ქუთაისი, საქართველო
                         <i class="fa-solid fa-arrow-up-right-from-square contact-ext-icon" aria-hidden="true"></i>
                     </a>
                     <p class="contact-sub">ქუთაისის სახარების რწმენის ეკლესია</p>
@@ -534,7 +532,7 @@
             </div>
 
             <a href="pages/contact.html" class="btn btn-contact-cta">
-                <i class="fa-regular fa-envelope" aria-hidden="true"></i>  მოგვწერეთ შეტყობინება
+                <i class="fa-regular fa-envelope" aria-hidden="true"></i>  დაგვიკავშირდით
             </a>
         </div>
 
@@ -568,10 +566,10 @@
 
         <div class="footer-brand">
             <img class="footer-logo" src="pages/images/logo.svg" alt="" width="58" height="58">
-            <p class="footer-tagline">ბიბლიაზე დაფუძნებული საზოგადოება ქუთაისში.<br>შენი ადგილი აქ არის.</p>
+            <p class="footer-tagline">ქუთაისის სახარების რწმენის ეკლესია – შენი ადგილი აქ არის</p>
             <ul class="footer-visit">
                 <li><i class="fa-solid fa-clock" aria-hidden="true"></i><span>კვირა 11:00 — საკვირაო ღვთისმსახურება</span></li>
-                <li><a href="https://maps.app.goo.gl/vRDFyab5jMPhwHNh7" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>მესხის ქ. 42, ქუთაისი</span></a></li>
+                <li><a href="https://maps.app.goo.gl/vRDFyab5jMPhwHNh7" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>სერგო მესხის ქ. №42, ქუთაისი</span></a></li>
             </ul>
         </div>
 
@@ -598,7 +596,7 @@
                 <ul>
                     <li><a href="pages/sermons.html">ქადაგებები</a></li>
                     <li><a href="pages/bible.html">ბიბლია</a></li>
-                    <li><a href="pages/give.html">გაეცი</a></li>
+                    <li><a href="pages/give.html">შემოწირულობა</a></li>
                 </ul>
             </div>
         </nav>

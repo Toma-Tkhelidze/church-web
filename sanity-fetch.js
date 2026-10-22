@@ -1629,7 +1629,7 @@ function renderResumeBar() {
     '<span class="resume-thumb"><img src="https://img.youtube.com/vi/' + encodeURIComponent(unfinished.id) + '/mqdefault.jpg" alt="" loading="lazy"></span>' +
     '<span class="resume-body">' +
       '<span class="resume-label">განაგრძე ყურება</span>' +
-      '<span class="resume-title">' + escapeHtml(parts.title || 'ბოლო ქადაგება') + '</span>' +
+      '<span class="resume-title">' + escapeHtml(parts.title || 'უახლესი ქადაგება') + '</span>' +
       '<span class="resume-track">' +
         '<span class="watch-progress"><span class="watch-progress-fill" style="width:' + pct + '%"></span></span>' +
         '<span class="resume-pct">' + pct + '%</span>' +

@@ -550,6 +550,14 @@ ul {
     align-items: center;
 }
 
+/* „შემოწირულობა“ გრძელი ღილაკია — ვიწრო კომპიუტერის ეკრანზე ხატულები
+   ჰედერში აღარ ეტევა და ეკრანს გარეთ გადადის. ფუტერში ისინი მაინც არის. */
+@media (max-width: 1460px) {
+    .header-socials {
+        display: none;
+    }
+}
+
 .header-socials a {
     width: 36px;
     height: 36px;

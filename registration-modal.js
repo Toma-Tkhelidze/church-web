@@ -51,7 +51,7 @@ const REG_EVENTS = {
     intro: 'მოგვწერე, ვინ ხარ — ლიდერი შაბათამდე დაგიკავშირდება და შესასვლელთან დაგხვდება. შენს მონაცემებს მხოლოდ ახალგაზრდული მსახურების ლიდერები ნახავენ.',
     submitLabel: 'გაგზავნა',
     successTitle: 'გელოდებით!',
-    success: 'ლიდერი შაბათამდე მოგწერს. შეხვედრა იწყება 16:00-ზე, მესხის ქ. 42.',
+    success: 'ლიდერი შაბათამდე მოგწერს. შეხვედრა იწყება 16:00-ზე, სერგო მესხის ქ. №42.',
     closeAfter: 6000,
     action: 'https://docs.google.com/forms/d/e/1FAIpQLSd5lk9naOC_suEbvtvoeqLxm0fswjRbmUmmv8YezCmPWfv6gw/formResponse',
     entries: {
