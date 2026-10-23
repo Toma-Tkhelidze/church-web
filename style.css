@@ -1096,7 +1096,7 @@ ul {
    ========================================================================== */
 .slider-container.floating-slider {
     margin-top: 0;
-    padding-bottom: 80px;
+    padding-bottom: 20px;
     position: relative;
     z-index: 20;
     overflow: hidden;
@@ -1218,6 +1218,11 @@ ul {
     background: linear-gradient(to bottom, var(--bg-light) 0%, var(--white) 100%);
     position: relative;
     z-index: 2;
+}
+
+/* მთავარზე სლაიდერის ქვეშ — ზედა დაშორება ნაკლები */
+.floating-slider ~ .info-grid-section {
+    padding-top: 50px;
 }
 
 .info-grid-container {
