@@ -1220,9 +1220,22 @@ ul {
     z-index: 2;
 }
 
-/* მთავარზე სლაიდერის ქვეშ — ზედა დაშორება ნაკლები */
+/* მთავარზე სლაიდერის ქვეშ — დაშორებები ნაკლები */
 .floating-slider ~ .info-grid-section {
     padding-top: 50px;
+    padding-bottom: 50px;
+}
+
+.floating-slider ~ .contact-section {
+    padding-top: 70px;
+    padding-bottom: 70px;
+}
+
+@media (max-width: 768px) {
+    .floating-slider ~ .contact-section {
+        padding-top: 50px;
+        padding-bottom: 50px;
+    }
 }
 
 .info-grid-container {
@@ -3752,7 +3765,7 @@ a.next-service .ns-where, .next-service a.ns-where {
    ========================================================================== */
 .weekly-section {
     background: var(--bg-light);
-    padding: 100px 20px;
+    padding: 50px 20px 70px;
 }
 
 .weekly-container {
@@ -3764,6 +3777,11 @@ a.next-service .ns-where, .next-service a.ns-where {
     max-width: 620px;
     margin: 0 auto 60px;
     text-align: center;
+}
+
+/* მხოლოდ დამალული სათაური დარჩა — ცარიელი ბლოკის დაშორება ზემოთ არ "გაჟონოს" */
+.weekly-head:has(> .visually-hidden:only-child) {
+    margin-bottom: 0;
 }
 
 .weekly-head h2 {
@@ -4300,7 +4318,7 @@ a.next-service .ns-where, .next-service a.ns-where {
 
 @media (max-width: 991px) {
     .weekly-section {
-        padding: 70px 16px;
+        padding: 50px 16px;
     }
 
     .weekly-grid {
