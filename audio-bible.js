@@ -19,6 +19,7 @@
   const DATA_URL = new URL('data/audio-bible.json', SCRIPT_SRC).href;
   const POS_KEY = 'efck-audio-bible-pos';
   const RATE_KEY = 'efck-audio-bible-rate';
+  const VOLUME_KEY = 'efck-audio-bible-volume';
   const RATES = [1, 1.25, 1.5, 0.75];
   const NT_START = 40;
 
@@ -33,6 +34,9 @@
     cur: document.getElementById('abCur'),
     dur: document.getElementById('abDur'),
     rate: document.getElementById('abRate'),
+    volumeBox: document.getElementById('abVolumeBox'),
+    volume: document.getElementById('abVolume'),
+    mute: document.getElementById('abMute'),
     status: document.getElementById('abStatus'),
     tabs: Array.prototype.slice.call(root.querySelectorAll('.ab-tab')),
     books: document.getElementById('abBooks'),
@@ -316,6 +320,7 @@
     }
 
     bindMini();
+    bindVolume();
 
     // ჰარი = პაუზა/დაკვრა, თუ ღილაკზე ან ველზე არ ვართ.
     document.addEventListener('keydown', function (e) {
@@ -353,6 +358,47 @@
     els.audio.addEventListener('loadstart', check);
   }
 
+  /* ---------- ხმა ---------- */
+
+  let lastVolume = 1;
+
+  function renderVolume() {
+    const a = els.audio;
+    const v = a.muted ? 0 : a.volume;
+    els.volume.value = String(Math.round(v * 100));
+    const icon = v === 0 ? 'fa-volume-xmark' : v < 0.5 ? 'fa-volume-low' : 'fa-volume-high';
+    els.mute.innerHTML = '<i class="fa-solid ' + icon + '" aria-hidden="true"></i>';
+    const label = v === 0 ? 'ხმის ჩართვა' : 'ხმის გათიშვა';
+    els.mute.setAttribute('aria-label', label);
+    els.mute.title = label;
+  }
+
+  function setVolume(v) {
+    v = Math.min(1, Math.max(0, v));
+    els.audio.volume = v;
+    els.audio.muted = v === 0;
+    if (v > 0) lastVolume = v;
+    renderVolume();
+    try { localStorage.setItem(VOLUME_KEY, String(v)); } catch (e) { /* private mode */ }
+  }
+
+  function bindVolume() {
+    // iPhone/iPad ხმას პროგრამულად არ აძლევს შეცვლის საშუალებას (მხოლოდ
+    // ტელეფონის ღილაკებით) — იქ სლაიდერი არაფერს გააკეთებდა, ამიტომ ვმალავთ.
+    const probe = new Audio();
+    probe.volume = 0.5;
+    if (probe.volume !== 0.5) { els.volumeBox.hidden = true; return; }
+
+    const raw = (function () { try { return localStorage.getItem(VOLUME_KEY); } catch (e) { return null; } })();
+    const saved = raw === null ? 1 : Number(raw);
+    setVolume(saved >= 0 && saved <= 1 ? saved : 1);
+
+    els.volume.addEventListener('input', function () { setVolume(Number(els.volume.value) / 100); });
+    els.mute.addEventListener('click', function () {
+      setVolume(els.audio.muted || els.audio.volume === 0 ? (lastVolume || 1) : 0);
+    });
+  }
+
   function setRate(r) {
     els.rate.dataset.rate = String(r);
     els.rate.textContent = String(r).replace('.', ',') + '×';
@@ -362,6 +408,13 @@
 
   function init(d) {
     data = d;
+    els.tabs.forEach(function (tab) {
+      const ot = tab.dataset.testament === 'OT';
+      let n = 0;
+      for (let b = ot ? 1 : NT_START; b <= (ot ? NT_START - 1 : 66); b++) if (data.books[b]) n++;
+      const meta = tab.querySelector('[data-count]');
+      if (meta) meta.textContent = n + ' წიგნი';
+    });
     bind();
     const savedRate = Number((function () { try { return localStorage.getItem(RATE_KEY); } catch (e) { return null; } })());
     if (RATES.indexOf(savedRate) !== -1) setRate(savedRate);

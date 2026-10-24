@@ -144,6 +144,18 @@
             font-size: 0.85rem;
         }
         .ab-wrap.is-loading .ab-btn--play { opacity: 0.5; pointer-events: none; }
+
+        /* ხმა — მარჯვენა კუთხეში, სიჩქარის სარკისებურად */
+        .ab-volume { justify-self: end; display: flex; align-items: center; gap: 8px; }
+        .ab-volume[hidden] { display: none; }
+        .ab-btn--small { width: 36px; height: 36px; font-size: 0.9rem; background: transparent; }
+        .ab-volume__range {
+            width: 96px;
+            height: 18px;
+            margin: 0;
+            accent-color: var(--gold);
+            cursor: pointer;
+        }
         .ab-status {
             margin: 16px 0 0;
             padding: 10px 14px;
@@ -157,27 +169,57 @@
 
         /* წიგნები და თავები */
         .ab-browse { padding: 26px clamp(18px, 4vw, 36px) 30px; }
+        /* აღთქმის არჩევა — ორი დიდი ბარათი, არჩეული ოქროსფრად ივსება */
         .ab-tabs {
-            display: inline-flex;
-            padding: 4px;
-            border-radius: 12px;
-            background: var(--ab-bar);
-            border: 1px solid var(--ab-line);
-            margin-bottom: 18px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 22px;
         }
         .ab-tab {
-            padding: 9px 18px;
-            border: 0;
-            border-radius: 9px;
-            background: none;
-            color: var(--ab-muted);
-            font-family: 'FiraGO-SemiBold', 'Noto Sans Georgian', sans-serif;
-            font-size: 0.92rem;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 18px;
+            border: 2px solid var(--ab-ctrl-border);
+            border-radius: 14px;
+            background: var(--ab-ctrl);
+            color: var(--ab-text);
+            text-align: left;
             cursor: pointer;
-            transition: background 0.2s ease, color 0.2s ease;
+            transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease;
         }
-        .ab-tab.is-active { background: var(--gold); color: #fff; }
-        .ab-tab:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+        .ab-tab:hover:not(.is-active) { border-color: var(--gold); transform: translateY(-2px); }
+        .ab-tab__icon {
+            flex: 0 0 auto;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(170, 149, 79, 0.14);
+            color: var(--gold);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            transition: background 0.25s ease, color 0.25s ease;
+        }
+        .ab-tab__text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+        .ab-tab__title {
+            font-family: 'FiraGO-SemiBold', 'Noto Sans Georgian', sans-serif;
+            font-feature-settings: "case" on;
+            font-size: 1.05rem;
+            letter-spacing: 0.5px;
+        }
+        .ab-tab__meta { font-size: 0.82rem; color: var(--ab-muted); }
+        .ab-tab.is-active {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: #fff;
+            box-shadow: 0 10px 24px rgba(170, 149, 79, 0.35);
+        }
+        .ab-tab.is-active .ab-tab__icon { background: rgba(255, 255, 255, 0.2); color: #fff; }
+        .ab-tab.is-active .ab-tab__meta { color: rgba(255, 255, 255, 0.85); }
+        .ab-tab:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 
         .ab-books {
             display: grid;
@@ -327,10 +369,15 @@
             .ab-section { padding: 20px 12px 56px; }
             .ab-now__icon { width: 46px; height: 46px; font-size: 1.15rem; }
             .ab-controls { gap: 10px; }
+            /* ტელეფონზე მარჯვენა კუთხე ვიწროა — ხმა ღილაკების ქვეშ, ცალკე ხაზზე */
+            .ab-volume { grid-column: 1 / -1; grid-row: 2; justify-self: center; }
+            .ab-volume__range { width: 170px; }
             .ab-books { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .ab-book { padding: 10px 12px; font-size: 0.88rem; }
-            .ab-tabs { display: flex; }
-            .ab-tab { flex: 1 1 0; padding: 9px 8px; }
+            .ab-tabs { gap: 8px; }
+            .ab-tab { flex-direction: column; align-items: center; gap: 8px; padding: 14px 8px; text-align: center; }
+            .ab-tab__text { align-items: center; }
+            .ab-tab__title { font-size: 0.95rem; letter-spacing: 0; }
         }
     </style>
 </head>
@@ -474,7 +521,10 @@
                         <button type="button" class="ab-btn" id="abPrev" aria-label="წინა თავი" title="წინა თავი" disabled><i class="fa-solid fa-backward-step" aria-hidden="true"></i></button>
                         <button type="button" class="ab-btn ab-btn--play" id="abPlay" aria-label="დაკვრა" title="დაკვრა"><i class="fa-solid fa-play" aria-hidden="true"></i></button>
                         <button type="button" class="ab-btn" id="abNext" aria-label="შემდეგი თავი" title="შემდეგი თავი" disabled><i class="fa-solid fa-forward-step" aria-hidden="true"></i></button>
-                        <span class="ab-rate-spacer" aria-hidden="true"></span>
+                        <div class="ab-volume" id="abVolumeBox">
+                            <button type="button" class="ab-btn ab-btn--small" id="abMute" aria-label="ხმის გათიშვა" title="ხმის გათიშვა"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button>
+                            <input type="range" class="ab-volume__range" id="abVolume" min="0" max="100" step="1" value="100" aria-label="ხმის სიძლიერე">
+                        </div>
                     </div>
 
                     <p class="ab-status" id="abStatus" role="status" hidden></p>
@@ -483,8 +533,14 @@
 
                 <div class="ab-browse">
                     <div class="ab-tabs" role="tablist" aria-label="აღთქმა">
-                        <button type="button" class="ab-tab" role="tab" data-testament="OT" aria-selected="false">ძველი აღთქმა</button>
-                        <button type="button" class="ab-tab is-active" role="tab" data-testament="NT" aria-selected="true">ახალი აღთქმა</button>
+                        <button type="button" class="ab-tab" role="tab" data-testament="OT" aria-selected="false">
+                            <span class="ab-tab__icon" aria-hidden="true"><i class="fa-solid fa-scroll"></i></span>
+                            <span class="ab-tab__text"><span class="ab-tab__title">ძველი აღთქმა</span><span class="ab-tab__meta" data-count></span></span>
+                        </button>
+                        <button type="button" class="ab-tab is-active" role="tab" data-testament="NT" aria-selected="true">
+                            <span class="ab-tab__icon" aria-hidden="true"><i class="fa-solid fa-cross"></i></span>
+                            <span class="ab-tab__text"><span class="ab-tab__title">ახალი აღთქმა</span><span class="ab-tab__meta" data-count></span></span>
+                        </button>
                     </div>
 
                     <div class="ab-books" id="abBooks"></div>
