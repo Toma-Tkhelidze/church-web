@@ -408,13 +408,6 @@
 
   function init(d) {
     data = d;
-    els.tabs.forEach(function (tab) {
-      const ot = tab.dataset.testament === 'OT';
-      let n = 0;
-      for (let b = ot ? 1 : NT_START; b <= (ot ? NT_START - 1 : 66); b++) if (data.books[b]) n++;
-      const meta = tab.querySelector('[data-count]');
-      if (meta) meta.textContent = n + ' წიგნი';
-    });
     bind();
     const savedRate = Number((function () { try { return localStorage.getItem(RATE_KEY); } catch (e) { return null; } })());
     if (RATES.indexOf(savedRate) !== -1) setRate(savedRate);

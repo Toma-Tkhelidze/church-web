@@ -210,7 +210,6 @@
             font-size: 1.05rem;
             letter-spacing: 0.5px;
         }
-        .ab-tab__meta { font-size: 0.82rem; color: var(--ab-muted); }
         .ab-tab.is-active {
             background: var(--gold);
             border-color: var(--gold);
@@ -218,7 +217,6 @@
             box-shadow: 0 10px 24px rgba(170, 149, 79, 0.35);
         }
         .ab-tab.is-active .ab-tab__icon { background: rgba(255, 255, 255, 0.2); color: #fff; }
-        .ab-tab.is-active .ab-tab__meta { color: rgba(255, 255, 255, 0.85); }
         .ab-tab:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 
         .ab-books {
@@ -535,11 +533,11 @@
                     <div class="ab-tabs" role="tablist" aria-label="აღთქმა">
                         <button type="button" class="ab-tab" role="tab" data-testament="OT" aria-selected="false">
                             <span class="ab-tab__icon" aria-hidden="true"><i class="fa-solid fa-scroll"></i></span>
-                            <span class="ab-tab__text"><span class="ab-tab__title">ძველი აღთქმა</span><span class="ab-tab__meta" data-count></span></span>
+                            <span class="ab-tab__text"><span class="ab-tab__title">ძველი აღთქმა</span></span>
                         </button>
                         <button type="button" class="ab-tab is-active" role="tab" data-testament="NT" aria-selected="true">
                             <span class="ab-tab__icon" aria-hidden="true"><i class="fa-solid fa-cross"></i></span>
-                            <span class="ab-tab__text"><span class="ab-tab__title">ახალი აღთქმა</span><span class="ab-tab__meta" data-count></span></span>
+                            <span class="ab-tab__text"><span class="ab-tab__title">ახალი აღთქმა</span></span>
                         </button>
                     </div>
 
