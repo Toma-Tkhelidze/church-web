@@ -21,6 +21,8 @@
   const FETCH_TIMEOUT = 10000;
   const SITE = 'https://holybible.ge';
   const NT_START = 40;
+  // bible.js საიტის ძირშია — მისი მისამართიდან ვპოულობთ data/ საქაღალდეს.
+  const SCRIPT_SRC = (document.currentScript && document.currentScript.src) || location.href;
 
   // სახელები ზუსტად ისეა, როგორც holybible.ge-ს ბაზაშია — ტირეებიც კი.
   // „ახალი ქვეყნიერების თარგმანი" (იეჰოვას მოწმეების გამოცემა) განზრახ არ არის.
@@ -400,6 +402,7 @@
     savePosition();
     syncDropdowns();
     root.classList.remove('is-loading');
+    syncAudio();
     if (opts.scroll) scrollToReader();
   }
 
@@ -815,6 +818,236 @@
     });
   }
 
+  /* ---------- აუდიო ----------
+   * mp3 ჩვენთან არ ინახება — ორიგინალი სერვერებიდან (Faith Comes By Hearing,
+   * allgeo.org) იკითხება, როგორც mybible.ge-ზე. data/audio-bible.json-ში
+   * მხოლოდ ბმულებია: books[წიგნი] = [[თავი, თავსართი, გზა, ბოლო თავი?], …].
+   * ფსალმუნები და იგავნი ბლოკებადაა, ამიტომ ერთი ჩანაწერი რამდენიმე თავს
+   * ფარავს. ჩანაწერი მხოლოდ „დაკვრაზე" იწყებს ჩამოტვირთვას (preload=none).
+   */
+  const AUDIO_URL = new URL('data/audio-bible.json', SCRIPT_SRC).href;
+  const RATES = [1, 1.25, 1.5, 0.75];
+  const au = {
+    root: document.getElementById('bibleAudio'),
+    el: document.getElementById('bibleAudioEl'),
+    play: document.getElementById('bibleAudioPlay'),
+    label: document.getElementById('bibleAudioLabel'),
+    seek: document.getElementById('bibleAudioSeek'),
+    time: document.getElementById('bibleAudioTime'),
+    rate: document.getElementById('bibleAudioRate'),
+    data: null,
+    request: null,
+    track: null,
+    autoplay: false,
+    seeking: false
+  };
+
+  function audioData() {
+    if (au.data) return Promise.resolve(au.data);
+    if (!au.request) {
+      au.request = fetch(AUDIO_URL)
+        .then(function (r) { if (!r.ok) throw new Error('audio-bible ' + r.status); return r.json(); })
+        .then(function (d) { au.data = d; return d; })
+        .catch(function (err) { au.request = null; throw err; });
+    }
+    return au.request;
+  }
+
+  function trackAt(book, i) {
+    const list = au.data && au.data.books[book];
+    const t = list && list[i];
+    if (!t) return null;
+    return {
+      book: book, index: i, from: t[0], to: t[3] || t[0],
+      src: au.data.bases[t[1]] + t[2]
+    };
+  }
+
+  function trackFor(book, chapter) {
+    const list = (au.data && au.data.books[book]) || [];
+    for (let i = 0; i < list.length; i++) {
+      if (chapter >= list[i][0] && chapter <= (list[i][3] || list[i][0])) return trackAt(book, i);
+    }
+    return null;
+  }
+
+  // ჩანაწერის შემდეგ: იმავე წიგნის შემდეგი, ან მომდევნო წიგნის პირველი.
+  // აუდიოს გარეშე დარჩენილ წიგნებზე (იერემიადან მალაქიამდე) ვჩერდებით.
+  function nextTrack(t) {
+    return trackAt(t.book, t.index + 1) || trackAt(t.book + 1, 0);
+  }
+
+  function trackTitle(t) {
+    const name = state.books[t.book - 1] || '';
+    if (t.book === 19) return 'ფსალმუნები ' + (t.from === t.to ? t.from : t.from + '–' + t.to);
+    if (t.from !== t.to) return name + ' (' + t.from + '–' + t.to + ' თავი)';
+    return name + ', თავი ' + t.from;
+  }
+
+  function fmtTime(s) {
+    s = Math.max(0, Math.floor(s || 0));
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = String(s % 60).padStart(2, '0');
+    return h ? h + ':' + String(m).padStart(2, '0') + ':' + sec : m + ':' + sec;
+  }
+
+  function isPlaying() {
+    return !au.el.paused && !au.el.ended;
+  }
+
+  function setPlayIcon() {
+    const playing = isPlaying();
+    const label = playing ? 'პაუზა' : 'მოუსმინე ამ თავს';
+    au.play.innerHTML = '<i class="fa-solid ' + (playing ? 'fa-pause' : 'fa-play') + '" aria-hidden="true"></i>';
+    au.play.setAttribute('aria-label', label);
+    au.play.title = label;
+  }
+
+  function setAudioLabel(text, cls) {
+    au.label.textContent = text;
+    au.root.classList.toggle('is-missing', cls === 'missing');
+    au.root.classList.toggle('is-error', cls === 'error');
+  }
+
+  function updateTime() {
+    const dur = au.el.duration;
+    if (!au.seeking) au.seek.value = String(Math.floor(au.el.currentTime || 0));
+    au.time.textContent = isFinite(dur) && dur > 0
+      ? fmtTime(au.el.currentTime) + ' / ' + fmtTime(dur)
+      : fmtTime(au.el.currentTime);
+  }
+
+  function setMediaSession(t) {
+    if (!('mediaSession' in navigator) || typeof MediaMetadata !== 'function') return;
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: trackTitle(t),
+      artist: 'აუდიო ბიბლია',
+      album: 'სახარების რწმენის ეკლესია'
+    });
+  }
+
+  function useTrack(t) {
+    au.track = t;
+    au.el.src = t.src;
+    au.el.playbackRate = Number(au.rate.dataset.rate) || 1;
+    au.seek.value = '0';
+    au.seek.max = '0';
+    au.seek.disabled = true;
+    au.time.textContent = '0:00';
+    setAudioLabel(trackTitle(t));
+    setMediaSession(t);
+  }
+
+  function startPlayback() {
+    const p = au.el.play();
+    if (p && p.catch) p.catch(function (err) {
+      // ბრაუზერმა ავტომატური დაკვრა შეაჩერა — ღილაკი რჩება, ხელით ჩაირთვება.
+      if (err && err.name !== 'AbortError') setPlayIcon();
+    });
+  }
+
+  // ტექსტი ახალ თავზე გადავიდა — აუდიოც მას მიჰყვება. თუ უკვე უკრავდა,
+  // ახალ თავს ავტომატურად ვრთავთ; ფსალმუნის ბლოკის შიგნით არაფერი იცვლება.
+  function syncAudio() {
+    if (!au.root) return;
+    audioData().then(function () {
+      const t = trackFor(state.book, state.chapter);
+      const wasPlaying = isPlaying() || au.autoplay;
+      au.autoplay = false;
+      if (!t) {
+        if (isPlaying()) au.el.pause();
+        au.track = null;
+        au.el.removeAttribute('src');
+        au.play.disabled = true;
+        setPlayIcon();
+        setAudioLabel('ამ თავის აუდიო ჯერ არ გვაქვს', 'missing');
+        return;
+      }
+      au.play.disabled = false;
+      if (au.track && au.track.src === t.src) {
+        if (!au.root.classList.contains('is-error')) setAudioLabel(trackTitle(t));
+        return;
+      }
+      useTrack(t);
+      if (wasPlaying) startPlayback();
+      setPlayIcon();
+    }, function () {
+      au.play.disabled = true;
+      setAudioLabel('აუდიო ამჟამად ვერ ჩაიტვირთა', 'error');
+    });
+  }
+
+  function goToTrack(t) {
+    if (!t) return;
+    state.book = t.book;
+    state.chapter = t.from;
+    state.verse = null;
+    au.autoplay = true;
+    load();
+  }
+
+  function bindAudio() {
+    if (!au.root) return;
+    au.play.addEventListener('click', function () {
+      if (!au.track) return;
+      if (isPlaying()) au.el.pause();
+      else {
+        if (au.root.classList.contains('is-error')) useTrack(au.track);
+        startPlayback();
+      }
+    });
+    au.rate.addEventListener('click', function () {
+      const cur = Number(au.rate.dataset.rate) || 1;
+      const next = RATES[(RATES.indexOf(cur) + 1) % RATES.length];
+      au.rate.dataset.rate = String(next);
+      au.rate.textContent = String(next).replace('.', ',') + '×';
+      au.el.playbackRate = next;
+    });
+    au.seek.addEventListener('input', function () {
+      au.seeking = true;
+      au.time.textContent = fmtTime(Number(au.seek.value)) + ' / ' + fmtTime(au.el.duration);
+    });
+    au.seek.addEventListener('change', function () {
+      au.seeking = false;
+      au.el.currentTime = Number(au.seek.value);
+    });
+    au.el.addEventListener('play', setPlayIcon);
+    au.el.addEventListener('pause', setPlayIcon);
+    au.el.addEventListener('loadedmetadata', function () {
+      au.seek.max = String(Math.floor(au.el.duration || 0));
+      au.seek.disabled = false;
+      updateTime();
+    });
+    au.el.addEventListener('timeupdate', updateTime);
+    au.el.addEventListener('ended', function () {
+      setPlayIcon();
+      goToTrack(au.track && nextTrack(au.track));
+    });
+    au.el.addEventListener('error', function () {
+      if (!au.el.getAttribute('src')) return;
+      setPlayIcon();
+      setAudioLabel('ჩანაწერი ვერ ჩაიტვირთა — სცადე თავიდან', 'error');
+    });
+
+    if ('mediaSession' in navigator) {
+      try {
+        navigator.mediaSession.setActionHandler('nexttrack', function () { goToTrack(au.track && nextTrack(au.track)); });
+        navigator.mediaSession.setActionHandler('previoustrack', function () {
+          if (au.track) goToTrack(trackAt(au.track.book, au.track.index - 1));
+        });
+      } catch (e) { /* ძველი ბრაუზერი */ }
+    }
+
+    // მენიუს „აუდიო ბიბლია" აქ #audio-თი მოდის — ზოლს ვაჩენთ.
+    if (location.hash === '#audio') {
+      setTimeout(function () {
+        au.root.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        au.root.classList.add('is-flash');
+      }, 300);
+    }
+  }
+
   function init() {
     fill(els.version, VERSIONS.map(function (v) {
       return { value: v.id, label: v.short };
@@ -826,6 +1059,7 @@
     makeDropdown(els.verse, { name: 'verse', label: 'მუხლი', grid: true, reselect: true });
     bind();
     bindSheet();
+    bindAudio();
 
     const h = readHash();
     const saved = readSaved();
