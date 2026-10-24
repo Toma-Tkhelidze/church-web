@@ -330,10 +330,17 @@
     root.classList.remove('is-loading');
   }
 
-  fetch(DATA_URL)
+  // GitHub Pages ბრაუზერს ფაილს 10 წუთით ანახვინებს — ბმულების სიის
+  // განახლების შემდეგ ძველი ასლი გვერდს ტეხავდა. no-cache ყოველ ჯერზე
+  // ამოწმებს (უცვლელზე 304, ბაიტები არ მოდის).
+  fetch(DATA_URL, { cache: 'no-cache' })
     .then(function (r) { if (!r.ok) throw new Error('audio-bible ' + r.status); return r.json(); })
-    .then(init)
-    .catch(function () {
+    .then(function (d) {
+      if (!d || !d.books || !Array.isArray(d.names)) throw new Error('audio-bible: unexpected data');
+      init(d);
+    })
+    .catch(function (err) {
+      if (window.console) console.error(err);
       root.classList.remove('is-loading');
       setStatus('აუდიო ბიბლია ამჟამად ვერ ჩაიტვირთა. სცადე გვერდის განახლება.');
     });
