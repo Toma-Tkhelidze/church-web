@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="აუდიო ბიბლია ქართულად – მოისმინე ბიბლია თავების მიხედვით პირდაპირ საიტზე – სახარების რწმენის ეკლესია – ქუთაისი">
+    <title>აუდიო ბიბლია – სახარების რწმენის ეკლესია</title>
+    <link rel="preconnect" href="https://f9j6xr69.apicdn.sanity.io" crossorigin>
+    <link rel="dns-prefetch" href="https://f9j6xr69.apicdn.sanity.io">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Georgian:wght@100..900&family=Playfair+Display:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+    <link rel="icon" type="image/svg+xml" href="../pages/images/logo.svg">
+    <link rel="manifest" href="../manifest.json">
+    <meta name="theme-color" content="#111111">
+    <link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="EFC ქუთაისი">
+    <link rel="preconnect" href="https://cloud.faithcomesbyhearing.com">
+    <link rel="dns-prefetch" href="https://www.allgeo.org">
+    <style>/* სპეციფიკური სტილები აუდიო ბიბლიის გვერდისთვის */
+        .ab-hero {
+            background: linear-gradient(rgba(17, 17, 17, 0.7), rgba(17, 17, 17, 0.92)), url('https://images.unsplash.com/photo-1504052434569-70ad5836ab65?auto=format&fit=crop&q=80&w=1600') center/cover no-repeat !important;
+            background-color: #111111 !important;
+        }
+        .ab-hero .hero-content h1 { font-size: clamp(1.9rem, 4vw, 3rem) !important; }
+        .ab-hero .cursive-text { font-size: clamp(1.1rem, 2.2vw, 1.6rem); margin-top: 6px; }
+
+        .ab-section {
+            --ab-bg: #e9dfc9;
+            --ab-paper: #f6efdf;
+            --ab-bar: #efe6d2;
+            --ab-line: #d9ccae;
+            --ab-text: #2f2517;
+            --ab-muted: #7a6a50;
+            --ab-ctrl: #fbf7ee;
+            --ab-ctrl-border: #cfc2a4;
+            --ab-shadow: rgba(60, 40, 10, 0.18);
+            padding: 34px 20px 70px;
+            background: var(--ab-bg);
+            color: var(--ab-text);
+        }
+        .ab-wrap {
+            max-width: 880px;
+            margin: 0 auto;
+            background: var(--ab-paper);
+            border: 1px solid var(--ab-line);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 18px 45px var(--ab-shadow);
+            overflow: hidden;
+        }
+
+        /* პლეერი — მუქი ზოლი ოქროსფერი აქცენტებით, ქვეყნის ქაღალდის ფონზე */
+        .ab-player {
+            padding: 26px clamp(18px, 4vw, 36px) 22px;
+            background: linear-gradient(160deg, #1d1a14, #121110);
+            color: #f3ecdc;
+        }
+        .ab-now { display: flex; align-items: center; gap: 16px; }
+        .ab-now__icon {
+            flex: 0 0 auto;
+            width: 54px;
+            height: 54px;
+            border-radius: 14px;
+            background: rgba(170, 149, 79, 0.16);
+            color: var(--gold);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+        }
+        .ab-now__text { flex: 1 1 auto; min-width: 0; }
+        .ab-now__book {
+            margin: 0;
+            font-family: 'FiraGO-SemiBold', sans-serif;
+            font-feature-settings: "case" on;
+            font-size: clamp(1.15rem, 2.6vw, 1.45rem);
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .ab-now__chapter { margin: 4px 0 0; font-size: 0.95rem; color: var(--gold-light); }
+
+        /* სამი ზოლი — მხოლოდ დაკვრისას მოძრაობს */
+        .ab-eq { display: inline-flex; align-items: flex-end; gap: 3px; height: 22px; opacity: 0; transition: opacity 0.3s ease; }
+        .ab-eq i { display: block; width: 4px; height: 30%; border-radius: 2px; background: var(--gold); }
+        .ab-wrap.is-playing .ab-eq { opacity: 1; }
+        .ab-wrap.is-playing .ab-eq i { animation: ab-eq 1s ease-in-out infinite; }
+        .ab-wrap.is-playing .ab-eq i:nth-child(2) { animation-delay: -0.35s; }
+        .ab-wrap.is-playing .ab-eq i:nth-child(3) { animation-delay: -0.7s; }
+        .ab-wrap.is-buffering .ab-eq i { animation-play-state: paused; }
+        @keyframes ab-eq { 0%, 100% { height: 25%; } 50% { height: 100%; } }
+        @media (prefers-reduced-motion: reduce) { .ab-wrap.is-playing .ab-eq i { animation: none; height: 70%; } }
+
+        .ab-progress { display: flex; align-items: center; gap: 12px; margin-top: 22px; }
+        .ab-time { flex: 0 0 auto; min-width: 42px; font-size: 0.82rem; font-variant-numeric: tabular-nums; color: #b9b09a; }
+        .ab-time:last-child { text-align: right; }
+        .ab-seek { flex: 1 1 auto; width: 100%; height: 18px; margin: 0; accent-color: var(--gold); cursor: pointer; }
+        .ab-seek:disabled { opacity: 0.4; cursor: default; }
+
+        .ab-controls {
+            display: grid;
+            grid-template-columns: 1fr auto auto auto 1fr;
+            align-items: center;
+            gap: 14px;
+            margin-top: 14px;
+        }
+        .ab-rate { justify-self: start; }
+        .ab-btn {
+            width: 46px;
+            height: 46px;
+            border: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            color: #f3ecdc;
+            font-size: 1.05rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+        }
+        .ab-btn:hover:not(:disabled) { background: rgba(170, 149, 79, 0.3); color: #fff; }
+        .ab-btn:disabled { opacity: 0.3; cursor: default; }
+        .ab-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+        .ab-btn--play { width: 66px; height: 66px; background: var(--gold); color: #fff; font-size: 1.4rem; }
+        .ab-btn--play .fa-play { margin-left: 4px; }
+        .ab-btn--play:hover:not(:disabled) { background: var(--gold-light); transform: scale(1.05); }
+        .ab-btn--ghost {
+            width: auto;
+            min-width: 54px;
+            height: 36px;
+            padding: 0 12px;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: transparent;
+            font-family: 'FiraGO-SemiBold', sans-serif;
+            font-size: 0.85rem;
+        }
+        .ab-wrap.is-loading .ab-btn--play { opacity: 0.5; pointer-events: none; }
+        .ab-status {
+            margin: 16px 0 0;
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.06);
+            color: #e8c9a8;
+            font-size: 0.92rem;
+            text-align: center;
+        }
+        .ab-status[hidden] { display: none; }
+
+        /* წიგნები და თავები */
+        .ab-browse { padding: 26px clamp(18px, 4vw, 36px) 30px; }
+        .ab-tabs {
+            display: inline-flex;
+            padding: 4px;
+            border-radius: 12px;
+            background: var(--ab-bar);
+            border: 1px solid var(--ab-line);
+            margin-bottom: 18px;
+        }
+        .ab-tab {
+            padding: 9px 18px;
+            border: 0;
+            border-radius: 9px;
+            background: none;
+            color: var(--ab-muted);
+            font-family: 'FiraGO-SemiBold', 'Noto Sans Georgian', sans-serif;
+            font-size: 0.92rem;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+        .ab-tab.is-active { background: var(--gold); color: #fff; }
+        .ab-tab:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+        .ab-books {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 8px;
+        }
+        .ab-book {
+            position: relative;
+            padding: 11px 14px;
+            border: 1px solid var(--ab-ctrl-border);
+            border-radius: 10px;
+            background: var(--ab-ctrl);
+            color: var(--ab-text);
+            font-family: 'Noto Sans Georgian', sans-serif;
+            font-size: 0.93rem;
+            text-align: left;
+            min-width: 0;
+            overflow-wrap: anywhere;
+            cursor: pointer;
+            transition: border-color 0.2s ease, background 0.2s ease;
+        }
+        .ab-book:hover { border-color: var(--gold); }
+        .ab-book.is-open { border-color: var(--gold); background: #fff8e6; box-shadow: inset 0 0 0 1px var(--gold); }
+        .ab-book.is-current { padding-right: 34px; }
+        .ab-book.is-current::after {
+            content: "\f025";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gold);
+            font-size: 0.8rem;
+        }
+        .ab-book:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+        .ab-missing { margin: 14px 0 0; font-size: 0.85rem; line-height: 1.6; color: var(--ab-muted); }
+
+        .ab-chapters { margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--ab-line); }
+        .ab-chapters[hidden] { display: none; }
+        .ab-chapters__title {
+            margin: 0 0 14px;
+            font-family: 'FiraGO-SemiBold', sans-serif;
+            font-feature-settings: "case" on;
+            font-size: 1.15rem;
+            color: var(--ab-text);
+        }
+        .ab-chapter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap: 8px; }
+        .ab-chapter-grid.is-wide { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+        .ab-chapter {
+            height: 46px;
+            border: 1px solid var(--ab-ctrl-border);
+            border-radius: 10px;
+            background: var(--ab-ctrl);
+            color: var(--ab-text);
+            font-family: 'FiraGO-SemiBold', sans-serif;
+            font-size: 0.95rem;
+            font-variant-numeric: tabular-nums;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        }
+        .ab-chapter:hover { border-color: var(--gold); color: var(--gold); }
+        .ab-chapter.is-current { background: var(--gold); border-color: var(--gold); color: #fff; }
+        .ab-chapter:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+        .ab-credit {
+            margin: 0;
+            padding: 14px clamp(18px, 4vw, 36px);
+            border-top: 1px solid var(--ab-line);
+            background: var(--ab-bar);
+            font-size: 0.82rem;
+            line-height: 1.6;
+            color: var(--ab-muted);
+        }
+        .ab-credit a { color: var(--gold); text-decoration: none; }
+        .ab-credit a:hover { text-decoration: underline; }
+        .ab-hint { max-width: 880px; margin: 14px auto 0; font-size: 0.85rem; color: var(--ab-muted); text-align: center; }
+
+        @media (max-width: 600px) {
+            .ab-section { padding: 20px 12px 56px; }
+            .ab-now__icon { width: 46px; height: 46px; font-size: 1.15rem; }
+            .ab-controls { gap: 10px; }
+            .ab-books { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .ab-book { padding: 10px 12px; font-size: 0.88rem; }
+            .ab-tabs { display: flex; }
+            .ab-tab { flex: 1 1 0; padding: 9px 8px; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="main-header" role="banner">
+    <div class="header-container">
+        <div class="logo">
+            <a href="../index.html" aria-label="ქუთაისის სახარების რწმენის ეკლესია – მთავარი">
+                <svg width="70" height="70" viewBox="0 0 2000 2000" fill="none" aria-hidden="true">
+                    <style type="text/css">
+                        .st0{fill:#FFFFFF;}
+                        .st1{fill:#aa954f;}
+                    </style>
+                <g>
+                    <path class="st0" d="M1672.23,926.58c-206.24,393.27-239.98,698.69-612.89,850.09c-31.49-62.97-26.24-52.48-104.96-204.66 c-116.66-225.55-229.28-626.85-573.16-721.26c57.88-323.21,219.04-627.43,620.55-627.43c65.81,0,126.42,8.87,182.05,25.35 c10.92,3.2,21.62,6.72,32.17,10.55c0.11,0.05,0.21,0.11,0.37,0.16c12.44,4.46,24.66,9.39,36.58,14.64c0.05,0.05,0.05,0.05,0.1,0.05 C1493.13,380.5,1626.42,640.95,1672.23,926.58z"/>
+                    <g>
+                <path class="st1" d="M552.28,516.35 c-22.01,6.94,58.25,27.32,65.95,48.44c1.68,4.6,11.86,23.28-4.91,38.72c-4.07,3.75-6.57,20.36-4.6,27.27 c1.71,6.01,18,15.95,23.66,17.09c27.67,5.58,32.04,23.99,31.05,33.35c-1.83,17.43-19.82,40.98-33.85,48.47 c-12.41,6.63-4.04,15.81,5.67,27.54c2.25,2.71,5.31,4.63,8.71,5.56c36.03,9.86,72.29,3.67,117.07-0.24 c63.66-5.56,128.2-9.37,192.24-9.37c40.42,0,77.19,6.26,116.25,8.72c14.64,0.92,18.65,8.12,19.48,21.33 c3.42,53.95,5.41,107.94,5.92,162c-2.35,135.4-9.45,270.35-37.89,403.3c-12.56,58.72-28.4,116.35-58.46,169.01 c-9.62,16.85-21.29,32-35.53,45.45c-9.21,8.7-18.62,11.37-30.87,9.98c-228.65-25.95-404.63-135.49-524.42-332.41 c-50.92-83.71-79.93-175.48-89.16-273.17c-15.4-162.99,21.7-312.84,113.89-448.48c81.68-120.17,191.53-204.21,327.48-255.08 c54.27-20.3,110.72-29.8,167.47-38.72c12.79-2.01,20.79,4.55,27.73,13.38c35.56,45.22,61.88,95.39,80.08,149.91 c10.37,31.06,16.71,63.14,24.17,94.93c4.2,17.89,2.54,19.64-15.91,18.77c-81.25-3.86-162.56-6.77-243.89-5.14 C722.29,498.54,637.81,506.46,552.28,516.35z"/>
+                <path class="st1" d="M1681.47,1015.48c-5.2,68.06-19.73,134.13-39.57,199c-23.67,77.35-58.2,149.98-100.7,218.83 c-29.07,47.02-63.08,90.05-100.7,130.56c-58.93,63.55-126.68,114.61-204.09,153.92c-48.33,24.56-167.72,58.88-177.06,58.88 c53.58-47.7,98.97-106.79,132.3-166.51c30.33-54.31,55.47-111.04,75.57-170.19c13.49-39.73,26.08-79.66,36.21-120.28 c16.85-67.59,29.91-136.02,37.47-205.45c8.55-78.66,13.54-157.49,11.44-236.57c-0.79-28.55-3.67-57.04-5.67-85.59 c-0.63-9.18,0.47-13.28,12.28-10.44c81.66,19.47,162.31,41.51,237.83,79.4c0.11,0.05,0.21,0.11,0.31,0.16 c9.55,4.88,19.36-5.88,13.64-15.01c-0.21-0.31-0.42-0.68-0.63-1.05c-13.8-23.3-28.34-39.78-38.89-64.81 c-8.66-20.62-10.18-26.92,6.35-41.41c4.78-4.25,8.92-9.87,4.78-15.69c-2.57-3.57-3.88-6.19-5.67-10.23 c-2.47-5.51-7.08-8.5-2.94-14.17c2.2-2.99,4.62-4.93,7.5-6.04c4.62-1.78,8.29-5.41,9.76-10.13c1.47-4.78,2.15-9.81,1.57-11.86 c-8.92-30.38-28.55-37.84-53.95-52.58c-58.41-34.06-122.22-55-186.51-74.57c-14.17-4.3-28.02-9.5-42.61-12.28 c-6.61-1.21-9.5-4.62-10.86-12.65c-10.71-61.29-24.45-121.43-53.89-177.53c-16.32-31.12-38.41-66.07-60.93-92.52 c10.92,3.2,21.62,6.72,32.17,10.55c0.11,0.05,0.21,0.11,0.37,0.16c3.25,1.47,6.4,2.89,9.39,3.99c9.13,3.46,18.21,6.98,27.18,10.65 c0.05,0.05,0.05,0.05,0.1,0.05c44.03,18,86.54,38.99,126.63,64.86c43.45,27.97,82.13,61.66,117.87,98.97 c51.69,53.95,90.52,116.03,122.27,183.46c24.3,51.69,40.25,105.8,51.17,161.16C1686.14,859.36,1687.45,937.24,1681.47,1015.48z"/>
+                </g>
+                    </g>
+                </svg>
+            </a>
+         </div>
+
+        <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false" aria-controls="main-nav">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <nav class="nav-menu" id="main-nav" role="navigation" aria-label="Main navigation">
+            <ul class="nav-list">
+                <li class="has-dropdown">
+                    <a href="#" aria-haspopup="true" aria-expanded="false">
+                        ჩვენს შესახებ <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="about.html">ვინ ვართ ჩვენ</a></li>
+                        <li><a href="team.html">ეკლესიის მმართველობა</a></li>
+                    </ul>
+                </li>
+
+                <li class="has-dropdown">
+                    <a href="#" aria-haspopup="true" aria-expanded="false">
+                        შემოგვიერთდი <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="new-here.html">მე ახალი ვარ აქ</a></li>
+                        <li><a href="next-steps.html">რა არის შემდეგი ნაბიჯი</a></li>
+                        <li><a href="registration.html">რეგისტრაცია</a></li>
+                    </ul>
+                </li>
+
+                <li class="has-dropdown">
+                    <a href="#" aria-haspopup="true" aria-expanded="false">
+                        მსახურებები <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="family-groups.html">საოჯახო ჯგუფები</a></li>
+                        <li><a href="youth.html">ახალგაზრდული</a></li>
+                        <li><a href="kids.html">ბავშვები</a></li>
+                        <li><a href="consultation.html">კონსულტაცია</a></li>
+                    </ul>
+                </li>
+
+                <li class="has-dropdown">
+                    <a href="#" aria-haspopup="true" aria-expanded="false">
+                        რესურსები <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="sermons.html">ქადაგებები</a></li>
+                        <li><a href="bible.html">ბიბლია</a></li>
+                        <li><a href="audio-bible.html">აუდიო ბიბლია</a></li>
+                    </ul>
+                </li>
+
+                <li><a href="contact.html">დაგვიკავშირდი</a></li>
+                <li class="nav-give-item"><a href="give.html" class="btn-nav-give">შემოწირულობა</a></li>
+            </ul>
+
+            <div class="mobile-socials">
+                <a href="https://www.facebook.com/efchurchofkutaisi" class="fb-icon" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+                    <i class="fa-brands fa-facebook-f"></i>
+                </a>
+                <a href="https://www.instagram.com/efckyouth/" class="insta-icon" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
+                <a href="https://www.youtube.com/@EFC-Kutaisi" class="yt-icon" aria-label="YouTube" target="_blank" rel="noopener noreferrer">
+                    <i class="fa-brands fa-youtube"></i>
+                </a>
+            </div>
+        </nav>
+
+        <div class="header-socials" aria-label="სოციალური ქსელები">
+            <a href="https://www.facebook.com/efchurchofkutaisi" class="fb-icon" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+                <i class="fa-brands fa-facebook-f" aria-hidden="true"></i>
+            </a>
+            <a href="https://www.instagram.com/efckyouth/" class="insta-icon" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+                <i class="fa-brands fa-instagram" aria-hidden="true"></i>
+            </a>
+            <a href="https://www.youtube.com/@EFC-Kutaisi" class="yt-icon" aria-label="YouTube" target="_blank" rel="noopener noreferrer">
+                <i class="fa-brands fa-youtube" aria-hidden="true"></i>
+            </a>
+        </div>
+    </div>
+</header>
+
+
+<main role="main">
+
+        <section class="hero-section ab-hero" style="height: 340px; min-height: 340px; padding-top: 150px;" aria-label="Page banner">
+            <div class="hero-overlay" aria-hidden="true"></div>
+            <div class="hero-content">
+                <h1>აუდიო ბიბლია</h1>
+                <p class="cursive-text">მოისმინე ღვთის სიტყვა, სადაც არ უნდა იყო</p>
+            </div>
+        </section>
+
+        <section class="ab-section" aria-label="აუდიო ბიბლია">
+            <div class="ab-wrap is-loading" id="audioBible">
+
+                <div class="ab-player" role="region" aria-label="პლეერი">
+                    <div class="ab-now">
+                        <span class="ab-now__icon" aria-hidden="true"><i class="fa-solid fa-headphones"></i></span>
+                        <div class="ab-now__text">
+                            <p class="ab-now__book" id="abNowBook">აუდიო ბიბლია</p>
+                            <p class="ab-now__chapter" id="abNowChapter">იტვირთება…</p>
+                        </div>
+                        <span class="ab-eq" aria-hidden="true"><i></i><i></i><i></i></span>
+                    </div>
+
+                    <div class="ab-progress">
+                        <span class="ab-time" id="abCur">0:00</span>
+                        <input type="range" class="ab-seek" id="abSeek" min="0" max="0" step="1" value="0" aria-label="ადგილი ჩანაწერში" disabled>
+                        <span class="ab-time" id="abDur">–:––</span>
+                    </div>
+
+                    <div class="ab-controls">
+                        <button type="button" class="ab-btn ab-btn--ghost ab-rate" id="abRate" aria-label="მოსმენის სიჩქარე" title="მოსმენის სიჩქარე">1×</button>
+                        <button type="button" class="ab-btn" id="abPrev" aria-label="წინა თავი" title="წინა თავი" disabled><i class="fa-solid fa-backward-step" aria-hidden="true"></i></button>
+                        <button type="button" class="ab-btn ab-btn--play" id="abPlay" aria-label="დაკვრა" title="დაკვრა"><i class="fa-solid fa-play" aria-hidden="true"></i></button>
+                        <button type="button" class="ab-btn" id="abNext" aria-label="შემდეგი თავი" title="შემდეგი თავი" disabled><i class="fa-solid fa-forward-step" aria-hidden="true"></i></button>
+                        <span class="ab-rate-spacer" aria-hidden="true"></span>
+                    </div>
+
+                    <p class="ab-status" id="abStatus" role="status" hidden></p>
+                    <audio id="abAudio" preload="none"></audio>
+                </div>
+
+                <div class="ab-browse">
+                    <div class="ab-tabs" role="tablist" aria-label="აღთქმა">
+                        <button type="button" class="ab-tab" role="tab" data-testament="OT" aria-selected="false">ძველი აღთქმა</button>
+                        <button type="button" class="ab-tab is-active" role="tab" data-testament="NT" aria-selected="true">ახალი აღთქმა</button>
+                    </div>
+
+                    <div class="ab-books" id="abBooks"></div>
+                    <p class="ab-missing" id="abMissing" hidden></p>
+
+                    <div class="ab-chapters" id="abChapters" hidden>
+                        <h2 class="ab-chapters__title" id="abChaptersTitle"></h2>
+                        <div class="ab-chapter-grid" id="abChapterGrid"></div>
+                    </div>
+                </div>
+
+                <p class="ab-credit">ჩანაწერები: <a href="https://www.faithcomesbyhearing.com" target="_blank" rel="noopener noreferrer">Faith Comes By Hearing</a> (ახალი აღთქმა) · <a href="https://www.allgeo.org" target="_blank" rel="noopener noreferrer">allgeo.org</a> (ძველი აღთქმა). წაკითხვა შეგიძლია <a href="bible.html">ონლაინ ბიბლიაში</a>.</p>
+            </div>
+            <p class="ab-hint">ბოლოს მოსმენილი თავი ავტომატურად ინახება. თავის დასრულებისას შემდეგი თავისით ირთვება.</p>
+        </section>
+
+    </main>
+
+<footer class="site-footer">
+    <div class="footer-inner">
+
+        <div class="footer-brand">
+            <img class="footer-logo" src="images/logo.svg" alt="" width="58" height="58">
+            <p class="footer-tagline">ქუთაისის სახარების რწმენის ეკლესია – შენი ადგილი აქ არის</p>
+            <ul class="footer-visit">
+                <li><i class="fa-solid fa-clock" aria-hidden="true"></i><span>კვირა 11:00 — საკვირაო ღვთისმსახურება</span></li>
+                <li><a href="https://maps.app.goo.gl/vRDFyab5jMPhwHNh7" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>სერგო მესხის ქ. №42, ქუთაისი</span></a></li>
+            </ul>
+        </div>
+
+        <nav class="footer-nav" aria-label="ფუტერის ნავიგაცია">
+            <div class="footer-col">
+                <h3 class="footer-heading">ეკლესია</h3>
+                <ul>
+                    <li><a href="about.html">ვინ ვართ ჩვენ</a></li>
+                    <li><a href="team.html">მმართველობა</a></li>
+                    <li><a href="contact.html">დაგვიკავშირდი</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3 class="footer-heading">შემოგვიერთდი</h3>
+                <ul>
+                    <li><a href="new-here.html">მე ახალი ვარ აქ</a></li>
+                    <li><a href="family-groups.html">საოჯახო ჯგუფები</a></li>
+                    <li><a href="youth.html">ახალგაზრდული</a></li>
+                    <li><a href="kids.html">ბავშვები</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3 class="footer-heading">რესურსები</h3>
+                <ul>
+                    <li><a href="sermons.html">ქადაგებები</a></li>
+                    <li><a href="bible.html">ბიბლია</a></li>
+                    <li><a href="give.html">შემოწირულობა</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- გამოწერა. ფორმის მისამართი script.js-შია — სანამ ის ცარიელია,
+             ეს ბლოკი დამალულია და ცრუ დადასტურებას არავის აჩვენებს. -->
+        <div class="footer-subscribe" id="footerSubscribe" hidden>
+            <h3 class="footer-heading">გამოწერა</h3>
+            <p class="subscribe-note">ახალი ქადაგება და კვირის მუხლი ელფოსტაზე, კვირაში ერთხელ.</p>
+
+            <form id="newsletterForm" novalidate>
+                <div class="subscribe-row">
+                    <label class="visually-hidden" for="newsletterEmail">ელფოსტა</label>
+                    <input type="email" id="newsletterEmail" autocomplete="email"
+                           maxlength="180" required placeholder="შენი ელფოსტა">
+                    <button type="submit" class="subscribe-btn" aria-label="გამოწერა">
+                        <i class="fa-solid fa-arrow-right subscribe-icon" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+                <label class="subscribe-check">
+                    <input type="checkbox" id="newsletterConsent" required>
+                    <span>თანხმობას ვაძლევ, რომ მივიღო წერილები ეკლესიისგან. გამოწერის გაუქმება ნებისმიერ დროს შემიძლია.</span>
+                </label>
+
+                <p class="subscribe-msg" role="status" hidden></p>
+            </form>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        <p class="footer-copy">© 2026 სახარების რწმენის ეკლესია – ქუთაისი. ყველა უფლება დაცულია.</p>
+        <div class="footer-social">
+            <a href="https://www.facebook.com/efchurchofkutaisi" aria-label="Facebook" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-facebook-f" aria-hidden="true"></i></a>
+            <a href="https://www.instagram.com/efckyouth/" aria-label="Instagram" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-instagram" aria-hidden="true"></i></a>
+            <a href="https://www.youtube.com/@EFC-Kutaisi" aria-label="YouTube" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-youtube" aria-hidden="true"></i></a>
+        </div>
+    </div>
+</footer>
+
+<button class="back-to-top" aria-label="ზემოთ ასვლა" title="ზემოთ ასვლა">
+    <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
+</button>
+
+<script src="../analytics.js"></script>
+<script src="../script.js"></script>
+<script src="../sanity-fetch.js"></script>
+<script src="../audio-bible.js"></script>
+
+

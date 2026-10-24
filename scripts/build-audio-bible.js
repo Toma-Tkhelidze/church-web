@@ -56,7 +56,9 @@ function tracksOf(page, book) {
   return tracks.sort((a, b) => a[0] - b[0]);
 }
 
-const out = { bases: BASES, books: {} };
+// names — აუდიო გვერდისთვის (pages/audio-bible.html), რომელიც holybible.ge-ს
+// არ ეკითხება; ყველა 66 წიგნია, რომ აუდიოს გარეშე დარჩენილებიც ჩამოითვალოს.
+const out = { bases: BASES, names: books.map(b => b.name), books: {} };
 let count = 0;
 books.forEach((b, i) => {
   const page = b.audio && bySlug.get(b.audio);

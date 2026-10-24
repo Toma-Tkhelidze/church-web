@@ -254,74 +254,6 @@
         .bible-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
         .bible-btn--font { font-family: 'FiraGO-SemiBold', sans-serif; font-weight: 600; }
 
-        /* აუდიო ზოლი — ხელსაწყოებსა და ტექსტს შორის */
-        .bible-audio {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 18px;
-            border-bottom: 1px solid var(--bb-line);
-            background: var(--bb-bar);
-        }
-        .bible-audio__play {
-            flex: 0 0 auto;
-            width: 44px;
-            height: 44px;
-            border: 0;
-            border-radius: 50%;
-            background: var(--gold);
-            color: #fff;
-            font-size: 1rem;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.2s ease, opacity 0.2s ease;
-        }
-        .bible-audio__play .fa-play { margin-left: 3px; }
-        .bible-audio__play:hover:not(:disabled) { transform: scale(1.06); }
-        .bible-audio__play:disabled { opacity: 0.35; cursor: default; }
-        .bible-audio__play:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
-        .bible-audio__main {
-            flex: 1 1 auto;
-            min-width: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .bible-audio__label {
-            font-size: 0.9rem;
-            color: var(--bb-text);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .bible-audio.is-missing .bible-audio__label,
-        .bible-audio.is-error .bible-audio__label { color: var(--bb-muted); }
-        .bible-audio__seek {
-            width: 100%;
-            height: 18px;
-            margin: 0;
-            accent-color: var(--gold);
-            cursor: pointer;
-        }
-        .bible-audio__seek:disabled { opacity: 0.4; cursor: default; }
-        .bible-audio__time {
-            flex: 0 0 auto;
-            font-size: 0.8rem;
-            font-variant-numeric: tabular-nums;
-            color: var(--bb-muted);
-        }
-        .bible-audio__rate { width: auto; min-width: 48px; padding: 0 8px; font-size: 0.85rem; }
-        .bible-audio.is-missing .bible-audio__seek,
-        .bible-audio.is-missing .bible-audio__time,
-        .bible-audio.is-missing .bible-audio__rate { display: none; }
-        .bible-audio.is-flash { animation: bible-audio-flash 1.6s ease; }
-        @keyframes bible-audio-flash {
-            0%, 100% { box-shadow: inset 0 0 0 0 transparent; }
-            30% { box-shadow: inset 0 0 0 2px var(--gold); }
-        }
-
         /* ფონის ამრჩევი — სამი წრე */
         .bible-themes {
             display: flex;
@@ -638,7 +570,6 @@
             #bibleChapter, .bible-dd--chapter { flex: 1 1 80px; }
             #bibleVerse, .bible-dd--verse { flex: 1 1 80px; }
             .bible-themes { margin-right: 2px; padding-right: 6px; }
-            .bible-audio { padding: 10px 12px; gap: 10px; }
             .bible-hint { display: none; }
         }
     </style>
@@ -713,7 +644,7 @@
                     <ul class="dropdown-menu">
                         <li><a href="sermons.html">ქადაგებები</a></li>
                         <li><a href="https://holybible.ge/geo/bible/%E1%83%90%E1%83%AE%E1%83%90%E1%83%9A%E1%83%98-%E1%83%92%E1%83%90%E1%83%93%E1%83%90%E1%83%9B%E1%83%A3%E1%83%A8%E1%83%90%E1%83%95%E1%83%94%E1%83%91%E1%83%A3%E1%83%9B%E1%83%A5-%E1%83%92%E1%83%9B%E1%83%9D%E1%83%AA%E1%83%9B%E1%83%90-2015/1/0/0/0/1" target="_blank" rel="noopener noreferrer">ონლაინ ბიბლია</a></li>
-                        <li><a href="bible.html#audio">აუდიო ბიბლია</a></li>
+                        <li><a href="audio-bible.html">აუდიო ბიბლია</a></li>
                     </ul>
                 </li>
 
@@ -787,18 +718,6 @@
                     </div>
                 </div>
 
-                <!-- აუდიო: mp3 ორიგინალი სერვერებიდან იკითხება, ბმულები data/audio-bible.json-შია -->
-                <div class="bible-audio" id="bibleAudio" aria-label="აუდიო ბიბლია">
-                    <button type="button" class="bible-audio__play" id="bibleAudioPlay" aria-label="მოუსმინე ამ თავს" title="მოუსმინე ამ თავს" disabled><i class="fa-solid fa-play" aria-hidden="true"></i></button>
-                    <div class="bible-audio__main">
-                        <span class="bible-audio__label" id="bibleAudioLabel">მოუსმინე ამ თავს</span>
-                        <input type="range" class="bible-audio__seek" id="bibleAudioSeek" min="0" max="0" step="1" value="0" aria-label="ადგილი ჩანაწერში" disabled>
-                    </div>
-                    <span class="bible-audio__time" id="bibleAudioTime">0:00</span>
-                    <button type="button" class="bible-btn bible-audio__rate" id="bibleAudioRate" aria-label="მოსმენის სიჩქარე" title="მოსმენის სიჩქარე">1×</button>
-                    <audio id="bibleAudioEl" preload="none"></audio>
-                </div>
-
                 <div class="bible-body">
                     <h2 id="bibleTitle">ბიბლია</h2>
                     <p class="bible-status" id="bibleStatus" role="status">იტვირთება…</p>
@@ -814,7 +733,7 @@
                     </div>
                 </div>
 
-                <p class="bible-credit">ტექსტი: <a href="https://holybible.ge" target="_blank" rel="noopener noreferrer">holybible.ge</a> · აუდიო: <a href="https://www.faithcomesbyhearing.com" target="_blank" rel="noopener noreferrer">Faith Comes By Hearing</a>, <a href="https://www.allgeo.org" target="_blank" rel="noopener noreferrer">allgeo.org</a></p>
+                <p class="bible-credit">ტექსტი: <a href="https://holybible.ge" target="_blank" rel="noopener noreferrer">holybible.ge</a></p>
             </div>
 
             <!-- მუხლის მენიუ: ხანგრძლივი დაჭერით (ტელეფონი) ან მარჯვენა ღილაკით -->
