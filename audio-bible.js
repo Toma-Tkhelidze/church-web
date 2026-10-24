@@ -238,15 +238,26 @@
     });
     els.chapters.hidden = false;
     renderPlayer();
-    // წიგნზე დაჭერისას თავების ციფრებთან ჩავდივართ — სათაური ფიქსირებული
-    // ჰედერის ქვეშ რომ არ მოექცეს, მის სიმაღლეს ვაკლებთ.
-    if (scroll) {
-      const header = document.querySelector('.main-header');
-      const pinned = header && /fixed|sticky/.test(getComputedStyle(header).position);
-      const hb = pinned ? header.getBoundingClientRect().bottom : 0;
-      const top = els.chapters.getBoundingClientRect().top + window.pageYOffset - Math.max(hb, 0) - 16;
-      window.scrollTo({ top: Math.max(top, 0), behavior: 'smooth' });
-    }
+    if (scroll) scrollToChapters();
+  }
+
+  // წიგნზე დაჭერისას ვჩამოდივართ ზუსტად იმდენს, რომ თავების ციფრები
+  // მთლიანად გამოჩნდეს ქვედა პლეერისა და ტელეფონის მენიუს ზემოთ — არა
+  // მეტს (ადრე სექცია ეკრანის თავში მიჰქონდა და გვერდი ფუტერამდე ჩადიოდა).
+  // გრძელ სიაზე (ფსალმუნები და ა.შ.) სათაური ზემოთ ჩერდება, ჰედერის ქვეშ.
+  function scrollToChapters() {
+    const header = document.querySelector('.main-header');
+    const pinned = header && /fixed|sticky/.test(getComputedStyle(header).position);
+    const topLimit = (pinned ? Math.max(header.getBoundingClientRect().bottom, 0) : 0) + 16;
+    const tabbar = document.querySelector('.mobile-tabbar');
+    const tabTop = tabbar && getComputedStyle(tabbar).display !== 'none' ? tabbar.getBoundingClientRect().top : window.innerHeight;
+    // ქვედა პატარა პლეერის ადგილი (≈64px სიმაღლე + 16px დაშორება) და ცოტა ჰაერი
+    const bottomLimit = tabTop - 100;
+    const r = els.chapters.getBoundingClientRect();
+    let delta = r.bottom - bottomLimit;
+    if (delta <= 0 && r.top >= topLimit) return;   // უკვე მთლიანად ჩანს
+    delta = Math.min(delta, r.top - topLimit);
+    window.scrollBy({ top: delta, behavior: 'smooth' });
   }
 
   /* ---------- მოვლენები ---------- */
