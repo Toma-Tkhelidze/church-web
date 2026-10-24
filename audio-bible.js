@@ -238,11 +238,14 @@
     });
     els.chapters.hidden = false;
     renderPlayer();
+    // წიგნზე დაჭერისას თავების ციფრებთან ჩავდივართ — სათაური ფიქსირებული
+    // ჰედერის ქვეშ რომ არ მოექცეს, მის სიმაღლეს ვაკლებთ.
     if (scroll) {
-      const r = els.chapters.getBoundingClientRect();
-      if (r.top > window.innerHeight - 120 || r.top < 0) {
-        els.chapters.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
+      const header = document.querySelector('.main-header');
+      const pinned = header && /fixed|sticky/.test(getComputedStyle(header).position);
+      const hb = pinned ? header.getBoundingClientRect().bottom : 0;
+      const top = els.chapters.getBoundingClientRect().top + window.pageYOffset - Math.max(hb, 0) - 16;
+      window.scrollTo({ top: Math.max(top, 0), behavior: 'smooth' });
     }
   }
 
