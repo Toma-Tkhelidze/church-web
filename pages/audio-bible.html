@@ -256,6 +256,73 @@
         .ab-credit a:hover { text-decoration: underline; }
         .ab-hint { max-width: 880px; margin: 14px auto 0; font-size: 0.85rem; color: var(--ab-muted); text-align: center; }
 
+        /* პატარა პლეერი ქვემოთ — ტელეფონზე ქვედა მენიუს ზემოთ ჯდება */
+        .ab-mini {
+            position: fixed;
+            left: 50%;
+            bottom: calc(var(--tabbar-space, 0px) + 16px);
+            z-index: 1100;
+            width: min(560px, calc(100vw - 20px));
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 10px 8px 8px;
+            border-radius: 18px;
+            background: rgba(22, 20, 16, 0.96);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(170, 149, 79, 0.35);
+            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+            color: #f3ecdc;
+            overflow: hidden;
+            opacity: 0;
+            pointer-events: none;
+            transform: translate(-50%, 24px);
+            transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .ab-mini.is-visible { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
+        .ab-mini__play, .ab-mini__next {
+            flex: 0 0 auto;
+            border: 0;
+            border-radius: 50%;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .ab-mini__play { width: 46px; height: 46px; background: var(--gold); color: #fff; font-size: 1.05rem; }
+        .ab-mini__play .fa-play { margin-left: 3px; }
+        .ab-mini__next { width: 40px; height: 40px; background: rgba(255, 255, 255, 0.08); color: #f3ecdc; }
+        .ab-mini__next:disabled { opacity: 0.3; cursor: default; }
+        .ab-mini__info {
+            flex: 1 1 auto;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 0;
+            border: 0;
+            background: none;
+            color: inherit;
+            text-align: left;
+            cursor: pointer;
+        }
+        .ab-mini__book {
+            font-family: 'FiraGO-SemiBold', sans-serif;
+            font-feature-settings: "case" on;
+            font-size: 0.92rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .ab-mini__chapter { font-size: 0.8rem; color: var(--gold-light); }
+        .ab-mini__bar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgba(255, 255, 255, 0.08); }
+        .ab-mini__bar span { display: block; height: 100%; width: 0; background: var(--gold); transition: width 0.25s linear; }
+        .ab-mini button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+        /* პატარა პლეერის დროს „ზემოთ ასვლის" ღილაკი არ ჭირდება — პლეერიც იქ მიგიყვანს */
+        body.ab-mini-on .back-to-top { opacity: 0 !important; pointer-events: none !important; }
+        body.ab-mini-on .ab-section { padding-bottom: 130px; }
+
         @media (max-width: 600px) {
             .ab-section { padding: 20px 12px 56px; }
             .ab-now__icon { width: 46px; height: 46px; font-size: 1.15rem; }
@@ -432,6 +499,17 @@
                 <p class="ab-credit">ჩანაწერები: <a href="https://www.faithcomesbyhearing.com" target="_blank" rel="noopener noreferrer">Faith Comes By Hearing</a> (ახალი აღთქმა) · <a href="https://www.allgeo.org" target="_blank" rel="noopener noreferrer">allgeo.org</a> (ძველი აღთქმა). წაკითხვა შეგიძლია <a href="bible.html">ონლაინ ბიბლიაში</a>.</p>
             </div>
             <p class="ab-hint">ბოლოს მოსმენილი თავი ავტომატურად ინახება. თავის დასრულებისას შემდეგი თავისით ირთვება.</p>
+
+            <!-- პატარა პლეერი: ჩნდება, როცა დიდი პლეერი ეკრანს ზემოთ გაცდა -->
+            <div class="ab-mini" id="abMini" aria-hidden="true">
+                <button type="button" class="ab-mini__play" id="abMiniPlay" aria-label="დაკვრა" tabindex="-1"><i class="fa-solid fa-play" aria-hidden="true"></i></button>
+                <button type="button" class="ab-mini__info" id="abMiniInfo" aria-label="დიდ პლეერზე დაბრუნება" tabindex="-1">
+                    <span class="ab-mini__book" id="abMiniBook"></span>
+                    <span class="ab-mini__chapter" id="abMiniChapter"></span>
+                </button>
+                <button type="button" class="ab-mini__next" id="abMiniNext" aria-label="შემდეგი თავი" tabindex="-1"><i class="fa-solid fa-forward-step" aria-hidden="true"></i></button>
+                <span class="ab-mini__bar" aria-hidden="true"><span id="abMiniFill"></span></span>
+            </div>
         </section>
 
     </main>

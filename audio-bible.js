@@ -39,7 +39,15 @@
     chapters: document.getElementById('abChapters'),
     chaptersTitle: document.getElementById('abChaptersTitle'),
     chapterGrid: document.getElementById('abChapterGrid'),
-    missing: document.getElementById('abMissing')
+    missing: document.getElementById('abMissing'),
+    player: root.querySelector('.ab-player'),
+    mini: document.getElementById('abMini'),
+    miniPlay: document.getElementById('abMiniPlay'),
+    miniInfo: document.getElementById('abMiniInfo'),
+    miniNext: document.getElementById('abMiniNext'),
+    miniBook: document.getElementById('abMiniBook'),
+    miniChapter: document.getElementById('abMiniChapter'),
+    miniFill: document.getElementById('abMiniFill')
   };
 
   let data = null;
@@ -111,6 +119,9 @@
     root.classList.toggle('is-playing', playing);
     els.prev.disabled = !prevOf(track);
     els.next.disabled = !nextOf(track);
+    els.miniPlay.innerHTML = els.play.innerHTML;
+    els.miniPlay.setAttribute('aria-label', els.play.getAttribute('aria-label'));
+    els.miniNext.disabled = els.next.disabled;
     Array.prototype.forEach.call(root.querySelectorAll('.ab-chapter.is-current, .ab-book.is-current'), function (el) {
       el.classList.remove('is-current');
       el.removeAttribute('aria-current');
@@ -130,6 +141,9 @@
     els.audio.playbackRate = Number(els.rate.dataset.rate) || 1;
     els.book.textContent = data.names[t.book - 1];
     els.chapter.textContent = chapterLabel(t);
+    els.miniBook.textContent = els.book.textContent;
+    els.miniChapter.textContent = els.chapter.textContent;
+    els.miniFill.style.width = '0';
     els.seek.value = '0';
     els.seek.max = '0';
     els.seek.disabled = true;
@@ -276,6 +290,7 @@
         els.seek.value = String(Math.floor(a.currentTime || 0));
         els.cur.textContent = fmtTime(a.currentTime);
       }
+      if (a.duration) els.miniFill.style.width = (a.currentTime / a.duration * 100).toFixed(2) + '%';
       clearTimeout(saveTimer);
       saveTimer = setTimeout(savePos, 1000);
     });
@@ -300,12 +315,42 @@
       } catch (e) { /* ძველი ბრაუზერი */ }
     }
 
+    bindMini();
+
     // ჰარი = პაუზა/დაკვრა, თუ ღილაკზე ან ველზე არ ვართ.
     document.addEventListener('keydown', function (e) {
       if (e.key !== ' ' || e.target.closest('button, input, select, textarea, a')) return;
       e.preventDefault();
       els.play.click();
     });
+  }
+
+  // თავს რომ ირჩევ, დიდი პლეერი ეკრანს ზემოთ რჩება — ქვემოთ პატარა
+  // პლეერი ჩნდება. მხოლოდ მაშინ, როცა დიდი ზემოთაა გასული, არა ქვემოთ.
+  function bindMini() {
+    els.miniPlay.addEventListener('click', function () { els.play.click(); });
+    els.miniNext.addEventListener('click', function () { els.next.click(); });
+    els.miniInfo.addEventListener('click', function () {
+      els.player.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+    let shown = false;
+    // ერთი getBoundingClientRect იაფია — scroll-ზე პირდაპირ ვითვლით.
+    function check() {
+      // დიდი პლეერის ღილაკები (ქვედა ნახევარი) ზემოთ რომ გაცდა — მაშინ.
+      const r = els.player.getBoundingClientRect();
+      const show = !!track && r.bottom < r.height / 2;
+      if (show === shown) return;
+      shown = show;
+      els.mini.classList.toggle('is-visible', show);
+      els.mini.setAttribute('aria-hidden', show ? 'false' : 'true');
+      Array.prototype.forEach.call(els.mini.querySelectorAll('button'), function (b) {
+        b.tabIndex = show ? 0 : -1;
+      });
+      document.body.classList.toggle('ab-mini-on', show);
+    }
+    window.addEventListener('scroll', check, { passive: true });
+    window.addEventListener('resize', check);
+    els.audio.addEventListener('loadstart', check);
   }
 
   function setRate(r) {
