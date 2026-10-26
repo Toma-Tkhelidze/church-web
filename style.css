@@ -1786,12 +1786,6 @@ video {
     gap: 16px;
 }
 
-.footer-logo {
-    display: block;
-    width: 58px;
-    height: 58px;
-}
-
 .footer-tagline {
     margin: 0;
     color: var(--footer-text-soft);
