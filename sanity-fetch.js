@@ -1924,14 +1924,17 @@ function editDistance(a, b) {
 const OUTLINE_MAX_SCORE = 0.2;
 function outlineScore(file, title) {
   if (!file || !title) return 1;
+  if (file === title) return 0;
   const longer = Math.max(file.length, title.length);
-  if (Math.abs(file.length - title.length) / longer > 0.5) return 1;
-  let score = editDistance(file, title) / longer;
-  // "გონიერი თუ უგუნური კონსპექტი" — სათაური სახელში მთლიანად ზის.
+  const gap = Math.abs(file.length - title.length) / longer;
+  // ერთი მეორეში მთლიანად ზის: "გონიერი თუ უგუნური კონსპექტი" ან
+  // "რისი კეთება გვმართებს ეკლესიაში | სპარტაკ ჭანკვეტაძის უკანასკნელი
+  // ქადაგება". სიგრძით უფრო ახლოს მყოფი სათაური იმარჯვებს.
   if (file.length >= 6 && title.length >= 6 && (title.indexOf(file) !== -1 || file.indexOf(title) !== -1)) {
-    score = Math.min(score, 0.1);
+    return 0.1 + 0.09 * gap;
   }
-  return score;
+  if (gap > 0.5) return 1;
+  return editDistance(file, title) / longer;
 }
 
 // ქადაგების ID → კონსპექტის ბმული. თითო ფაილი ყველაზე მსგავს
