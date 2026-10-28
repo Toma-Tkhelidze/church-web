@@ -188,9 +188,15 @@ function showSermonsFallback(reason) {
   box.hidden = false;
 }
 
+// ბოლო ქადაგების ID და მისი კონსპექტის (weeklyVersePdf) ბმული —
+// კონსპექტის ღილაკი მხოლოდ ბოლო ქადაგებაზე ჩანს.
+let latestSermonId = null;
+let sermonOutlineUrl = null;
+
 // Idempotent: safe to call from both the feed path and the Sanity path.
 function applyLatestSermonId(sermonId) {
   if (!sermonId) return;
+  latestSermonId = sermonId;
 
   document.querySelectorAll('#sanity-latest-sermon').forEach(el => {
     if (el.getAttribute('data-video-id') === sermonId) return;
@@ -799,6 +805,9 @@ function updatePageContent() {
           // აქ, ფაილის არსებობისას, იხსნება.
           const pdf = siteContent.weeklyVersePdf;
           if (pdf && pdf.url) {
+            // ქადაგებების გვერდი: ღილაკი გაზიარების გვერდით.
+            sermonOutlineUrl = pdf.url;
+            renderPlayerActions();
             const el = document.getElementById('sanity-weekly-verse-pdf');
             if (el) {
               // Sanity-ს CDN სხვა დომენია, ამიტომ download ატრიბუტს
@@ -1868,6 +1877,12 @@ function renderPlayerActions() {
   const dateEl = document.getElementById('playerNowDate');
   if (titleEl) titleEl.textContent = parts.title || 'ქადაგება';
   if (dateEl) { dateEl.textContent = parts.date || ''; dateEl.hidden = !parts.date; }
+  const outlineBtn = document.getElementById('outlineBtn');
+  if (outlineBtn) {
+    const show = !!(sermonOutlineUrl && currentSermonId === latestSermonId);
+    if (show) outlineBtn.href = sermonOutlineUrl;
+    outlineBtn.hidden = !show;
+  }
   bar.hidden = false;
   refreshLaterUI();
 }
