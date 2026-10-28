@@ -1891,31 +1891,96 @@ function sermonDayMs(id) {
   return f ? Date.UTC(Number(f[1]), Number(f[2]) - 1, Number(f[3])) : 0;
 }
 
-// ეკუთვნის თუ არა კონსპექტი ამ ქადაგებას.
+// Sanity-ში ატვირთული ყველა PDF. ჩანაცვლებული კონსპექტი საცავში რჩება,
+// ამიტომ ძველ ქადაგებებსაც თავისი კონსპექტი უჩანს.
+let outlineFiles = [];
+
+function fetchOutlineFiles() {
+  const q = '*[_type == "sanity.fileAsset" && extension == "pdf"] | order(_createdAt desc){url, originalFilename, _createdAt}';
+  fetch(`https://${PROJECT_ID}.apicdn.sanity.io/${API_VERSION}/data/query/${DATASET}?query=${encodeURIComponent(q)}`)
+    .then(res => (res.ok ? res.json() : null))
+    .then(data => {
+      if (!data || !Array.isArray(data.result)) return;
+      outlineFiles = data.result.filter(f => f && f.url);
+      renderPlayerActions();
+    })
+    .catch(() => { /* ძველი კონსპექტები არ გამოჩნდება — ახალი მაინც მუშაობს */ });
+}
+
+function editDistance(a, b) {
+  let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    const cur = [i];
+    for (let j = 1; j <= b.length; j++) {
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    }
+    prev = cur;
+  }
+  return prev[b.length];
+}
+
+// 0 = ერთი და იგივე, 1 = სულ სხვა. ფაილის სახელში ერთი-ორი შეცდომა
+// ("შრინარჩუნე" "შეინარჩუნე"-ს ნაცვლად) დამთხვევას არ აფუჭებს.
+const OUTLINE_MAX_SCORE = 0.2;
+function outlineScore(file, title) {
+  if (!file || !title) return 1;
+  const longer = Math.max(file.length, title.length);
+  if (Math.abs(file.length - title.length) / longer > 0.5) return 1;
+  let score = editDistance(file, title) / longer;
+  // "გონიერი თუ უგუნური კონსპექტი" — სათაური სახელში მთლიანად ზის.
+  if (file.length >= 6 && title.length >= 6 && (title.indexOf(file) !== -1 || file.indexOf(title) !== -1)) {
+    score = Math.min(score, 0.1);
+  }
+  return score;
+}
+
+// ქადაგების ID → კონსპექტის ბმული. თითო ფაილი ყველაზე მსგავს
+// სათაურს ეკუთვნის — ასე „ნაწილი მე-2“ პირველ ნაწილზე არ გამოჩნდება.
+// ითვლება მხოლოდ მაშინ, როცა ქადაგებების ან ფაილების რაოდენობა იცვლება.
+let outlineMap = {};
+let outlineMapSig = '';
+function outlineByFile() {
+  const files = outlineFiles.slice();
+  if (sermonOutline && sermonOutline.url && !files.some(f => f.url === sermonOutline.url)) files.unshift(sermonOutline);
+  const ids = Object.keys(knownSermons);
+  const sig = ids.length + ':' + files.length + ':' + (sermonOutline ? sermonOutline.url : '');
+  if (sig === outlineMapSig) return outlineMap;
+  const titles = ids.map(id => outlineKey(sermonParts(id).title));
+  const map = {};
+  // უახლესი ფაილი პირველია — ერთი ქადაგების ორ ვერსიაში ახალი იმარჯვებს.
+  files.forEach(f => {
+    const key = outlineKey(f.originalFilename);
+    if (key.length < 4) return;
+    let best = -1, bestScore = OUTLINE_MAX_SCORE;
+    titles.forEach((t, i) => {
+      const s = outlineScore(key, t);
+      if (s <= bestScore) { best = i; bestScore = s; }
+    });
+    if (best >= 0 && !map[ids[best]]) map[ids[best]] = f.url;
+  });
+  outlineMap = map;
+  outlineMapSig = sig;
+  return map;
+}
+
+// ამ ქადაგების კონსპექტის ბმული ან null.
 // 1) ფაილის სახელი ქადაგების სათაურს ემთხვევა — ნებისმიერ ქადაგებაზე,
 //    არქივიდან ჩართულზეც.
-// 2) სახელი არცერთ სათაურს არ ჰგავს — მაშინ მხოლოდ ბოლო ქადაგებაზე და
-//    მხოლოდ თუ ფაილი ქადაგებამდე 2 დღით ადრე ან შემდეგ 5 დღეში აიტვირთა.
-//    შაბათს ხვალინდელისთვის ატვირთული (წინა კვირიდან 6 დღე) ძველ
-//    ქადაგებაზე აღარ გამოჩნდება.
-function outlineMatches(id) {
-  if (!id || !sermonOutline || !sermonOutline.url) return false;
-  const file = outlineKey(sermonOutline.originalFilename);
-  if (file.length >= 4) {
-    const own = outlineKey(sermonParts(id).title);
-    if (own && (own.indexOf(file) !== -1 || file.indexOf(own) !== -1)) return true;
-    const other = Object.keys(knownSermons).some(k => {
-      const t = outlineKey(sermonParts(k).title);
-      return t && (t.indexOf(file) !== -1 || file.indexOf(t) !== -1);
-    });
-    if (other) return false;
-  }
-  if (id !== latestSermonId) return false;
+// 2) ახლანდელი კონსპექტის სახელი არცერთ სათაურს არ ჰგავს — მაშინ მხოლოდ
+//    ბოლო ქადაგებაზე და მხოლოდ თუ ფაილი ქადაგებამდე 2 დღით ადრე ან შემდეგ
+//    5 დღეში აიტვირთა. შაბათს ხვალინდელისთვის ატვირთული (წინა კვირიდან
+//    6 დღე) ძველ ქადაგებაზე აღარ გამოჩნდება.
+function outlineFor(id) {
+  if (!id) return null;
+  const map = outlineByFile();
+  if (map[id]) return map[id];
+  if (!sermonOutline || !sermonOutline.url || id !== latestSermonId) return null;
+  if (Object.keys(map).some(k => map[k] === sermonOutline.url)) return null;
   const day = sermonDayMs(id);
   const uploaded = Date.parse(sermonOutline._createdAt || '');
-  if (!day || !uploaded) return false;
+  if (!day || !uploaded) return null;
   const DAY = 86400000;
-  return uploaded >= day - 2 * DAY && uploaded < day + 6 * DAY;
+  return uploaded >= day - 2 * DAY && uploaded < day + 6 * DAY ? sermonOutline.url : null;
 }
 
 function renderPlayerActions() {
@@ -1928,9 +1993,9 @@ function renderPlayerActions() {
   if (dateEl) { dateEl.textContent = parts.date || ''; dateEl.hidden = !parts.date; }
   const outlineBtn = document.getElementById('outlineBtn');
   if (outlineBtn) {
-    const show = outlineMatches(currentSermonId);
-    if (show) outlineBtn.href = sermonOutline.url;
-    outlineBtn.hidden = !show;
+    const url = outlineFor(currentSermonId);
+    if (url) outlineBtn.href = url;
+    outlineBtn.hidden = !url;
   }
   bar.hidden = false;
   refreshLaterUI();
@@ -1941,6 +2006,7 @@ function initPlayerActions() {
   const menu = document.getElementById('shareMenu');
   const laterBtn = document.getElementById('laterBtn');
   if (!shareBtn || !menu) return;
+  if (document.getElementById('outlineBtn')) fetchOutlineFiles();
 
   const fromHere = document.getElementById('shareFromHere');
   const fromHereBox = document.getElementById('shareFromHereBox');
