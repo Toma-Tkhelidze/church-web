@@ -188,10 +188,10 @@ function showSermonsFallback(reason) {
   box.hidden = false;
 }
 
-// ბოლო ქადაგების ID და მისი კონსპექტის (weeklyVersePdf) ბმული —
-// კონსპექტის ღილაკი მხოლოდ ბოლო ქადაგებაზე ჩანს.
+// ბოლო ქადაგების ID და კონსპექტი (weeklyVersePdf: url, ფაილის სახელი,
+// ატვირთვის დრო). რომელ ქადაგებას ეკუთვნის, outlineMatches წყვეტს.
 let latestSermonId = null;
-let sermonOutlineUrl = null;
+let sermonOutline = null;
 
 // Idempotent: safe to call from both the feed path and the Sanity path.
 function applyLatestSermonId(sermonId) {
@@ -516,7 +516,7 @@ function updatePageContent() {
       weeklyVerses[]{text, ref},
       weeklyVerseText,
       weeklyVerseRef,
-      "weeklyVersePdf": weeklyVersePdf.asset->{url, originalFilename, size}
+      "weeklyVersePdf": weeklyVersePdf.asset->{url, originalFilename, size, _createdAt}
     },
     "events": *[_type == "registrationEvent"] | order(_createdAt asc) {
       eventId,
@@ -806,7 +806,7 @@ function updatePageContent() {
           const pdf = siteContent.weeklyVersePdf;
           if (pdf && pdf.url) {
             // ქადაგებების გვერდი: ღილაკი გაზიარების გვერდით.
-            sermonOutlineUrl = pdf.url;
+            sermonOutline = pdf;
             renderPlayerActions();
             const el = document.getElementById('sanity-weekly-verse-pdf');
             if (el) {
@@ -1869,6 +1869,55 @@ function copyText(text) {
   });
 }
 
+// სათაურისა და ფაილის სახელის შესადარებელი ფორმა:
+// "გონიერი_თუ_უგუნური.pdf" და "გონიერი თუ უგუნური?" ერთნაირდება.
+function outlineKey(text) {
+  return (text || '')
+    .replace(/\.pdf$/i, '')
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .trim();
+}
+
+// ქადაგების დღე (UTC ნახევარღამე, ms): სათაურიდან ("… | 25 ოქტომბერი, 2026"),
+// თუ არა — YouTube-ზე ატვირთვის თარიღიდან.
+function sermonDayMs(id) {
+  const date = sermonParts(id).date || '';
+  const m = /(\d{1,2})\s+(\S+?),?\s+(\d{4})/.exec(date);
+  const month = m ? KA_MONTHS.indexOf(m[2]) : -1;
+  if (month >= 0) return Date.UTC(Number(m[3]), month, Number(m[1]));
+  const known = knownSermons[id];
+  const f = /^(\d{4})-(\d{2})-(\d{2})/.exec((known && known.pubDate) || '');
+  return f ? Date.UTC(Number(f[1]), Number(f[2]) - 1, Number(f[3])) : 0;
+}
+
+// ეკუთვნის თუ არა კონსპექტი ამ ქადაგებას.
+// 1) ფაილის სახელი ქადაგების სათაურს ემთხვევა — ნებისმიერ ქადაგებაზე,
+//    არქივიდან ჩართულზეც.
+// 2) სახელი არცერთ სათაურს არ ჰგავს — მაშინ მხოლოდ ბოლო ქადაგებაზე და
+//    მხოლოდ თუ ფაილი ქადაგებამდე 2 დღით ადრე ან შემდეგ 5 დღეში აიტვირთა.
+//    შაბათს ხვალინდელისთვის ატვირთული (წინა კვირიდან 6 დღე) ძველ
+//    ქადაგებაზე აღარ გამოჩნდება.
+function outlineMatches(id) {
+  if (!id || !sermonOutline || !sermonOutline.url) return false;
+  const file = outlineKey(sermonOutline.originalFilename);
+  if (file.length >= 4) {
+    const own = outlineKey(sermonParts(id).title);
+    if (own && (own.indexOf(file) !== -1 || file.indexOf(own) !== -1)) return true;
+    const other = Object.keys(knownSermons).some(k => {
+      const t = outlineKey(sermonParts(k).title);
+      return t && (t.indexOf(file) !== -1 || file.indexOf(t) !== -1);
+    });
+    if (other) return false;
+  }
+  if (id !== latestSermonId) return false;
+  const day = sermonDayMs(id);
+  const uploaded = Date.parse(sermonOutline._createdAt || '');
+  if (!day || !uploaded) return false;
+  const DAY = 86400000;
+  return uploaded >= day - 2 * DAY && uploaded < day + 6 * DAY;
+}
+
 function renderPlayerActions() {
   const bar = document.getElementById('playerActions');
   if (!bar || !currentSermonId) return;
@@ -1879,8 +1928,8 @@ function renderPlayerActions() {
   if (dateEl) { dateEl.textContent = parts.date || ''; dateEl.hidden = !parts.date; }
   const outlineBtn = document.getElementById('outlineBtn');
   if (outlineBtn) {
-    const show = !!(sermonOutlineUrl && currentSermonId === latestSermonId);
-    if (show) outlineBtn.href = sermonOutlineUrl;
+    const show = outlineMatches(currentSermonId);
+    if (show) outlineBtn.href = sermonOutline.url;
     outlineBtn.hidden = !show;
   }
   bar.hidden = false;
