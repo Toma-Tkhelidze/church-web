@@ -1747,6 +1747,12 @@
             font-size: 0.8rem;
         }
 
+        .weekly-preacher {
+            color: #8a7535;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
         @media (max-width: 600px) {
             .weekly-sermons-section { padding: 60px 16px 70px; }
             .weekly-list { grid-template-columns: 1fr; }
@@ -2284,10 +2290,10 @@
         <!-- ── ვიდეო ── -->
         <div class="media-panel" id="videoPanel" role="tabpanel" aria-labelledby="videoTab">
             <div class="weekly-search">
-                <label class="visually-hidden" for="weeklySearch">მოძებნე ქადაგება სახელით</label>
+                <label class="visually-hidden" for="weeklySearch">მოძებნე ქადაგება სახელით, მქადაგებლით ან თარიღით</label>
                 <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                 <input type="search" id="weeklySearch" autocomplete="off"
-                    placeholder="მოძებნე ქადაგება სახელით ან თარიღით…">
+                    placeholder="სახელი, მქადაგებელი ან თარიღი…">
                 <button type="button" class="weekly-search-clear" id="weeklySearchClear" aria-label="ძებნის გასუფთავება" hidden>
                     <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                 </button>

@@ -178,6 +178,60 @@ async function readPlaylist(pl) {
     .map(x => ({ id: x.v.id, title: x.v.title, date: x.v.date || null }));
 }
 
+/**
+ * მქადაგებელი ვიდეოს აღწერიდან: „მქადაგებელი - სპარტაკ ჭანკვეტაძე“.
+ * '' — აღწერაში ასეთი სტრიქონი არ არის; null — გვერდი ვერ წავიკითხე.
+ */
+async function readPreacher(id) {
+  try {
+    const html = await get('https://www.youtube.com/watch?v=' + id);
+    const key = '"shortDescription":';
+    const at = html.indexOf(key);
+    if (at < 0) return null;
+    const start = at + key.length;
+    let esc = false, desc = null;
+    for (let i = start + 1; i < html.length; i++) {
+      const c = html[i];
+      if (esc) { esc = false; continue; }
+      if (c === '\\') { esc = true; continue; }
+      if (c === '"') { desc = JSON.parse(html.slice(start, i + 1)); break; }
+    }
+    if (desc === null) return null;
+    const m = /მქადაგებელი\s*[-–—:]\s*([^\n]+)/.exec(desc);
+    return m ? m[1].trim().replace(/[.,;]+$/, '') : '';
+  } catch (e) {
+    return null;
+  }
+}
+
+// წინა არქივში უკვე ნაპოვნ მქადაგებლებს თავიდან აღარ ვეძებთ —
+// აღწერას მხოლოდ ახალი ვიდეოსთვის ვკითხულობთ.
+function previousPreachers() {
+  const known = {};
+  try {
+    const prev = JSON.parse(fs.readFileSync(OUT, 'utf8'));
+    Object.values(prev.years || {}).forEach(list => list.forEach(v => {
+      if (v && v.id && typeof v.preacher === 'string') known[v.id] = v.preacher;
+    }));
+  } catch (e) { /* პირველი გაშვება */ }
+  return known;
+}
+
+async function addPreachers(years) {
+  const known = previousPreachers();
+  let fetched = 0;
+  for (const list of Object.values(years)) {
+    for (const v of list) {
+      if (v.id in known) { v.preacher = known[v.id]; continue; }
+      const p = await readPreacher(v.id);
+      fetched++;
+      // ვერ წაკითხულს ველს არ ვაძლევთ — შემდეგ გაშვებაზე თავიდან ვცდით.
+      if (p !== null) v.preacher = p;
+    }
+  }
+  if (fetched) console.log('მქადაგებელი ვეძებე ' + fetched + ' ახალ ვიდეოში');
+}
+
 (async () => {
   let playlists;
   try {
@@ -209,6 +263,8 @@ async function readPlaylist(pl) {
       return;
     }
   }
+
+  await addPreachers(years);
 
   const total = Object.values(years).reduce((n, v) => n + v.length, 0);
 

@@ -1055,6 +1055,7 @@ function weeklySermonCard(item, showYear) {
       </span>
       <span class="weekly-body">
         <span class="weekly-title">${escapeHtml(parts.title)}</span>
+        ${item.preacher ? `<span class="weekly-preacher">${escapeHtml(item.preacher)}</span>` : ''}
         <span class="weekly-date">${escapeHtml(parts.date)}</span>
         ${badge}
       </span>
@@ -2217,7 +2218,9 @@ function renderWeeklySermons() {
       return;
     }
 
-    const hits = allSermons.filter(item => (item.title || '').toLowerCase().indexOf(q) !== -1);
+    // მქადაგებელი სათაურში იშვიათად წერია — არქივი მას აღწერიდან იღებს.
+    const hits = allSermons.filter(item =>
+      ((item.title || '') + ' ' + (item.preacher || '')).toLowerCase().indexOf(q) !== -1);
     if (foundLine) {
       // შედეგის გარეშე ხაზი ცარიელ ადგილს იკავებდა — შეტყობინება ისედაც სიაშია.
       foundLine.hidden = !hits.length;
