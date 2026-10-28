@@ -679,121 +679,29 @@
             color: #7a6733;
         }
 
-        /* ── ეპიზოდების სია — თეთრი ბარათები, ვიდეოს სიის მსგავსად ── */
+        /* ── ეპიზოდების სია — იგივე ბადე და ბარათი (weekly-*), რაც ვიდეოს სიას ── */
         .audio-list {
             max-width: 960px;
             margin: 0 auto;
             display: grid;
-            gap: 10px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 18px;
         }
 
-        .audio-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 13px 16px;
-            border: 1px solid #f0e8d5;
-            border-radius: var(--radius-md);
-            background: #ffffff;
-            text-align: left;
-            font: inherit;
-            cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-        }
+        .audio-list .audio-empty { grid-column: 1 / -1; }
 
-        .audio-item:hover {
-            transform: translateY(-2px);
-            border-color: #e0d1a4;
-            box-shadow: 0 12px 26px rgba(170, 149, 79, 0.12);
-        }
+        /* ეპიზოდს სურათი არ აქვს — ისარი მუდამ ჩანს */
+        .weekly-thumb--empty .weekly-play { opacity: 1; }
 
-        .audio-item-icon {
-            flex: 0 0 36px;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid rgba(170, 149, 79, 0.4);
-            border-radius: 50%;
-            color: #aa954f;
-            font-size: 0.75rem;
-        }
-
-        .audio-item.is-current .audio-item-icon {
-            background: #aa954f;
-            border-color: #aa954f;
-            color: #ffffff;
-        }
-
-        /* ეპიზოდის საკუთარი გარეკანი — თუ ლენტაში სურათია.
-           მის გარეშე მრგვალი ხატულა რჩება და სია არ ირღვევა. */
-        .audio-item-thumb {
-            position: relative;
-            flex: 0 0 52px;
-            width: 52px;
-            height: 52px;
-            border-radius: 10px;
-            background-color: #f3eedf;
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #ffffff;
-            font-size: 0.7rem;
-        }
-
-        /* ნახევრად გამჭვირვალე ფონი, რომ ისარი ნებისმიერ სურათზე ჩანდეს */
-        .audio-item-thumb i {
-            position: relative;
-            z-index: 1;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background: rgba(17, 17, 17, 0.55);
-        }
-
-        .audio-item.is-current .audio-item-thumb i {
-            background: #aa954f;
-        }
-
-        .audio-item-body { flex: 1 1 auto; min-width: 0; }
-
-        .audio-item-title {
-            display: block;
-            color: #222;
-            font-size: 0.95rem;
-            font-weight: 600;
-            line-height: 1.4;
-            margin-bottom: 2px;
-        }
-
-        .audio-item.is-current .audio-item-title { color: #7a6733; }
-
-        .audio-item-date {
-            font-size: 0.78rem;
-            color: #8b8b8b;
-        }
-
-        .audio-item-preacher {
-            color: #7a6733;
-            font-weight: 600;
-        }
-
-        .audio-item-dur {
-            flex: 0 0 auto;
-            font-size: 0.8rem;
-            color: #8b8b8b;
-            font-variant-numeric: tabular-nums;
-        }
+        .audio-item.is-current .weekly-title { color: #7a6733; }
 
         /* ბოლომდე მოსმენილი ეპიზოდი */
         .audio-item.is-done .audio-item-done {
             color: #aa954f;
+        }
+
+        @media (max-width: 600px) {
+            .audio-list { grid-template-columns: 1fr; }
         }
 
         .audio-empty {

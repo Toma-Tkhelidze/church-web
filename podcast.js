@@ -157,10 +157,10 @@ function findPreacher(description) {
 // ლენტის სურათები 3000×3000-ია (~1 მბ თითო). სია ათობით ასეთს ერთად
 // იწერდა და ქადაგების ფაილს ინტერნეტს ართმევდა — ნელ ქსელზე ხმა 10-15
 // წამს აგვიანებდა. wsrv.nl სურათს საჭირო ზომაზე ამცირებს (~2 კბ).
-function smallImage(url, px) {
+function smallImage(url, px, height) {
   if (!url || !/^https?:/.test(url)) return url;   // ლოკალური ლოგო — როგორც არის
   return 'https://wsrv.nl/?url=' + encodeURIComponent(url)
-    + '&w=' + px + '&h=' + px + '&fit=cover&output=webp';
+    + '&w=' + px + '&h=' + (height || px) + '&fit=cover&output=webp';
 }
 
 function yearOf(ep) {
@@ -380,31 +380,34 @@ let coverUrl = '';
   videoTab.addEventListener('click', () => selectTab('video'));
 
   // ── სია ───────────────────────────────────────────────────────
-  function card(ep) {
+  // ბარათი ვიდეოს ბარათის (weekly-*) მარკაპითაა, რომ ორივე ჩანართი
+  // ერთნაირად გამოიყურებოდეს: 16:9 სურათი, სათაური, მქადაგებელი, თარიღი.
+  function card(ep, showYear) {
     const state = readListened()[ep.id];
     const done = state && state.done;
     const started = state && !state.done && state.t > 0;
-    const classes = 'audio-item'
-      + (current && current.id === ep.id ? ' is-current' : '')
+    const classes = 'weekly-item audio-item'
+      + (current && current.id === ep.id ? ' is-current is-playing' : '')
       + (done ? ' is-done' : '');
     const note = done
       ? '<span class="audio-item-done"> · მოსმენილია</span>'
       : (started ? '<span class="audio-item-done"> · გაგრძელება ' + clock(state.t) + '</span>' : '');
+    const year = yearOf(ep);
 
-    const badge = ep.image
-      ? '<span class="audio-item-thumb" style="background-image:url(&quot;' + esc(smallImage(ep.image, 120)) + '&quot;)">'
-          + '<i class="fa-solid fa-play" aria-hidden="true"></i></span>'
-      : '<span class="audio-item-icon"><i class="fa-solid fa-play" aria-hidden="true"></i></span>';
+    // ლენტის სურათი კვადრატულია — wsrv.nl მას 16:9-ზე ჭრის, როგორც ვიდეოს ყდა.
+    const thumb = ep.image
+      ? '<span class="weekly-thumb"><img src="' + esc(smallImage(ep.image, 232, 130)) + '" alt="" loading="lazy">'
+      : '<span class="weekly-thumb weekly-thumb--empty">';
 
     return '<button type="button" class="' + classes + '" data-id="' + esc(ep.id) + '">'
-      + badge
-      + '<span class="audio-item-body">'
-      + '<span class="audio-item-title">' + esc(ep.title) + '</span>'
-      + '<span class="audio-item-date">'
-      + (ep.preacher ? '<span class="audio-item-preacher">' + esc(ep.preacher) + '</span> · ' : '')
-      + esc(geoDate(ep.date)) + note + '</span>'
+      + thumb + '<span class="weekly-play" aria-hidden="true"><i class="fa-solid fa-play"></i></span></span>'
+      + '<span class="weekly-body">'
+      + '<span class="weekly-title">' + esc(ep.title) + '</span>'
+      + (ep.preacher ? '<span class="weekly-preacher">' + esc(ep.preacher) + '</span>' : '')
+      + '<span class="weekly-date">' + esc(geoDate(ep.date))
+      + (ep.duration ? ' · ' + clock(ep.duration) : '') + note + '</span>'
+      + (showYear && year ? '<span class="weekly-year-badge">' + esc(year) + '</span>' : '')
       + '</span>'
-      + '<span class="audio-item-dur">' + (ep.duration ? clock(ep.duration) : '') + '</span>'
       + '</button>';
   }
 
@@ -413,7 +416,9 @@ let coverUrl = '';
       el.list.innerHTML = '<p class="audio-empty">ეპიზოდი ვერ მოიძებნა.</p>';
       return;
     }
-    el.list.innerHTML = shown.map(card).join('');
+    // ძებნისას წლები ერევა — ვიდეოს მსგავსად თითოეულს წელს ვაწერთ.
+    const searching = !!el.search.value.trim();
+    el.list.innerHTML = shown.map(ep => card(ep, searching)).join('');
   }
 
   // ── წლები — ვიდეოების მსგავსად, თითო წელს თავისი ჩანართი ──────
