@@ -382,6 +382,7 @@ let coverUrl = '';
   // ── სია ───────────────────────────────────────────────────────
   // ბარათი ვიდეოს ბარათის (weekly-*) მარკაპითაა, რომ ორივე ჩანართი
   // ერთნაირად გამოიყურებოდეს: 16:9 სურათი, სათაური, მქადაგებელი, თარიღი.
+  // ხანგრძლივობა ბარათზე განზრახ არ წერია — მხოლოდ პლეერში ჩანს.
   function card(ep, showYear) {
     const state = readListened()[ep.id];
     const done = state && state.done;
@@ -395,17 +396,17 @@ let coverUrl = '';
     const year = yearOf(ep);
 
     // ლენტის სურათი კვადრატულია — wsrv.nl მას 16:9-ზე ჭრის, როგორც ვიდეოს ყდა.
+    // ბარათი სრულ სიგანეზეა, ამიტომ სურათიც მეტია (640×360).
     const thumb = ep.image
-      ? '<span class="weekly-thumb"><img src="' + esc(smallImage(ep.image, 232, 130)) + '" alt="" loading="lazy">'
+      ? '<span class="weekly-thumb"><img src="' + esc(smallImage(ep.image, 640, 360)) + '" alt="" loading="lazy">'
       : '<span class="weekly-thumb weekly-thumb--empty">';
 
     return '<button type="button" class="' + classes + '" data-id="' + esc(ep.id) + '">'
       + thumb + '<span class="weekly-play" aria-hidden="true"><i class="fa-solid fa-play"></i></span></span>'
       + '<span class="weekly-body">'
       + '<span class="weekly-title">' + esc(ep.title) + '</span>'
-      + (ep.preacher ? '<span class="weekly-preacher">' + esc(ep.preacher) + '</span>' : '')
-      + '<span class="weekly-date">' + esc(geoDate(ep.date))
-      + (ep.duration ? ' · ' + clock(ep.duration) : '') + note + '</span>'
+      + (ep.preacher ? '<span class="weekly-preacher"><i class="fa-regular fa-user" aria-hidden="true"></i>' + esc(ep.preacher) + '</span>' : '')
+      + '<span class="weekly-date"><i class="fa-regular fa-calendar" aria-hidden="true"></i>' + esc(geoDate(ep.date)) + note + '</span>'
       + (showYear && year ? '<span class="weekly-year-badge">' + esc(year) + '</span>' : '')
       + '</span>'
       + '</button>';

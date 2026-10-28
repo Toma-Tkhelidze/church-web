@@ -684,8 +684,8 @@
             max-width: 960px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 18px;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 22px;
         }
 
         .audio-list .audio-empty { grid-column: 1 / -1; }
@@ -1101,7 +1101,7 @@
         }
 
         .weekly-card:hover { transform: translateY(-2px); }
-        .weekly-card .weekly-item { flex: 1; min-width: 0; padding-right: 46px; }
+        .weekly-card .weekly-item { flex: 1; min-width: 0; }
         .weekly-card .weekly-item:hover { transform: none; }
 
         .later-toggle {
@@ -1112,8 +1112,10 @@
             height: 34px;
             border: 0;
             border-radius: 50%;
-            background: transparent;
-            color: #b5aa8a;
+            /* სანიშნე სურათზე დგას — თეთრი წრე ნებისმიერ ყდაზე ჩანს */
+            background: rgba(255, 255, 255, 0.92);
+            color: #8a7535;
+            z-index: 5;
             font-size: 0.95rem;
             cursor: pointer;
             display: inline-flex;
@@ -1122,7 +1124,7 @@
             transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
         }
 
-        .later-toggle:hover { background: #f8f3e6; color: #aa954f; }
+        .later-toggle:hover { background: #ffffff; color: #aa954f; }
         .later-toggle:focus-visible { outline: 2px solid #aa954f; outline-offset: 1px; }
         .later-toggle.is-saved { color: #aa954f; }
         .later-toggle:active { transform: scale(0.9); }
@@ -1561,12 +1563,13 @@
             color: #ffffff;
         }
 
+        /* ბარათი ვერტიკალურია: სურათი ზემოთ, ქვემოთ სათაური, მქადაგებელი, თარიღი */
         .weekly-list {
             max-width: 960px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 18px;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 22px;
         }
 
         .weekly-state {
@@ -1579,11 +1582,12 @@
 
         .weekly-item {
             display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 10px;
+            flex-direction: column;
+            align-items: stretch;
+            padding: 0;
+            overflow: hidden;
             border: 1px solid #f0e8d5;
-            border-radius: var(--radius-md);
+            border-radius: 12px;
             background: #ffffff;
             text-align: left;
             font: inherit;
@@ -1604,9 +1608,9 @@
 
         .weekly-thumb {
             position: relative;
-            flex: 0 0 116px;
+            display: block;
+            width: 100%;
             aspect-ratio: 16 / 9;
-            border-radius: 6px;
             overflow: hidden;
             background: #111;
         }
@@ -1625,10 +1629,21 @@
             align-items: center;
             justify-content: center;
             color: #ffffff;
-            font-size: 0.85rem;
+            font-size: 1rem;
             background: rgba(20, 18, 14, 0.28);
             opacity: 0;
             transition: opacity 0.25s ease;
+        }
+
+        .weekly-play i {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #aa954f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-left: 3px;
         }
 
         .weekly-item:hover .weekly-play,
@@ -1637,10 +1652,12 @@
         }
 
         .weekly-body {
+            flex: 1;
             min-width: 0;
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 6px;
+            padding: 14px 16px 16px;
         }
 
         .weekly-title {
@@ -1657,14 +1674,20 @@
 
         .weekly-preacher {
             color: #8a7535;
-            font-size: 0.8rem;
+            font-size: 0.82rem;
             font-weight: 600;
+        }
+
+        .weekly-preacher i,
+        .weekly-date i {
+            width: 14px;
+            margin-right: 6px;
+            text-align: center;
         }
 
         @media (max-width: 600px) {
             .weekly-sermons-section { padding: 60px 16px 70px; }
             .weekly-list { grid-template-columns: 1fr; }
-            .weekly-thumb { flex-basis: 96px; }
         }
 
         /* სერიების ბარათის ახალი დიზაინი */

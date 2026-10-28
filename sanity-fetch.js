@@ -1050,13 +1050,13 @@ function weeklySermonCard(item, showYear) {
     <div class="weekly-card">
     <button type="button" class="weekly-item" data-video-id="${escapeHtml(item.id)}">
       <span class="weekly-thumb">
-        <img src="https://img.youtube.com/vi/${encodeURIComponent(item.id)}/mqdefault.jpg" alt="" loading="lazy">
+        <img src="https://img.youtube.com/vi/${encodeURIComponent(item.id)}/hqdefault.jpg" alt="" loading="lazy">
         <span class="weekly-play" aria-hidden="true"><i class="fa-solid fa-play"></i></span>
       </span>
       <span class="weekly-body">
         <span class="weekly-title">${escapeHtml(parts.title)}</span>
-        ${item.preacher ? `<span class="weekly-preacher">${escapeHtml(item.preacher)}</span>` : ''}
-        <span class="weekly-date">${escapeHtml(parts.date)}</span>
+        ${item.preacher ? `<span class="weekly-preacher"><i class="fa-regular fa-user" aria-hidden="true"></i>${escapeHtml(item.preacher)}</span>` : ''}
+        ${parts.date ? `<span class="weekly-date"><i class="fa-regular fa-calendar" aria-hidden="true"></i>${escapeHtml(parts.date)}</span>` : ''}
         ${badge}
       </span>
     </button>
