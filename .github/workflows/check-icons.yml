@@ -1,0 +1,38 @@
+# ხატულების შემოწმება (scripts/build-icons.js --check).
+#
+# საიტი Font Awesome-ის მხოლოდ გამოყენებულ ხატულებს ტვირთავს (icons.css,
+# fonts/fa/). თუ კოდში ახალი ხატულა დაემატა და შრიფტი თავიდან არ აეწყო,
+# ის ცარიელ კვადრატად გამოჩნდება. ეს სამუშაო ყოველ ცვლილებაზე ამოწმებს,
+# ყველა გამოყენებული ხატულა შრიფტშია თუ არა; თუ არა — ვარდება და GitHub
+# მეილს აგზავნის. გამოსწორება (ლოკალურად):
+#   npm install --no-save subset-font
+#   node scripts/build-icons.js
+# შემდეგ icons.css და fonts/fa/ დააკომიტე.
+
+name: ხატულების შემოწმება
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**.html'
+      - '**.js'
+      - '**.css'
+      - 'data/**.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: ყველა ხატულა შრიფტშია?
+        run: node scripts/build-icons.js --check
