@@ -593,6 +593,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const observerCallback = (entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
+                    // ვიდეო (რამდენიმე MB) მხოლოდ მაშინ იტვირთება, როცა ეკრანზე
+                    // გამოჩნდება — მანამდე პოსტერი (იგივე პირველი კადრი) ჩანს
+                    if (!videoEl.getAttribute('src') && videoEl.dataset.src) {
+                        videoEl.src = videoEl.dataset.src;
+                    }
                     videoEl.play().catch(err => {
                         console.warn('Video play interrupted or blocked:', err);
                     });

@@ -1736,7 +1736,7 @@ video {
     align-items: center;
     gap: 8px;
     font-size: 12px;
-    color: #666;
+    color: #8a8a8a;
     letter-spacing: 0.5px;
     padding-left: 4px;
     transition: color 0.3s;
@@ -1969,7 +1969,7 @@ video {
 .footer-copy {
     margin: 0;
     font-size: 12px;
-    color: #7a756e;
+    color: #8c867e;
     letter-spacing: 0.5px;
 }
 
@@ -3822,6 +3822,10 @@ a.next-service .ns-where, .next-service a.ns-where {
     margin-bottom: 20px;
 }
 
+/* ლოცვის ბარათი თეთრია და მასზე ოქროსფერი ძნელად იკითხება (2.9:1) —
+   აქ ოდნავ მუქი ოქრო (4.8:1, WCAG-ის ზღვარი 4.5:1) */
+.prayer-eyebrow { color: #857032; }
+
 /* კვირის დღეები — მუხლის თავზე, დღევანდელი ოქროთია მონიშნული */
 .verse-days {
     display: flex;
@@ -4025,7 +4029,7 @@ a.next-service .ns-where, .next-service a.ns-where {
 
 .verse-pdf-meta {
     font-size: 0.78em;
-    opacity: 0.7;
+    opacity: 0.85;
 }
 
 .verse-sermon-link {

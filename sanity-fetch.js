@@ -26,6 +26,18 @@ function getVideoDetails(url) {
   return null;
 }
 
+// Cloudinary-ს ვიდეო: ბლოკი მაქს. 650px სიგანისაა, ამიტომ 1920px-იანი ორიგინალის
+// ნაცვლად 960px-იანს ვითხოვთ (~7.8 MB → ~3.2 MB); პოსტერი ვიდეოს პირველი კადრია.
+// index.html-ის სტატიკური <video> იგივე ბმულებს იყენებს — შეცვლისას ორივე გაასწორე.
+const CLOUDINARY_VIDEO_TF = 'f_auto,q_auto,w_960,c_limit';
+function cloudinaryVideoSources(url) {
+  const src = url.replace(/\/video\/upload\/(?:[^\/]*[fq]_auto[^\/]*\/)?/, `/video/upload/${CLOUDINARY_VIDEO_TF}/`);
+  const poster = src
+    .replace(CLOUDINARY_VIDEO_TF, 'so_0,f_auto,q_auto,w_960')
+    .replace(/\.[a-z0-9]+(\?.*)?$/i, '.jpg');
+  return { src, poster };
+}
+
 // ── YouTube-ის დასაკრავი სიები ────────────────────────────────────────
 // ქადაგებები არხზე ორნაირად ლაგდება: სახელიანი playlist = სერია
 // (ის Sanity-ში შედის), წლიური playlist = ცალკეული ყოველკვირეული
@@ -598,35 +610,35 @@ function updatePageContent() {
             const containerEl = document.getElementById('building-video-container') || document.querySelector('.building-video-wrap .video-container');
             if (containerEl) {
               if (videoUrl.includes('.mp4') || videoUrl.includes('cloudinary.com')) {
-                let optimizedUrl = videoUrl;
-                if (videoUrl.includes('cloudinary.com') && !videoUrl.includes('f_auto') && !videoUrl.includes('q_auto')) {
-                  optimizedUrl = videoUrl.replace('/video/upload/', '/video/upload/f_auto,q_auto/');
-                }
-                // Render HTML5 video element
-                containerEl.innerHTML = `
-                  <video 
-                      id="sanity-video-element"
-                      src="${optimizedUrl}" 
-                      autoplay 
-                      loop 
-                      muted 
-                      playsinline 
-                      preload="metadata" 
-                      style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; pointer-events: none;">
-                  </video>
-                `;
+                const { src, poster } = videoUrl.includes('cloudinary.com')
+                  ? cloudinaryVideoSources(videoUrl)
+                  : { src: videoUrl, poster: '' };
 
-                // Some browsers (notably iOS Safari) ignore the autoplay
-                // attribute on media inserted via innerHTML, so start it
-                // explicitly. The viewport observer in script.js still
-                // decides whether it keeps playing.
-                const injectedVideo = containerEl.querySelector('video');
-                if (injectedVideo) {
-                  injectedVideo.muted = true;
-                  injectedVideo.playsInline = true;
-                  const playAttempt = injectedVideo.play();
-                  if (playAttempt && typeof playAttempt.catch === 'function') {
-                    playAttempt.catch(() => { /* blocked by autoplay policy or paused while off-screen */ });
+                // src-ს აქ არ ვსვამთ: ვიდეოს script.js-ის დამკვირვებელი ტვირთავს
+                // (data-src → src) და უშვებს, როცა ბლოკს ეკრანთან ჩამოსქროლავენ.
+                // სტატიკური HTML-ის იგივე ვიდეოს თავიდან აღარ ვხატავთ.
+                const currentVideo = containerEl.querySelector('video');
+                if (!currentVideo || currentVideo.dataset.src !== src) {
+                  containerEl.innerHTML = `
+                    <video
+                        id="sanity-video-element"
+                        data-src="${escapeHtml(src)}"
+                        ${poster ? `poster="${escapeHtml(poster)}"` : ''}
+                        autoplay
+                        loop
+                        muted
+                        playsinline
+                        preload="none"
+                        style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; pointer-events: none;">
+                    </video>
+                  `;
+
+                  // iOS Safari innerHTML-ით ჩასმულ ვიდეოზე muted ატრიბუტს ყოველთვის
+                  // არ ითვალისწინებს, თავისით კი მხოლოდ უხმო ვიდეო ეშვება.
+                  const injectedVideo = containerEl.querySelector('video');
+                  if (injectedVideo) {
+                    injectedVideo.muted = true;
+                    injectedVideo.playsInline = true;
                   }
                 }
               } else {
