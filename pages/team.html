@@ -21,6 +21,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <!-- ყველა გვერდზე გამოყენებული შრიფტები: CSS-თან ერთად იწყებენ ჩამოტვირთვას და არა მის შემდეგ -->
+    <link rel="preload" href="../fonts/FiraGO-Medium.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../fonts/FiraGO-Bold.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../fonts/FiraGO-MediumItalic.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../fonts/NotoSansGeorgian-Medium.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Georgian:wght@100..900&family=Playfair+Display:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../style.css">
@@ -111,13 +116,13 @@
             </a>
          </div>
 
-        <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false" aria-controls="main-nav">
+        <button class="hamburger" aria-label="მენიუს გახსნა" aria-expanded="false" aria-controls="main-nav">
             <span></span>
             <span></span>
             <span></span>
         </button>
 
-        <nav class="nav-menu" id="main-nav" role="navigation" aria-label="Main navigation">
+        <nav class="nav-menu" id="main-nav" role="navigation" aria-label="მთავარი მენიუ">
             <ul class="nav-list">
                 <li class="has-dropdown">
                     <a href="#" aria-haspopup="true" aria-expanded="false">
@@ -197,7 +202,7 @@
 
 <main role="main">
 
-        <section class="hero-section" data-hero="team" style="height: 45vh; min-height: 350px;" aria-label="Page banner">
+        <section class="hero-section" data-hero="team" style="height: 45vh; min-height: 350px;" aria-label="გვერდის ბანერი">
             <div class="hero-overlay" aria-hidden="true"></div>
             <div class="hero-content">
                 <h1>ეკლესიის მმართველობა</h1>
@@ -205,7 +210,7 @@
             </div>
         </section>
 
-        <section class="info-grid-section" style="padding: 50px 0 20px 0; text-align: center;" aria-label="Team Intro">
+        <section class="info-grid-section" style="padding: 50px 0 20px 0; text-align: center;" aria-label="მმართველობის გაცნობა">
             <div style="width: 100%; max-width: 800px; margin: 0 auto; padding: 0 20px; box-sizing: border-box;">
                 <!-- <span class="grid-uppertitle">ჩვენი ლიდერები</span> -->
                 <h2 style="margin-bottom: 20px;">გაიცანით ჩვენი ეკლესიის მმართველობა</h2>
@@ -214,7 +219,7 @@
         </section>
 
         <!-- სულიერი საბჭოს სექცია -->
-        <section style="padding: 60px 0; background-color: #fdfbf7; border-top: 1px solid #f3eedf; border-bottom: 1px solid #f3eedf;" aria-label="Church Elders Board">
+        <section style="padding: 60px 0; background-color: #fdfbf7; border-top: 1px solid #f3eedf; border-bottom: 1px solid #f3eedf;" aria-label="სულიერი საბჭო">
             <div style="width: 100%; box-sizing: border-box; max-width: 1100px; margin: 0 auto; padding: 0 20px; display: flex; flex-wrap: wrap; gap: 40px; align-items: center;">
                 
                 <div style="flex: 1; min-width: 280px;">
@@ -249,7 +254,7 @@
 
         <!-- ხსოვნის ბლოკი: უფროსი პასტორი სპარტაკ ჭანკვეტაძე.
              ფოტო და თარიღები ჯერ არ არის — ოჯახისა და საბჭოს დამტკიცების შემდეგ ჩაემატება სახელის ქვეშ. -->
-        <section style="padding: 70px 0; background-color: #fdfbf7;" aria-label="In memory of the senior pastor">
+        <section style="padding: 70px 0; background-color: #fdfbf7;" aria-label="უფროსი პასტორის ხსოვნა">
             <div style="width: 100%; box-sizing: border-box; max-width: 700px; margin: 0 auto; padding: 0 20px; text-align: center;">
                 <div style="color: #aa954f; font-size: 1.6rem; margin-bottom: 18px;"><i class="fa-solid fa-cross" aria-hidden="true"></i></div>
                 <span style="color: #aa954f; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; font-size: 0.9rem;">ხსოვნისთვის</span>
@@ -265,7 +270,7 @@
 
     </main>
 
-<section class="contact-section" id="contact" aria-label="Contact and location">
+<section class="contact-section" id="contact" aria-label="კონტაქტი და მდებარეობა">
     <div class="contact-container">
 
         <div class="contact-info-col">
@@ -279,7 +284,7 @@
                 </div>
                 <div class="contact-block-text">
                     <p class="contact-label">მსახურების განრიგი</p>
-                    <table class="hours-table" aria-label="Weekly service schedule">
+                    <table class="hours-table" aria-label="მსახურებების კვირის განრიგი">
                         <tbody>
                             <tr>
                                 <td class="hours-day">კვირა</td>
@@ -309,7 +314,7 @@
                         target="_blank"
                         rel="noopener noreferrer"
                         class="contact-address-link"
-                        aria-label="Open address in Google Maps"
+                        aria-label="მისამართის გახსნა Google Maps-ში"
                     >
                         სერგო მესხის ქ. №42<br>ქუთაისი, საქართველო
                         <i class="fa-solid fa-arrow-up-right-from-square contact-ext-icon" aria-hidden="true"></i>
@@ -334,8 +339,8 @@
         </div>
 
         <div class="contact-map-col">
-            <div class="map-wrapper" role="region" aria-label="Interactive map">
-                <div class="map-overlay" title="Click to interact with the map" aria-hidden="true"></div>
+            <div class="map-wrapper" role="region" aria-label="ინტერაქტიული რუკა">
+                <div class="map-overlay" title="დააკლიკეთ რუკაზე ინტერაქტივისთვის" aria-hidden="true"></div>
                 <iframe
                     class="contact-map-iframe"
                     src="https://maps.google.com/maps?q=42.25436,42.68025&z=16&output=embed"

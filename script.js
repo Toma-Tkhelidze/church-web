@@ -1511,8 +1511,11 @@ window.efcIsName = function (value, minLetters) {
             { href: sub + 'contact.html', icon: 'fa-envelope', label: 'კონტაქტი' }
         ];
 
-        // მიმდინარე გვერდი: ცარიელი გზა ("/" ან "/pages/") მთავარ გვერდს ნიშნავს
-        const here = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+        // მიმდინარე გვერდი: ცარიელი გზა ("/" ან "/pages/") მთავარ გვერდს ნიშნავს.
+        // GitHub Pages გვერდს .html-ის გარეშეც ხსნის (/pages/sermons) —
+        // ამიტომ სახელებს გაფართოების გარეშე ვადარებთ.
+        const pageName = p => (p.split('/').pop() || 'index').toLowerCase().replace(/\.html$/, '') || 'index';
+        const here = pageName(window.location.pathname);
 
         const bar = document.createElement('nav');
         bar.className = 'mobile-tabbar';
@@ -1522,7 +1525,7 @@ window.efcIsName = function (value, minLetters) {
             const link = document.createElement('a');
             link.className = 'mobile-tabbar__item';
             link.href = item.href;
-            if (item.href.split('/').pop().toLowerCase() === here) {
+            if (pageName(item.href) === here) {
                 link.classList.add('is-active');
                 link.setAttribute('aria-current', 'page');
             }

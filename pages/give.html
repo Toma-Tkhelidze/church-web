@@ -21,6 +21,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <!-- ყველა გვერდზე გამოყენებული შრიფტები: CSS-თან ერთად იწყებენ ჩამოტვირთვას და არა მის შემდეგ -->
+    <link rel="preload" href="../fonts/FiraGO-Medium.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../fonts/FiraGO-Bold.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../fonts/FiraGO-MediumItalic.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../fonts/NotoSansGeorgian-Medium.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Georgian:wght@100..900&family=Playfair+Display:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../style.css">
@@ -219,13 +224,13 @@
             </a>
          </div>
 
-        <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false" aria-controls="main-nav">
+        <button class="hamburger" aria-label="მენიუს გახსნა" aria-expanded="false" aria-controls="main-nav">
             <span></span>
             <span></span>
             <span></span>
         </button>
 
-        <nav class="nav-menu" id="main-nav" role="navigation" aria-label="Main navigation">
+        <nav class="nav-menu" id="main-nav" role="navigation" aria-label="მთავარი მენიუ">
             <ul class="nav-list">
                 <li class="has-dropdown">
                     <a href="#" aria-haspopup="true" aria-expanded="false">
@@ -329,11 +334,11 @@
 
                     <div class="bank-details-card">
                         <div class="tbc-brand-badge">
-                            <img src="images/tbc_logo.svg" alt="TBC Bank Logo" style="height: 16px; width: auto; display: inline-block;"> TBC Bank / თიბისი ბანკი
+                            <img src="images/tbc_logo.svg" alt="თიბისი ბანკის ლოგო" style="height: 16px; width: auto; display: inline-block;"> TBC Bank / თიბისი ბანკი
                         </div>
 
                         <div class="copy-field-group">
-                            <label>მიმღების დასახელება</label>
+                            <label for="bankRecipient">მიმღების დასახელება</label>
                             <div class="copy-input-wrapper">
                                 <input type="text" class="copy-value-text" id="bankRecipient" value="ქუთაისის სახარების რწმენის ეკლესია" readonly>
                                 <button class="btn-copy-action" onclick="copyTargetText('bankRecipient')"><i class="fa-regular fa-copy"></i> Copy</button>
@@ -341,7 +346,7 @@
                         </div>
 
                         <div class="copy-field-group">
-                            <label>ანგარიშის ნომერი (IBAN)</label>
+                            <label for="bankIban">ანგარიშის ნომერი (IBAN)</label>
                             <div class="copy-input-wrapper">
                                 <input type="text" class="copy-value-text" id="bankIban" value="GE22TB7187936080100003" readonly style="font-weight: 600;">
                                 <button class="btn-copy-action" onclick="copyTargetText('bankIban')"><i class="fa-regular fa-copy"></i> Copy</button>
@@ -350,7 +355,7 @@
 
                         <!-- 🌟 4 ვარიანტიანი ჩამოსაშლელი დანიშნულება კოპირებით -->
                         <div class="copy-field-group">
-                            <label>გადახდის დანიშნულება (აირჩიეთ სასურველი)</label>
+                            <label for="purposeChooser">გადახდის დანიშნულება (აირჩიეთ სასურველი)</label>
                             <select class="purpose-select" id="purposeChooser" onchange="updatePurposeValue()">
                                 <option value="შესაწირი">შესაწირი</option>
                                 <option value="მეათედი">მეათედი</option>
@@ -358,7 +363,7 @@
                                 <option value="მისიონერული შესაწირი">მისიონერული შესაწირი</option>
                             </select>
                             <div class="copy-input-wrapper">
-                                <input type="text" class="copy-value-text" id="bankPurpose" value="შესაწირი" readonly>
+                                <input type="text" class="copy-value-text" id="bankPurpose" value="შესაწირი" readonly aria-label="გადახდის დანიშნულება — დასაკოპირებელი ტექსტი">
                                 <button class="btn-copy-action" onclick="copyTargetText('bankPurpose')"><i class="fa-regular fa-copy"></i> Copy</button>
                             </div>
                         </div>
@@ -379,7 +384,7 @@
         <span>წარმატებით დაკოპირდა ბუფერში!</span>
     </div>
 
-<section class="contact-section" id="contact" aria-label="Contact and location">
+<section class="contact-section" id="contact" aria-label="კონტაქტი და მდებარეობა">
     <div class="contact-container">
 
         <div class="contact-info-col">
@@ -393,7 +398,7 @@
                 </div>
                 <div class="contact-block-text">
                     <p class="contact-label">მსახურების განრიგი</p>
-                    <table class="hours-table" aria-label="Weekly service schedule">
+                    <table class="hours-table" aria-label="მსახურებების კვირის განრიგი">
                         <tbody>
                             <tr>
                                 <td class="hours-day">კვირა</td>
@@ -423,7 +428,7 @@
                         target="_blank"
                         rel="noopener noreferrer"
                         class="contact-address-link"
-                        aria-label="Open address in Google Maps"
+                        aria-label="მისამართის გახსნა Google Maps-ში"
                     >
                         სერგო მესხის ქ. №42<br>ქუთაისი, საქართველო
                         <i class="fa-solid fa-arrow-up-right-from-square contact-ext-icon" aria-hidden="true"></i>
@@ -448,8 +453,8 @@
         </div>
 
         <div class="contact-map-col">
-            <div class="map-wrapper" role="region" aria-label="Interactive map">
-                <div class="map-overlay" title="Click to interact with the map" aria-hidden="true"></div>
+            <div class="map-wrapper" role="region" aria-label="ინტერაქტიული რუკა">
+                <div class="map-overlay" title="დააკლიკეთ რუკაზე ინტერაქტივისთვის" aria-hidden="true"></div>
                 <iframe
                     class="contact-map-iframe"
                     src="https://maps.google.com/maps?q=42.25436,42.68025&z=16&output=embed"

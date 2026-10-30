@@ -21,6 +21,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <!-- ყველა გვერდზე გამოყენებული შრიფტები: CSS-თან ერთად იწყებენ ჩამოტვირთვას და არა მის შემდეგ -->
+    <link rel="preload" href="../fonts/FiraGO-Medium.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../fonts/FiraGO-Bold.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../fonts/FiraGO-MediumItalic.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../fonts/NotoSansGeorgian-Medium.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Georgian:wght@100..900&family=Playfair+Display:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../style.css">
@@ -310,13 +315,13 @@
             </a>
          </div>
 
-        <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false" aria-controls="main-nav">
+        <button class="hamburger" aria-label="მენიუს გახსნა" aria-expanded="false" aria-controls="main-nav">
             <span></span>
             <span></span>
             <span></span>
         </button>
 
-        <nav class="nav-menu" id="main-nav" role="navigation" aria-label="Main navigation">
+        <nav class="nav-menu" id="main-nav" role="navigation" aria-label="მთავარი მენიუ">
             <ul class="nav-list">
                 <li class="has-dropdown">
                     <a href="#" aria-haspopup="true" aria-expanded="false">
@@ -408,7 +413,7 @@
 
     <main role="main">
 
-        <section id="about-hero" class="hero-section" data-hero="about" style="height: 45vh; min-height: 350px;" aria-label="Page banner">
+        <section id="about-hero" class="hero-section" data-hero="about" style="height: 45vh; min-height: 350px;" aria-label="გვერდის ბანერი">
             <div class="hero-overlay" aria-hidden="true"></div>
             <div class="hero-content">
                 <h1>ვინ ვართ ჩვენ</h1>
@@ -416,7 +421,7 @@
             </div>
         </section>
 
-        <section id="about-history" class="info-grid-section reveal-section" style="padding: 80px 0 30px 0;" aria-label="Our Heritage and Schedule">
+        <section id="about-history" class="info-grid-section reveal-section" style="padding: 80px 0 30px 0;" aria-label="ჩვენი ისტორია და განრიგი">
             <div class="info-grid-container">
                 
                 <div class="left-column" style="flex: 1.2; min-width: 280px; background: #fdfbf7; padding: 45px 40px; border-radius: 12px; border-left: 4px solid #aa954f; box-shadow: 0 10px 30px rgba(170, 149, 79, 0.03); box-sizing: border-box; display: flex; flex-direction: column; gap: 20px;">
@@ -439,7 +444,7 @@
                         <i class="fa-solid fa-play" aria-hidden="true"></i>
                     </div>
                     <h3 class="bullet-title week-schedule-title">ამ კვირაში</h3>
-                    <ul class="week-schedule" aria-label="Weekly schedule">
+                    <ul class="week-schedule" aria-label="კვირის განრიგი">
                         <li><strong>კვირა 11:00</strong><span>საკვირაო ღვთისმსახურება</span></li>
                         <li><strong>შაბათი 16:00</strong><span>ახალგაზრდული მსახურება</span></li>
                         <li><strong>ოთხშაბათი 19:00</strong><span>საოჯახო ჯგუფები</span></li>
@@ -453,7 +458,7 @@
             <i class="fa-solid fa-cross section-divider-icon"></i>
         </div>
 
-        <section id="about-creed" class="info-grid-section reveal-section" style="padding: 30px 0 60px 0; background-color: #ffffff;" aria-label="Statement of Faith">
+        <section id="about-creed" class="info-grid-section reveal-section" style="padding: 30px 0 60px 0; background-color: #ffffff;" aria-label="რწმენის აღმსარებლობა">
             <div class="info-grid-container" style="display: flex; flex-direction: column; gap: 40px; max-width: 1200px; margin: 0 auto; padding: 0 20px; box-sizing: border-box;">
                 <div>
                     <span class="grid-uppertitle" style="color: #aa954f; display: block; margin-bottom: 5px;">მრწამსი</span>
@@ -738,7 +743,7 @@
             <i class="fa-solid fa-cross section-divider-icon"></i>
         </div>
 
-        <section id="about-vision" class="info-grid-section reveal-section" style="padding: 60px 0; background-color: #f9f9f9;" aria-label="Vision and Mission">
+        <section id="about-vision" class="info-grid-section reveal-section" style="padding: 60px 0; background-color: #f9f9f9;" aria-label="ხედვა და მისია">
             <div class="info-grid-container" style="display: flex; gap: 40px; flex-wrap: wrap; align-items: stretch !important;">
                 
                 <div style="flex: 1; min-width: 280px; background: #fff; padding: 40px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); display: flex; flex-direction: column; box-sizing: border-box;">
@@ -773,7 +778,7 @@
             <i class="fa-solid fa-cross section-divider-icon"></i>
         </div>
 
-        <section id="about-values" class="info-grid-section reveal-section" style="padding: 80px 0 40px 0;" aria-label="Core Values">
+        <section id="about-values" class="info-grid-section reveal-section" style="padding: 80px 0 40px 0;" aria-label="ძირითადი ღირებულებები">
             <div class="info-grid-container" style="display: flex; flex-direction: column; gap: 40px; max-width: 1200px; margin: 0 auto; padding: 0 20px; box-sizing: border-box;">
                 <div>
                     <span class="grid-uppertitle" style="color: #aa954f; display: block; margin-bottom: 5px;">რითი ვხელმძღვანელობთ</span>
@@ -923,7 +928,7 @@
             <i class="fa-solid fa-cross section-divider-icon"></i>
         </div>
 
-        <section class="contact-section reveal-section" id="contact" aria-label="Contact and location">
+        <section class="contact-section reveal-section" id="contact" aria-label="კონტაქტი და მდებარეობა">
             <div class="contact-container">
 
                 <div class="contact-info-col">
@@ -937,7 +942,7 @@
                         </div>
                         <div class="contact-block-text">
                             <p class="contact-label">მსახურების განრიგი</p>
-                            <table class="hours-table" aria-label="Weekly service schedule">
+                            <table class="hours-table" aria-label="მსახურებების კვირის განრიგი">
                                 <tbody>
                                     <tr>
                                         <td class="hours-day">კვირა</td>
@@ -967,7 +972,7 @@
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 class="contact-address-link"
-                                aria-label="Open address in Google Maps"
+                                aria-label="მისამართის გახსნა Google Maps-ში"
                             >
                                 სერგო მესხის ქ. №42<br>ქუთაისი, საქართველო
                                 <i class="fa-solid fa-arrow-up-right-from-square contact-ext-icon" aria-hidden="true"></i>
@@ -992,8 +997,8 @@
                 </div>
 
                 <div class="contact-map-col">
-                    <div class="map-wrapper" role="region" aria-label="Interactive map">
-                        <div class="map-overlay" title="Click to interact with the map" aria-hidden="true"></div>
+                    <div class="map-wrapper" role="region" aria-label="ინტერაქტიული რუკა">
+                        <div class="map-overlay" title="დააკლიკეთ რუკაზე ინტერაქტივისთვის" aria-hidden="true"></div>
                         <iframe
                             class="contact-map-iframe"
                             src="https://maps.google.com/maps?q=42.25436,42.68025&z=16&output=embed"

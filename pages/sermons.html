@@ -27,6 +27,11 @@
     <link rel="preconnect" href="https://anchor.fm">
     <link rel="preconnect" href="https://d3ctxlq1ktw2nl.cloudfront.net">
     <link rel="preconnect" href="https://wsrv.nl">
+    <!-- ყველა გვერდზე გამოყენებული შრიფტები: CSS-თან ერთად იწყებენ ჩამოტვირთვას და არა მის შემდეგ -->
+    <link rel="preload" href="../fonts/FiraGO-Medium.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../fonts/FiraGO-Bold.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../fonts/FiraGO-MediumItalic.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../fonts/NotoSansGeorgian-Medium.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Georgian:wght@100..900&family=Playfair+Display:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../style.css">
@@ -2010,13 +2015,13 @@
             </a>
          </div>
 
-        <button class="hamburger" aria-label="Toggle navigation" aria-expanded="false" aria-controls="main-nav">
+        <button class="hamburger" aria-label="მენიუს გახსნა" aria-expanded="false" aria-controls="main-nav">
             <span></span>
             <span></span>
             <span></span>
         </button>
 
-        <nav class="nav-menu" id="main-nav" role="navigation" aria-label="Main navigation">
+        <nav class="nav-menu" id="main-nav" role="navigation" aria-label="მთავარი მენიუ">
             <ul class="nav-list">
                 <li class="has-dropdown">
                     <a href="#" aria-haspopup="true" aria-expanded="false">
@@ -2094,7 +2099,7 @@
 </header>
 
 
-<section class="hero-section sermons-hero" style="height: 45vh; min-height: 350px;" aria-label="Page banner">
+<section class="hero-section sermons-hero" style="height: 45vh; min-height: 350px;" aria-label="გვერდის ბანერი">
         <div class="hero-overlay" aria-hidden="true"></div>
         <div class="hero-content">
             <span class="grid-uppertitle">მედიაარქივი</span>
@@ -2311,8 +2316,8 @@
         <!-- საძიებო სისტემა და კატეგორიები -->
         <div class="search-filter-container">
             <div class="search-box-wrapper">
-                <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" id="sermonSearch" placeholder="მოძებნე ქადაგების სერია სათაურით ან აღწერით...">
+                <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>
+                <input type="text" id="sermonSearch" aria-label="ქადაგების სერიის ძებნა" placeholder="მოძებნე ქადაგების სერია სათაურით ან აღწერით...">
             </div>
             <div class="filter-buttons">
                 <button class="filter-btn active" data-filter="all">ყველა</button>
@@ -2354,7 +2359,7 @@
         </button>
     </div>
 
-<section class="contact-section" id="contact" aria-label="Contact and location">
+<section class="contact-section" id="contact" aria-label="კონტაქტი და მდებარეობა">
     <div class="contact-container">
 
         <div class="contact-info-col">
@@ -2368,7 +2373,7 @@
                 </div>
                 <div class="contact-block-text">
                     <p class="contact-label">მსახურების განრიგი</p>
-                    <table class="hours-table" aria-label="Weekly service schedule">
+                    <table class="hours-table" aria-label="მსახურებების კვირის განრიგი">
                         <tbody>
                             <tr>
                                 <td class="hours-day">კვირა</td>
@@ -2398,7 +2403,7 @@
                         target="_blank"
                         rel="noopener noreferrer"
                         class="contact-address-link"
-                        aria-label="Open address in Google Maps"
+                        aria-label="მისამართის გახსნა Google Maps-ში"
                     >
                         სერგო მესხის ქ. №42<br>ქუთაისი, საქართველო
                         <i class="fa-solid fa-arrow-up-right-from-square contact-ext-icon" aria-hidden="true"></i>
@@ -2423,8 +2428,8 @@
         </div>
 
         <div class="contact-map-col">
-            <div class="map-wrapper" role="region" aria-label="Interactive map">
-                <div class="map-overlay" title="Click to interact with the map" aria-hidden="true"></div>
+            <div class="map-wrapper" role="region" aria-label="ინტერაქტიული რუკა">
+                <div class="map-overlay" title="დააკლიკეთ რუკაზე ინტერაქტივისთვის" aria-hidden="true"></div>
                 <iframe
                     class="contact-map-iframe"
                     src="https://maps.google.com/maps?q=42.25436,42.68025&z=16&output=embed"
