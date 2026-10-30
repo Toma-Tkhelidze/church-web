@@ -157,6 +157,16 @@ document.addEventListener('DOMContentLoaded', () => {
             originalItems.forEach(item => track.appendChild(item.cloneNode(true)));
         }
 
+        // ოთხი ერთნაირი ასლიდან Tab-სა და ეკრანის წამკითხველს მხოლოდ ერთს
+        // ვუტოვებთ — მეორეს, რომელიც ჩატვირთვისას ჩანს (იხ. init). დანარჩენები
+        // ეკრანზე რჩება, რომ უსასრულო სქროლი არ დაირღვეს.
+        const allItems = Array.from(track.children);
+        allItems.forEach((item, i) => {
+            if (i >= originalCount && i < originalCount * 2) return;
+            item.setAttribute('aria-hidden', 'true');
+            item.querySelectorAll('a, button').forEach(el => el.setAttribute('tabindex', '-1'));
+        });
+
         let currentX = 0;
         let targetX = 0;
         let isDragging = false;
@@ -170,20 +180,32 @@ document.addEventListener('DOMContentLoaded', () => {
         let lastItemWidth = 0;
         let lastPad = 0;
 
-        function getItemMetrics() {
+        // ზომებს ყოველ კადრზე აღარ ვზომავთ — ეს ბრაუზერს წამში 60-ჯერ
+        // layout-ის თავიდან გათვლას აიძულებდა. ვზომავთ ჩატვირთვისა და ეკრანის
+        // ზომის შეცვლისას. offsetWidth hover-ის scale-ს არ ითვლის.
+        let metrics = null;
+
+        function measure() {
             const item = track.querySelector('.card-item');
-            if (!item) return { itemWidth: 380, totalWidth: 380 * originalCount };
-            const rect = item.getBoundingClientRect();
-            const style = window.getComputedStyle(item);
-            const ml = parseFloat(style.marginLeft) || 0;
-            const mr = parseFloat(style.marginRight) || 0;
-            const itemWidth = rect.width + ml + mr;
-            const totalWidth = itemWidth * originalCount;
-            return { itemWidth, totalWidth };
+            let itemWidth = 380;
+            if (item && item.offsetWidth) {
+                const style = window.getComputedStyle(item);
+                itemWidth = item.offsetWidth + (parseFloat(style.marginLeft) || 0) + (parseFloat(style.marginRight) || 0);
+            }
+            metrics = {
+                itemWidth: itemWidth,
+                totalWidth: itemWidth * originalCount,
+                pad: parseFloat(window.getComputedStyle(container).paddingLeft) || 0
+            };
+            return metrics;
+        }
+
+        function getItemMetrics() {
+            return metrics || measure();
         }
 
         function getContainerPadding() {
-            return parseFloat(window.getComputedStyle(container).paddingLeft) || 0;
+            return getItemMetrics().pad;
         }
 
         function init() {
@@ -192,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const { itemWidth, totalWidth } = getItemMetrics();
+            const { itemWidth, totalWidth } = measure();
             const pad = getContainerPadding();
 
             if (currentX !== 0 && lastItemWidth > 0) {
@@ -213,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
             track.style.transform = `translate3d(${currentX}px, 0, 0)`;
         }
 
-        window.addEventListener('load', init);
+        window.addEventListener('load', () => { measure(); init(); });
         window.addEventListener('resize', init);
         init();
 
@@ -223,6 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let rel = targetX - pad;
             rel = Math.round(rel / itemWidth) * itemWidth;
             targetX = rel + pad;
+            kick();
         }
 
         // მაუსის დაჭერა
@@ -253,6 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 snapToNearest();
             } else {
                 targetX = storedX + diff;
+                kick();
             }
         });
 
@@ -304,6 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 snapToNearest();
             } else {
                 targetX = touchStoredX + diff;
+                kick();
             }
         }, { passive: false }); // აუცილებელია false, რომ ბრაუზერმა სქროლის ბლოკირება მოგვცეს
 
@@ -327,11 +352,44 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // ანიმაციის ციკლი
+        // Tab-ით მოსული ბარათი ეკრანზე უნდა გამოჩნდეს. მაუსით ან თითით
+        // დაჭერისას (:focus-visible არაა) სლაიდერს ადგილიდან არ ვძრავთ.
+        track.addEventListener('focusin', (e) => {
+            const item = e.target.closest('.card-item');
+            const index = allItems.indexOf(item);
+            if (index < 0) return;
+            try { if (!e.target.matches(':focus-visible')) return; } catch (err) { /* ძველი ბრაუზერი */ }
+            container.scrollLeft = 0;
+            const r = item.getBoundingClientRect();
+            const c = container.getBoundingClientRect();
+            if (r.left >= c.left && r.right <= c.right) return;
+            const { itemWidth, pad } = getItemMetrics();
+            targetX = pad - index * itemWidth;
+            kick();
+        });
+
+        // overflow:hidden კონტეინერს ბრაუზერი ფოკუსისას თავად სქროლავს —
+        // ეს ჩვენს transform-ს ერევა, ამიტომ ვაბრუნებთ.
+        container.addEventListener('scroll', () => {
+            if (container.scrollLeft) container.scrollLeft = 0;
+        });
+
+        // ანიმაციის ციკლი — მუშაობს მხოლოდ მოძრაობისას. ადრე ის წამში
+        // 60-ჯერ ტრიალებდა მაშინაც, როცა სლაიდერი უძრავად იდგა ან
+        // ეკრანზე საერთოდ არ ჩანდა (ბატარეა და პროცესორი ტელეფონზე).
+        let rafId = 0;
+
+        function kick() {
+            if (!rafId) rafId = requestAnimationFrame(animate);
+        }
+
         function animate() {
+            rafId = 0;
             currentX += (targetX - currentX) * EASE;
-            const { totalWidth } = getItemMetrics();
-            const pad = getContainerPadding();
+            // ნახევარ პიქსელზე ახლოს — უკვე ადგილზეა, ციკლი ჩერდება.
+            const settled = Math.abs(targetX - currentX) < 0.5;
+            if (settled) currentX = targetX;
+            const { totalWidth, pad } = getItemMetrics();
             if (currentX > pad) {
                 targetX -= totalWidth;
                 currentX -= totalWidth;
@@ -345,9 +403,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 touchStoredX += totalWidth;
             }
             track.style.transform = `translate3d(${currentX}px, 0, 0)`;
-            requestAnimationFrame(animate);
+            if (!settled) kick();
         }
-        animate();
     } // <─── აი აქ იხურება სლაიდერის მთავარი ბლოკი იდეალურად!
 
 
@@ -477,29 +534,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // ──────────────────────────────────────────────
-    // 7. რუკის სქროლის დამცავი ფენა (Map Overlay) (ხელუხლებელი)
+    // 7. რუკის სქროლის დამცავი ფენა (Map Overlay)
     // ──────────────────────────────────────────────
+    // კომპიუტერზე რუკა დაჭერით იხსნება და მაუსის გატანით იკეტება.
+    // ტელეფონზე mouseleave არ ხდება, ადრე კი პირველივე შეხება (თუნდაც
+    // სქროლისას) რუკას სამუდამოდ ხსნიდა და გვერდის სქროლი რუკაზე ჩერდებოდა.
+    // ახლა იხსნება მხოლოდ შეხებით (click — სქროლის მოძრაობა მას არ იწვევს)
+    // და იკეტება, როცა რუკის გარეთ შეეხები ან რუკა ეკრანიდან გავა.
+    const touchOnly = window.matchMedia('(hover: none)').matches;
     document.querySelectorAll('.map-wrapper').forEach(wrapper => {
         const overlay = wrapper.querySelector('.map-overlay');
         const hint = wrapper.closest('.contact-map-col')?.querySelector('.map-hint');
         const hintText = hint?.querySelector('.hint-text');
         if (!overlay) return;
 
-        overlay.addEventListener('click', () => {
-            overlay.classList.add('map-unlocked');
-            if (hint) hint.classList.add('hint-active');
-            if (hintText) hintText.textContent = 'რუკის დასაბლოკად მაუსი გაწიეთ გარეთ';
-        });
-
-        wrapper.addEventListener('mouseleave', () => {
+        const lock = () => {
+            if (!overlay.classList.contains('map-unlocked')) return;
             overlay.classList.remove('map-unlocked');
             if (hint) hint.classList.remove('hint-active');
             if (hintText) hintText.textContent = 'დააკლიკეთ რუკაზე ინტერაქტივისთვის';
+        };
+
+        overlay.addEventListener('click', () => {
+            overlay.classList.add('map-unlocked');
+            if (hint) hint.classList.add('hint-active');
+            if (hintText) hintText.textContent = touchOnly
+                ? 'რუკის დასაბლოკად შეეხეთ მის გარეთ'
+                : 'რუკის დასაბლოკად მაუსი გაწიეთ გარეთ';
         });
 
-        overlay.addEventListener('touchstart', () => {
-            overlay.classList.add('map-unlocked');
+        wrapper.addEventListener('mouseleave', lock);
+
+        // რუკის შიგნით შეხება iframe-ში რჩება და აქამდე არ აღწევს —
+        // document-მდე მხოლოდ გარეთ შეხება მოდის.
+        document.addEventListener('touchstart', e => {
+            if (!wrapper.contains(e.target)) lock();
         }, { passive: true });
+
+        if ('IntersectionObserver' in window) {
+            new IntersectionObserver(entries => {
+                if (!entries[0].isIntersecting) lock();
+            }).observe(wrapper);
+        }
     });
 
     // ──────────────────────────────────────────────
@@ -587,6 +663,33 @@ window.unlockBodyScroll = function() {
     window.removeEventListener('wheel', preventDefault, { passive: false });
     window.removeEventListener('touchmove', preventDefault, { passive: false });
     isScrollLocked = false;
+};
+
+
+// ──────────────────────────────────────────────
+// ტელეფონის ნომერი — ერთი წესი ყველა ფორმისთვის
+// ──────────────────────────────────────────────
+// ადრე ყოველი ფორმა მხოლოდ „599123456“-ს იღებდა: ჰარი, +995 ან უცხოური
+// ნომერი შეცდომად ითვლებოდა და უცხოელი სტუმარი ფორმას ვერ აგზავნიდა.
+// ვიღებთ: ქართულ მობილურს (599 12 34 56, +995 599…, 00995 599…),
+// ქალაქის ნომერს (0431 24 24 24) და უცხოურს „+“-ით. აბრუნებს ერთ
+// ფორმატზე დაყვანილ ნომერს (ასე ჩადის Google Form-ში) ან null-ს.
+window.efcPhone = function (value) {
+    let s = String(value == null ? '' : value).trim().replace(/[\s().\-–]/g, '');
+    if (s.indexOf('00') === 0) s = '+' + s.slice(2);
+    s = s.replace(/^\+?995/, '');
+    if (/^5\d{8}$/.test(s)) return s;
+    if (/^0?[34]\d{8}$/.test(s)) return '0' + s.replace(/^0/, '');
+    if (/^\+[1-9]\d{7,14}$/.test(s)) return s;
+    return null;
+};
+window.EFC_PHONE_ERROR = 'ჩაწერეთ ტელეფონის ნომერი, მაგ: 599 12 34 56 (უცხოური — „+“-ით)';
+
+// სახელი: ნებისმიერი ანბანი (ქართული, მთავრული, ლათინური, კირილიცა),
+// დეფისი და აპოსტროფი („ანა-მარია“). ციფრები და სიმბოლოები — არა.
+window.efcIsName = function (value, minLetters) {
+    const v = String(value == null ? '' : value).trim();
+    return /^[\p{L}\p{M}\s'’.-]+$/u.test(v) && (v.match(/\p{L}/gu) || []).length >= (minLetters || 2);
 };
 
 
@@ -1027,6 +1130,7 @@ window.unlockBodyScroll = function() {
     // Facebook-ისა და Instagram-ის შიდა ბრაუზერს „Add to Home Screen“
     // საერთოდ არ აქვს — იქ ინსტრუქცია მხოლოდ დააბნევდა.
     const inApp = /FBAN|FBAV|FB_IAB|Instagram|MicroMessenger/i.test(ua);
+    const isAndroid = /Android/i.test(ua);
     // iOS-ზე ყველა ბრაუზერი WebKit-ზეა, მაგრამ გაზიარების ღილაკი
     // სხვადასხვა ადგილას უდევთ: Safari-ს ქვემოთ, Chrome-ს — მენიუში.
     const iosOtherBrowser = isIOS && /CriOS|FxiOS|EdgiOS|OPT\//i.test(ua);
@@ -1071,7 +1175,11 @@ window.unlockBodyScroll = function() {
 
         let action;
         if (inApp) {
-            action = '<p class="install-hint">ჯერ გახსენი Safari-ში: დააჭირე „•••“ და აირჩიე „Open in Safari“.</p>';
+            // Android-ზე Safari არ არსებობს — იქ შიდა ბრაუზერის მენიუ „⋮“-ია
+            // და გვერდი Chrome-ში იხსნება.
+            action = isAndroid
+                ? '<p class="install-hint">ჯერ გახსენი Chrome-ში: ზემოთ მარჯვნივ დააჭირე „⋮“ და აირჩიე „Open in Chrome“ (ან „Open in external browser“).</p>'
+                : '<p class="install-hint">ჯერ გახსენი Safari-ში: დააჭირე „•••“ და აირჩიე „Open in Safari“.</p>';
         } else if (isIOS) {
             // iPhone-ზე ბმული ხშირად Chrome-ში იხსნება და არა Safari-ში.
             // ღილაკი სხვაგან დევს, ამიტომ ნაბიჯებიც სხვაა — თორემ

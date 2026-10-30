@@ -139,6 +139,7 @@
             box-shadow: 0 10px 25px rgba(170, 149, 79, 0.25); display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 100%; box-sizing: border-box; transition: all 0.3s ease;
         }
         .btn-contact-submit:hover { background-color: #8e7a3d; transform: translateY(-2px); box-shadow: 0 15px 30px rgba(170, 149, 79, 0.4); }
+        .btn-contact-submit:disabled { opacity: 0.6; cursor: wait; transform: none; }
 
         .success-toast { display: none; background: #eef9f1; border: 1px solid #34a853; color: #1e4620; padding: 30px 20px; border-radius: 12px; text-align: center; font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif; animation: fadeInSimple 0.4s ease-out; }
         .success-toast i { color: #34a853; font-size: 2.2rem; margin-bottom: 12px; display: block; }
@@ -329,9 +330,9 @@
 
                             <div class="form-group">
                                 <label for="contactPhone">ტელეფონის ნომერი *</label>
-                                <input type="tel" id="contactPhone" required placeholder="მაგ: 599XXXYYY">
+                                <input type="tel" id="contactPhone" required autocomplete="tel" placeholder="მაგ: 599 12 34 56">
                                 <div class="error-message" id="contactPhoneError">
-                                    <i class="fa-solid fa-circle-exclamation"></i> ნომერი უნდა შეიცავდეს მხოლოდ 9 ციფრს და აუცილებლად იწყებოდეს 5-იანით!
+                                    <i class="fa-solid fa-circle-exclamation"></i> ჩაწერეთ ტელეფონის ნომერი, მაგ: 599 12 34 56 (უცხოური — „+“-ით)
                                 </div>
                             </div>
 
@@ -531,16 +532,15 @@
                 let isValid = true;
 
                 const nameValue = nameInput.value.trim();
-                const nameRegex = /^[a-zA-Zა-ჰ\s]+$/;
-                if (nameValue === "" || nameValue.length < 3 || !nameRegex.test(nameValue)) {
+                if (!window.efcIsName(nameValue, 3)) {
                     showError(nameInput, nameError, "შეიყვანეთ სწორი სახელი და გვარი (მინიმუმ 3 ასო, ციფრების გარეშე)!");
                     isValid = false;
                 }
 
-                const phoneValue = phoneInput.value.trim();
-                const phoneRegex = /^5\d{8}$/;
-                if (!phoneRegex.test(phoneValue)) {
-                    showError(phoneInput, phoneError, "ტელეფონის ნომერი უნდა შეიცავდეს 9 ციფრს და იწყებოდეს 5-ით!");
+                // ჰარები, +995 და უცხოური ნომერი დასაშვებია — წესი script.js-შია.
+                const phoneValue = window.efcPhone(phoneInput.value);
+                if (!phoneValue) {
+                    showError(phoneInput, phoneError, window.EFC_PHONE_ERROR);
                     isValid = false;
                 }
 
@@ -558,6 +558,11 @@
                 }
 
                 if (!isValid) return;
+
+                // გაგზავნისას ღილაკი იბლოკება — ორჯერ დაჭერა ორ ჩანაწერს აღარ ქმნის.
+                const submitBtn = regForm.querySelector('button[type="submit"]');
+                if (submitBtn.disabled) return;
+                submitBtn.disabled = true;
 
                 const formData = new FormData();
                 formData.append('entry.972024769', nameValue);
@@ -579,10 +584,12 @@
                         regForm.reset();
                         successToast.style.display = "none";
                         regForm.style.display = "block";
+                        submitBtn.disabled = false;
                     }, 5000);
                 })
                 .catch(err => {
                     console.error('შეცდომა გაგზავნისას:', err);
+                    submitBtn.disabled = false;
                     alert("დაფიქსირდა ტექნიკური ხარვეზი. გთხოვთ სცადოთ მოგვიანებით.");
                 });
             });

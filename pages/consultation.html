@@ -487,7 +487,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="cPhone">ტელეფონი *</label>
-                                    <input type="tel" id="cPhone" autocomplete="tel" inputmode="numeric" placeholder="მაგ: 599XXXYYY">
+                                    <input type="tel" id="cPhone" autocomplete="tel" placeholder="მაგ: 599 12 34 56">
                                     <div class="error-message" id="cPhoneError"></div>
                                 </div>
                             </div>
@@ -891,9 +891,10 @@
                     setError(name, document.getElementById("cNameError"), "გთხოვთ მიუთითოთ სახელი");
                     ok = false;
                 }
-                const phoneValue = phone.value.replace(/[\s-]/g, "");
-                if (!/^5\d{8}$/.test(phoneValue)) {
-                    setError(phone, document.getElementById("cPhoneError"), "9 ციფრი, იწყება 5-ით (მაგ: 599123456)");
+                // ჰარები, +995 და უცხოური ნომერი დასაშვებია — წესი script.js-შია (efcPhone).
+                const phoneValue = window.efcPhone(phone.value);
+                if (!phoneValue) {
+                    setError(phone, document.getElementById("cPhoneError"), window.EFC_PHONE_ERROR);
                     ok = false;
                 }
                 const emailValue = email.value.trim();

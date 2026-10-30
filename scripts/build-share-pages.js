@@ -46,14 +46,18 @@ function escapeHtml(value) {
 // იგივე წესი, რაც საიტზე (sanity-fetch.js → splitSermonTitle).
 function splitTitle(raw, isoDate) {
   const text = (raw || '').replace(/\s+/g, ' ').trim();
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(isoDate || '');
+  const fallback = m ? `${Number(m[3])} ${KA_MONTHS[Number(m[2]) - 1]}, ${m[1]}` : '';
   const i = text.lastIndexOf('|');
   if (i > 0) {
     const title = text.slice(0, i).trim();
-    const date = text.slice(i + 1).trim();
-    if (title && date) return { title, date };
+    const tail = text.slice(i + 1).trim();
+    // „|“-ის შემდეგ ზოგჯერ მქადაგებელია და არა თარიღი.
+    const isDate = /\d/.test(tail) && KA_MONTHS.some(k => tail.indexOf(k) !== -1);
+    if (title && isDate) return { title, date: tail };
+    if (title && tail) return { title, date: fallback };
   }
-  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(isoDate || '');
-  return { title: text, date: m ? `${Number(m[3])} ${KA_MONTHS[Number(m[2]) - 1]}, ${m[1]}` : '' };
+  return { title: text, date: fallback };
 }
 
 // HD ყდა ყველა ვიდეოს არ აქვს. ყალბი ბარათი რომ არ გამოვიდეს, ერთხელ

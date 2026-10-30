@@ -545,6 +545,12 @@
         justify-content: center;
     }
 
+    .btn-submit-main:disabled {
+        opacity: 0.6;
+        cursor: wait;
+        transform: none;
+    }
+
     .btn-submit-back {
         flex: 1 1 0;
         justify-content: center;
@@ -971,10 +977,10 @@
                     </div>
                     <div class="form-group">
                         <label for="regPhone">ტელეფონის ნომერი *</label>
-                        <input type="tel" id="regPhone" name="entry.785890127" required placeholder="მაგ: 599XXXYYY">
+                        <input type="tel" id="regPhone" name="entry.785890127" required autocomplete="tel" placeholder="მაგ: 599 12 34 56">
                         <div class="error-message" id="phoneError">
-                            <i class="fa-solid fa-circle-exclamation"></i> შეიყვანეთ ვალიდური ტელეფონის ნომერი (მაგ:
-                            599123456)
+                            <i class="fa-solid fa-circle-exclamation"></i> ჩაწერეთ ტელეფონის ნომერი, მაგ: 599 12 34 56
+                            (უცხოური — „+“-ით)
                         </div>
                     </div>
                     <div class="form-group">
@@ -1365,12 +1371,10 @@
         regForm.addEventListener("submit", (e) => {
             e.preventDefault();
 
-            const phoneValue = phoneInput.value.trim();
+            // ჰარები, +995 და უცხოური ნომერი დასაშვებია — წესი script.js-შია (efcPhone).
+            const phoneValue = window.efcPhone(phoneInput.value);
 
-            // რეგულარული გამოსახულება (Regex): ამოწმებს იწყება თუ არა 5-იანით და შედგება თუ არა ზუსტად 9 ციფრისგან (ტექსტის გარეშე)
-            const phoneRegex = /^5\d{8}$/;
-
-            if (!phoneRegex.test(phoneValue)) {
+            if (!phoneValue) {
                 phoneError.style.display = "flex"; // ვაჩენთ წითელ შეტყობინებას
                 phoneInput.closest(".form-group").classList.add("has-error");
                 phoneInput.focus();
@@ -1379,6 +1383,11 @@
                 phoneError.style.display = "none"; // თუ სწორია, ვმალავთ შეცდომას
                 phoneInput.closest(".form-group").classList.remove("has-error");
             }
+
+            // გაგზავნისას ღილაკი იბლოკება — ორჯერ დაჭერა ორ ჩანაწერს აღარ ქმნის.
+            const submitBtn = regForm.querySelector('button[type="submit"]');
+            if (submitBtn.disabled) return;
+            submitBtn.disabled = true;
 
             const formData = new FormData();
             formData.append('entry.1880814093', hiddenLeaderInput.value);
@@ -1402,10 +1411,12 @@
                         regForm.reset();
                         successToast.style.display = "none";
                         defaultActions.style.display = "flex";
+                        submitBtn.disabled = false;
                     }, 2500);
                 })
                 .catch(err => {
-                    console.error('Ошибка:', err);
+                    console.error('შეცდომა გაგზავნისას:', err);
+                    submitBtn.disabled = false;
                     alert("ხარვეზი მონაცემთა გადაცემისას. სცადეთ მოგვიანებით.");
                 });
         });

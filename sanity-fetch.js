@@ -1026,20 +1026,26 @@ function feedDateValue(pubDate) {
 }
 
 // YouTube-ზე სათაურები "ქადაგება | 30 აგვისტო, 2026" სახისაა.
-// სადაც ასე არ არის, თარიღს feed-იდან ვიღებთ.
+// სადაც ასე არ არის, თარიღს feed-იდან ან არქივიდან ვიღებთ.
+// „|“-ის შემდეგ ყოველთვის თარიღი არ წერია („რწმენის მიზანი | სპარტაკ
+// ჭანკვეტაძე“) — ასეთი კუდი თარიღად აღარ ჩანს: მქადაგებელი ბარათზე
+// ისედაც ცალკე წერია.
 function splitSermonTitle(raw, pubDate) {
   const text = (raw || '').trim();
   const i = text.lastIndexOf('|');
   if (i > 0) {
     const title = text.slice(0, i).trim();
-    const date = text.slice(i + 1).trim();
-    if (title && date) return { title: title, date: date };
+    const tail = text.slice(i + 1).trim();
+    const isDate = /\d/.test(tail) && KA_MONTHS.some(m => tail.indexOf(m) !== -1);
+    if (title && isDate) return { title: title, date: tail };
+    if (title && tail) return { title: title, date: formatFeedDate(pubDate) };
   }
   return { title: text, date: formatFeedDate(pubDate) };
 }
 
 function weeklySermonCard(item, showYear) {
-  const parts = splitSermonTitle(item.title, item.pubDate);
+  // feed-ის ჩანაწერს pubDate აქვს, არქივისას — date.
+  const parts = splitSermonTitle(item.title, item.pubDate || item.date);
   // ძებნისას წლები ერევა, ამიტომ თითოეულს წელს ვაწერთ.
   const badge = showYear && item.year
     ? `<span class="weekly-year-badge">${escapeHtml(item.year)}</span>`

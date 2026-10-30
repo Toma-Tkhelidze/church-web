@@ -78,12 +78,13 @@ const REG_FIELDS = {
   name: {
     label: 'სახელი და გვარი *', type: 'text', placeholder: 'მაგ: გიორგი კაპანაძე',
     error: 'გთხოვთ შეიყვანოთ სწორი სახელი და გვარი (მხოლოდ ტექსტი, ციფრების გარეშე)!',
-    validate: v => v.trim().length >= 3 && /^[a-zA-Zა-ჰ\s]+$/.test(v.trim())
+    validate: v => regIsName(v, 3)
   },
   phone: {
-    label: 'ტელეფონის ნომერი *', type: 'tel', placeholder: 'მაგ: 599XXXYYY',
-    error: 'ნომერი უნდა შეიცავდეს მხოლოდ 9 ციფრს და იწყებოდეს 5-იანით!',
-    validate: v => /^5\d{8}$/.test(v.trim())
+    label: 'ტელეფონის ნომერი *', type: 'tel', placeholder: 'მაგ: 599 12 34 56',
+    error: 'ჩაწერეთ ტელეფონის ნომერი, მაგ: 599 12 34 56 (უცხოური — „+“-ით)',
+    validate: v => regIsPhone(v),
+    normalize: v => regPhone(v)
   },
   email: {
     label: 'ელ-ფოსტა *', type: 'email', placeholder: 'მაგ: example@gmail.com',
@@ -103,7 +104,7 @@ const REG_FIELDS = {
   firstName: {
     label: 'შენი სახელი *', type: 'text', placeholder: 'მაგ: ნინო',
     error: 'გთხოვთ, ჩაწერე სახელი (მხოლოდ ასოებით).',
-    validate: v => v.trim().length >= 2 && /^[a-zA-Zა-ჰ\s-]+$/.test(v.trim())
+    validate: v => regIsName(v, 2)
   },
   youthAge: {
     label: 'რამდენი წლის ხარ? *', type: 'text', inputmode: 'numeric', placeholder: 'მაგ: 17',
@@ -120,11 +121,11 @@ const REG_FIELDS = {
       { name: 'Facebook / Messenger', placeholder: 'პროფილის ბმული, მაგ: facebook.com/nino.k', inputmode: 'url',
         error: 'ჩასვი Facebook-ის პროფილის ბმული: პროფილზე ••• → Copy link.',
         check: v => /(^|\/\/|\.)(facebook\.com|fb\.com|m\.me)\/\S+/i.test(v.trim()) },
-      { name: 'WhatsApp', placeholder: 'ნომერი, მაგ: 599123456', inputmode: 'tel', error: 'ნომერი 9 ციფრია და 5-ით იწყება.',
+      { name: 'WhatsApp', placeholder: 'ნომერი, მაგ: 599 12 34 56', inputmode: 'tel', error: 'ჩაწერე ნომერი, მაგ: 599 12 34 56 (უცხოური — „+“-ით).',
         check: v => regIsPhone(v) },
-      { name: 'Viber', placeholder: 'ნომერი, მაგ: 599123456', inputmode: 'tel', error: 'ნომერი 9 ციფრია და 5-ით იწყება.',
+      { name: 'Viber', placeholder: 'ნომერი, მაგ: 599 12 34 56', inputmode: 'tel', error: 'ჩაწერე ნომერი, მაგ: 599 12 34 56 (უცხოური — „+“-ით).',
         check: v => regIsPhone(v) },
-      { name: 'ზარი / SMS', placeholder: 'ნომერი, მაგ: 599123456', inputmode: 'tel', error: 'ნომერი 9 ციფრია და 5-ით იწყება.',
+      { name: 'ზარი / SMS', placeholder: 'ნომერი, მაგ: 599 12 34 56', inputmode: 'tel', error: 'ჩაწერე ნომერი, მაგ: 599 12 34 56 (უცხოური — „+“-ით).',
         check: v => regIsPhone(v) },
       { name: 'ელ-ფოსტა', placeholder: 'მაგ: nino@gmail.com', inputmode: 'email', error: 'ჩაწერე სწორი ელ-ფოსტა.',
         check: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) }
@@ -144,9 +145,24 @@ const REG_FIELDS = {
 let regModalEl = null;
 let regCurrentEvent = '';
 
-/** ქართული მობილური: 9 ციფრი, 5-ით; +995, ჰარები და ტირეები არ უშლის. */
+/**
+ * ტელეფონი და სახელი — წესი script.js-შია (window.efcPhone / efcIsName),
+ * რომ ყველა ფორმა ერთნაირად ამოწმებდეს. script.js ყველა გვერდზე ამ
+ * ფაილამდე იტვირთება; აქ მხოლოდ დაზღვევაა.
+ */
+function regPhone(value) {
+  if (typeof window.efcPhone === 'function') return window.efcPhone(value);
+  const s = String(value).replace(/[\s()-]/g, '').replace(/^\+?995/, '');
+  return /^5\d{8}$/.test(s) ? s : null;
+}
+
 function regIsPhone(value) {
-  return /^5\d{8}$/.test(String(value).replace(/[\s()-]/g, '').replace(/^\+?995/, ''));
+  return regPhone(value) !== null;
+}
+
+function regIsName(value, minLetters) {
+  if (typeof window.efcIsName === 'function') return window.efcIsName(value, minLetters);
+  return String(value).trim().length >= minLetters;
 }
 
 function regEscape(value) {
@@ -257,7 +273,11 @@ function readRegistrationField(key) {
   const f = REG_FIELDS[key];
   const input = regModalEl.querySelector('#reg_' + key);
   if (!input) return null;
-  if (f.type !== 'contact') return { value: input.value, ok: f.validate(input.value), error: f.error };
+  if (f.type !== 'contact') {
+    const ok = f.validate(input.value);
+    const value = ok && f.normalize ? f.normalize(input.value) : input.value;
+    return { value: value, ok: ok, error: f.error };
+  }
   const via = regModalEl.querySelector('#reg_' + key + '_via').value;
   const ch = f.channels.find(c => c.name === via) || f.channels[0];
   return { value: ch.name + ': ' + input.value.trim(), ok: ch.check(input.value), error: ch.error };

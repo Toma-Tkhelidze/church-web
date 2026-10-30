@@ -23,13 +23,17 @@ function latestSermon() {
 
 // სათაურები ასე იწერება: „ჩემი ეკლესია | 30 აგვისტო, 2026“.
 // შეტყობინებაში სათაური და თარიღი ცალ-ცალკე გვინდა.
+// „|“-ის შემდეგ ზოგჯერ მქადაგებელია და არა თარიღი — ასეთი კუდი თარიღად არ ითვლება.
+const MONTH = /იანვარი|თებერვალი|მარტი|აპრილი|მაისი|ივნისი|ივლისი|აგვისტო|სექტემბერი|ოქტომბერი|ნოემბერი|დეკემბერი/;
+
 function splitTitle(raw, isoDate) {
   const text = (raw || '').trim();
   const i = text.lastIndexOf('|');
   if (i > 0) {
     const title = text.slice(0, i).trim();
-    const date = text.slice(i + 1).trim();
-    if (title && date) return { title, date };
+    const tail = text.slice(i + 1).trim();
+    if (title && /\d/.test(tail) && MONTH.test(tail)) return { title, date: tail };
+    if (title && tail) return { title, date: isoDate || '' };
   }
   return { title: text, date: isoDate || '' };
 }

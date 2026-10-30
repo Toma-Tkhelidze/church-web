@@ -150,12 +150,18 @@ function sermonDate(title, year) {
   return year + '-' + String(month + 1).padStart(2, '0') + '-' + dd;
 }
 
+// სათაურში თარიღი არ წერია, მაგრამ ვიცით — თომამ დააზუსტა. YouTube-ზე
+// სათაურის გასწორებისას („… | 19 ოქტომბერი, 2025“) ჩანაწერი ზედმეტი ხდება.
+const KNOWN_DATES = {
+  uyDmyTFl_0k: '2025-10-19'   // რწმენის მიზანი
+};
+
 async function readPlaylist(pl) {
   const items = await readPage('https://www.youtube.com/playlist?list=' + pl.id);
   const seen = new Set();
   const videos = items
     .filter(v => /^[A-Za-z0-9_-]{11}$/.test(v.id) && !seen.has(v.id) && seen.add(v.id))
-    .map(v => ({ id: v.id, title: v.title, date: sermonDate(v.title, pl.year) }));
+    .map(v => ({ id: v.id, title: v.title, date: sermonDate(v.title, pl.year) || KNOWN_DATES[v.id] || null }));
 
   // ზოგ სათაურში თარიღი საერთოდ არ წერია. ასეთს უახლოესი დათარიღებული
   // მეზობლის თარიღს ვაძლევთ, რომ სიაში თავის ადგილას დარჩეს.
