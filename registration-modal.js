@@ -22,7 +22,6 @@ const REG_EVENTS = {
     intro: CAMP_INTRO,
     success: CAMP_SUCCESS,
     action: 'https://docs.google.com/forms/d/e/1FAIpQLSdOF7yR7VAkNE8WfHtCEAZYo1CJ7ZfEv5Q6cnlmT5slwbOgtQ/formResponse',
-    fixed: { 'entry.1880814093': 'ბანაკის რეგისტრაცია' },
     entries: {
       name: 'entry.557391057',
       phone: 'entry.1784465689',

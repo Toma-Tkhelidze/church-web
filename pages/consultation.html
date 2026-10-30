@@ -478,7 +478,8 @@
                         <h3>კონსულტაციის მოთხოვნა</h3>
                         <p class="card-sub">ვარსკვლავით (*) მონიშნული ველები სავალდებულოა, დანარჩენი — თქვენი სურვილით.</p>
 
-                        <form id="counselForm" novalidate>
+                        <!-- data-clarity-mask: Clarity-ის ჩანაწერში აქ აკრეფილი არ ჩანს (გაგზავნაზე არ მოქმედებს) -->
+                        <form id="counselForm" novalidate data-clarity-mask="true">
                             <div class="counsel-form-row">
                                 <div class="form-group">
                                     <label for="cName">სახელი *</label>
@@ -562,7 +563,7 @@
                             <h3>ლოცვის თხოვნა</h3>
                             <p class="card-sub">ჯერ საუბარი არ გსურთ? მოგვწერეთ, რისთვის ვილოცოთ. სახელის მითითება არ არის აუცილებელი.</p>
 
-                            <form id="counselPrayerForm" novalidate>
+                            <form id="counselPrayerForm" novalidate data-clarity-mask="true">
                                 <div class="form-group">
                                     <label for="pName">სახელი <span class="optional">(არასავალდებულო)</span></label>
                                     <input type="text" id="pName" maxlength="80" autocomplete="given-name" placeholder="შეგიძლიათ ცარიელი დატოვოთ">

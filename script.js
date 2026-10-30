@@ -1498,7 +1498,9 @@ window.efcIsName = function (value, minLetters) {
         const header = document.querySelector('.main-header');
         if (!header) return;
 
-        const inPages = /\/pages\//.test(window.location.pathname);
+        // baseURI და არა location: 404.html-ს <base href="/"> აქვს და ის
+        // ნებისმიერ მისამართზე (/pages/…-ზეც) ჩანს — ბმულები ძირიდან იხსნება.
+        const inPages = /\/pages\//.test(new URL(document.baseURI).pathname);
         const root = inPages ? '../' : '';
         const sub = inPages ? '' : 'pages/';
 

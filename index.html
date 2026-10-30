@@ -504,7 +504,8 @@
                     <h3>რაზე ვილოცოთ შენთვის?</h3>
                     <p class="prayer-note">ჩვენი ლოცვის გუნდი ყოველ კვირას ლოცულობს საჭიროებებზე. თქვენი ლოცვითი სათხოვრები კონფიდენციალურია.</p>
 
-                    <form id="prayerForm" novalidate>
+                    <!-- data-clarity-mask: Clarity-ის ჩანაწერში ლოცვის ტექსტი და სახელი არ ჩანს (ფორმის გაგზავნაზე არ მოქმედებს) -->
+                    <form id="prayerForm" novalidate data-clarity-mask="true">
                         <label class="visually-hidden" for="prayerText">ლოცვითი საჭიროება</label>
                         <textarea id="prayerText" rows="4" maxlength="1200" required
                             placeholder="დაწერეთ მოკლედ, რაზეც გსურთ, რომ ვილოცოთ."></textarea>
