@@ -5052,6 +5052,25 @@ a.next-service .ns-where, .next-service a.ns-where {
 
 /* დესქტოპზე ზოლი ავტომატურად არ ჩნდება, მაგრამ ფუტერის ღილაკიდან
    იხსნება — მთელ სიგანეზე გაწელილი ბარათი იქ უადგილოა. */
+/* ტელეფონზე ზოლი ეკრანის ~44%-ს იკავებდა: ხატულა ტექსტს ვიწრო სვეტში
+   კუმშავდა, ღილაკები კი ორ რიგად ლაგდებოდა. აქ ხატულა ქრება, ტექსტი
+   მთელ სიგანეზეა და ღილაკები ერთ რიგშია — ტექსტი და ღილაკების იერი იგივეა. */
+@media (max-width: 639px) {
+    .consent-bar {
+        padding: 14px 14px 12px;
+        gap: 0;
+    }
+    .consent-icon { display: none; }
+    .consent-bar .install-eyebrow { margin-bottom: 3px; font-size: 0.68rem; }
+    .consent-bar .install-body strong { font-size: 0.95rem; margin-bottom: 3px; }
+    .consent-bar .install-body .install-lead { font-size: 0.78rem; line-height: 1.45; }
+    .consent-actions { flex-wrap: nowrap; gap: 14px; }
+    .consent-bar .install-go,
+    .consent-decline { margin-top: 10px; }
+    .consent-bar .install-go { padding: 10px 20px; font-size: 0.85rem; }
+    .consent-decline { padding: 9px 4px; }
+}
+
 @media (min-width: 640px) {
     .install-bar {
         left: auto;
