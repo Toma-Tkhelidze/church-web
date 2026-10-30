@@ -98,6 +98,8 @@ const REG_FIELDS = {
   health: {
     label: 'განსაკუთრებული საჭიროებები (ალერგია, ქრონიკული დაავადება ან კვებითი შეზღუდვა)',
     type: 'textarea', placeholder: 'ასეთის არსებობის შემთხვევაში აღწერეთ...',
+    // ჯანმრთელობის ინფორმაციაა (ხშირად ბავშვის) — Clarity-ის ჩანაწერში არ უნდა ჩანდეს.
+    mask: true,
     validate: () => true
   },
   firstName: {
@@ -248,7 +250,9 @@ function buildRegistrationFields(eventId) {
     const error = errorText
       ? '<div class="error-message" id="err_' + key + '"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> <span>' + regEscape(errorText) + '</span></div>'
       : '';
-    return '<div class="form-group"><label for="reg_' + key + '">' + regEscape(f.label) + '</label>' + control + error + '</div>';
+    // data-clarity-mask: Clarity ტექსტის ნაცვლად ვარსკვლავებს იწერს; გაგზავნაზე არ მოქმედებს.
+    const mask = f.mask ? ' data-clarity-mask="true"' : '';
+    return '<div class="form-group"' + mask + '><label for="reg_' + key + '">' + regEscape(f.label) + '</label>' + control + error + '</div>';
   }).join('');
 
   // არხის შეცვლისას მინიშნება და კლავიატურა მას მიჰყვება
