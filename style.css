@@ -2578,10 +2578,68 @@ main section:not(.hero-section):not(.contact-section) .container {
 }
 
 /* ==========================================================================
-   BREAKPOINT FIX: მობილური ნავბარის ჩართვა 1063px სიგანეზე ან დაბალზე
+   ლეპტოპი (1024–1307px): სრული მენიუ რჩება, ოღონდ უფრო კომპაქტური.
+   ადრე აქ უკვე ჰამბურგერი ჩნდებოდა და 1280px ეკრანზე (1920px × 150%)
+   მენიუ და „შემოწირულობა“ ერთ პატარა ☰ ხატულაში იმალებოდა.
    ========================================================================== */
 
-@media (max-width: 1307px) {
+@media (min-width: 1024px) and (max-width: 1307px) {
+    .header-container {
+        padding: 0 20px;
+    }
+
+    .nav-list>li {
+        margin: 0 2px;
+    }
+
+    .nav-list a,
+    .btn-nav-give {
+        font-size: 16px !important;
+        letter-spacing: 0.5px;
+        padding: 10px 6px !important;
+    }
+
+    .nav-list>li>a {
+        gap: 4px;
+    }
+
+    .nav-give-item {
+        margin-left: 8px !important;
+    }
+}
+
+/* 1024px-ზე (Windows-ის გადახვევის ზოლით ~1007px) 16px აღარ ეტევა */
+@media (min-width: 1024px) and (max-width: 1179px) {
+    .nav-list a,
+    .btn-nav-give {
+        font-size: 14px !important;
+        letter-spacing: 0.3px;
+    }
+}
+
+/* პლანშეტზე (768–1023px) ☰-ს ქვეშ „მენიუ“ წერია, როგორც ტელეფონის ქვედა ზოლში */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .hamburger {
+        align-items: center;
+    }
+
+    .hamburger::after {
+        content: 'მენიუ';
+        margin-top: 1px;
+        color: var(--white);
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1.5;
+        letter-spacing: 0.2px;
+    }
+}
+
+/* ==========================================================================
+   BREAKPOINT FIX: მობილური ნავბარის ჩართვა 1023px სიგანეზე ან დაბალზე
+   (script.js-ის აკორდეონიც იმავე ზღვარს იყენებს)
+   ========================================================================== */
+
+@media (max-width: 1023px) {
 
     /* ბურგერ ღილაკის გამოჩენა */
     .hamburger {

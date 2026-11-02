@@ -268,6 +268,7 @@
         text-align: left;
     }
 
+    /* ნამდვილი <button> — კლავიატურით (Tab + Enter) ბარათიც იხსნება */
     .group-action-btn {
         font-family: 'Montserrat', 'Noto Sans Georgian', sans-serif;
         font-weight: 600;
@@ -279,6 +280,17 @@
         display: inline-flex;
         align-items: center;
         gap: 6px;
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        text-align: left;
+    }
+
+    .group-action-btn:focus-visible {
+        outline: 2px solid #aa954f;
+        outline-offset: 4px;
+        border-radius: 2px;
     }
 
     /* -----------------------------------------
@@ -805,7 +817,7 @@
                             </a>
                         </div>
                         <p class="group-excerpt">მყუდრო შეხვედრა სახლში: ერთად ვკითხულობთ ბიბლიას, ვსაუბრობთ და ვლოცულობთ ერთმანეთისთვის.</p>
-                        <span class="group-action-btn">დეტალების ნახვა <i class="fa-solid fa-arrow-right"></i></span>
+                        <button type="button" class="group-action-btn">დეტალების ნახვა <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
                     </div>
                 </div>
 
@@ -828,7 +840,7 @@
                             </a>
                         </div>
                         <p class="group-excerpt">მყუდრო შეხვედრა სახლში: ერთად ვკითხულობთ ბიბლიას, ვსაუბრობთ და ვლოცულობთ ერთმანეთისთვის.</p>
-                        <span class="group-action-btn">დეტალების ნახვა <i class="fa-solid fa-arrow-right"></i></span>
+                        <button type="button" class="group-action-btn">დეტალების ნახვა <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
                     </div>
                 </div>
 
@@ -851,7 +863,7 @@
                             </a>
                         </div>
                         <p class="group-excerpt">მყუდრო შეხვედრა სახლში: ერთად ვკითხულობთ ბიბლიას, ვსაუბრობთ და ვლოცულობთ ერთმანეთისთვის.</p>
-                        <span class="group-action-btn">დეტალების ნახვა <i class="fa-solid fa-arrow-right"></i></span>
+                        <button type="button" class="group-action-btn">დეტალების ნახვა <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
                     </div>
                 </div>
 
@@ -874,7 +886,7 @@
                             </a>
                         </div>
                         <p class="group-excerpt">მყუდრო შეხვედრა სახლში: ერთად ვკითხულობთ ბიბლიას, ვსაუბრობთ და ვლოცულობთ ერთმანეთისთვის.</p>
-                        <span class="group-action-btn">დეტალების ნახვა <i class="fa-solid fa-arrow-right"></i></span>
+                        <button type="button" class="group-action-btn">დეტალების ნახვა <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
                     </div>
                 </div>
 
@@ -897,7 +909,7 @@
                             </a>
                         </div>
                         <p class="group-excerpt">მყუდრო შეხვედრა სახლში: ერთად ვკითხულობთ ბიბლიას, ვსაუბრობთ და ვლოცულობთ ერთმანეთისთვის.</p>
-                        <span class="group-action-btn">დეტალების ნახვა <i class="fa-solid fa-arrow-right"></i></span>
+                        <button type="button" class="group-action-btn">დეტალების ნახვა <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
                     </div>
                 </div>
 
@@ -920,7 +932,7 @@
                             </a>
                         </div>
                         <p class="group-excerpt">მყუდრო შეხვედრა სახლში: ერთად ვკითხულობთ ბიბლიას, ვსაუბრობთ და ვლოცულობთ ერთმანეთისთვის.</p>
-                        <span class="group-action-btn">დეტალების ნახვა <i class="fa-solid fa-arrow-right"></i></span>
+                        <button type="button" class="group-action-btn">დეტალების ნახვა <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
                     </div>
                 </div>
 
@@ -1008,7 +1020,7 @@
             <div class="success-toast" id="successToast">
                 <i class="fa-solid fa-circle-check"></i>
                 <h4>რეგისტრაცია წარმატებით შესრულდა!</h4>
-                <p>თქვენი განაცხადი მიღებულია ცხრილში, მალე დაგიკავშირდებიან.</p>
+                <p>თქვენი განაცხადი მიღებულია. მალე დაგიკავშირდებით მითითებულ ნომერზე.</p>
             </div>
         </div>
     </div>
@@ -1320,6 +1332,18 @@
 
         let currentLeaderName = "";
 
+        // კლავიატურით გახსნისას ფოკუსი ფანჯარაში გადადის, დახურვისას კი
+        // იმავე ბარათის ღილაკს უბრუნდება — გვერდის თავში აღარ „იკარგება“.
+        let lastTrigger = null;
+        const closeGroupModal = () => {
+            modal.classList.remove("modal-active");
+            if (typeof window.unlockBodyScroll === "function") window.unlockBodyScroll();
+            if (lastTrigger) {
+                lastTrigger.focus({ preventScroll: true });
+                lastTrigger = null;
+            }
+        };
+
         const groupsGrid = document.querySelector(".groups-grid");
         if (groupsGrid) {
             groupsGrid.addEventListener("click", (e) => {
@@ -1354,6 +1378,8 @@
 
                     modal.classList.add("modal-active");
                     if (typeof window.lockBodyScroll === "function") window.lockBodyScroll();
+                    lastTrigger = card.querySelector(".group-action-btn");
+                    closeModalBtn.focus({ preventScroll: true });
                 }
             });
         }
@@ -1413,8 +1439,7 @@
                     if (window.efcTrack) efcTrack('group_join', { group: mTitle.textContent });
 
                     setTimeout(() => {
-                        modal.classList.remove("modal-active");
-                        if (typeof window.unlockBodyScroll === "function") window.unlockBodyScroll();
+                        closeGroupModal();
                         regForm.reset();
                         successToast.style.display = "none";
                         defaultActions.style.display = "flex";
@@ -1428,9 +1453,9 @@
                 });
         });
 
-        closeModalBtn.addEventListener("click", () => { modal.classList.remove("modal-active"); if (typeof window.unlockBodyScroll === "function") window.unlockBodyScroll(); });
-        modal.addEventListener("click", (e) => { if (e.target === modal) { modal.classList.remove("modal-active"); if (typeof window.unlockBodyScroll === "function") window.unlockBodyScroll(); } });
-        document.addEventListener("keydown", (e) => { if (e.key === "Escape" && modal.classList.contains("modal-active")) { modal.classList.remove("modal-active"); if (typeof window.unlockBodyScroll === "function") window.unlockBodyScroll(); } });
+        closeModalBtn.addEventListener("click", closeGroupModal);
+        modal.addEventListener("click", (e) => { if (e.target === modal) closeGroupModal(); });
+        document.addEventListener("keydown", (e) => { if (e.key === "Escape" && modal.classList.contains("modal-active")) closeGroupModal(); });
 
         // sanity-fetch.js ამას ხელახლა იძახებს ახალი ბარათების ჩახატვის შემდეგ.
         window.setupScrollReveal = function () {

@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     e.preventDefault();
                 }
 
-                if (window.innerWidth <= 1307) {
+                if (window.innerWidth <= 1023) {
                     const parentLi = link.parentElement;
 
                     // სხვა გახსნილი dropdown-ების დაკეტვა

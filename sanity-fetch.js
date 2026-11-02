@@ -334,7 +334,7 @@ function renderFamilyGroups(groups) {
                             </a>
                         </div>
                         <p class="group-excerpt">${escapeHtml(window.GROUP_EXCERPT || group.excerpt)}</p>
-                        <span class="group-action-btn">დეტალების ნახვა <i class="fa-solid fa-arrow-right"></i></span>
+                        <button type="button" class="group-action-btn">დეტალების ნახვა <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
                     </div>
                 </div>`;
   });
