@@ -1178,13 +1178,27 @@ window.efcIsName = function (value, minLetters) {
             + ' fill="none" stroke="currentColor" stroke-width="2"'
             + ' stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
+        // ტექსტში ნახსენებ „Open in Safari“-ს ხალხი ღილაკად აღიქვამდა და
+        // აჭერდა — ახლა ნამდვილი ღილაკია, ინსტრუქცია კი სათადარიგოა.
+        const browserName = isAndroid ? 'Chrome' : 'Safari';
+        const openBtn = '<button type="button" class="install-go install-open">'
+            + '<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>'
+            + 'გახსენი ' + browserName + '-ში</button>';
+        const fallback = '<div class="install-fallback" hidden>'
+            + '<p class="install-hint">ავტომატურად ვერ გაიხსნა. დააკოპირე ბმული და ჩასვი ' + browserName + '-ის მისამართის ზოლში.</p>'
+            + '<button type="button" class="install-copy">'
+            + '<i class="fa-regular fa-copy" aria-hidden="true"></i><span>ბმულის კოპირება</span></button>'
+            + '</div>';
+
         let action;
         if (inApp) {
             // Android-ზე Safari არ არსებობს — იქ შიდა ბრაუზერის მენიუ „⋮“-ია
             // და გვერდი Chrome-ში იხსნება.
-            action = isAndroid
-                ? '<p class="install-hint">ჯერ გახსენი Chrome-ში: ზემოთ მარჯვნივ დააჭირე „⋮“ და აირჩიე „Open in Chrome“ (ან „Open in external browser“).</p>'
-                : '<p class="install-hint">ჯერ გახსენი Safari-ში: დააჭირე „•••“ და აირჩიე „Open in Safari“.</p>';
+            action = '<p class="install-hint">ჯერ გახსენი ' + browserName + '-ში — აქედან დამატება არ შეიძლება.</p>'
+                + openBtn + fallback
+                + (isAndroid
+                    ? '<p class="install-manual">ან ხელით: ზემოთ მარჯვნივ „⋮“ → Open in Chrome</p>'
+                    : '<p class="install-manual">ან ხელით: „•••“ მენიუ → Open in Safari</p>');
         } else if (isIOS) {
             // iPhone-ზე ბმული ხშირად Chrome-ში იხსნება და არა Safari-ში.
             // ღილაკი სხვაგან დევს, ამიტომ ნაბიჯებიც სხვაა — თორემ
@@ -1195,8 +1209,9 @@ window.efcIsName = function (value, minLetters) {
                 ? '<ol class="install-steps">'
                     + '<li>ზემოთ მარჯვნივ დააჭირე „•••“ და აირჩიე „Share“ ' + shareIcon + '</li>'
                     + '<li>ჩამონათვალში აირჩიე „Add to Home Screen“</li>'
-                    + '<li class="install-note">თუ ვერ იპოვე — გახსენი იგივე გვერდი Safari-ში</li>'
                     + '</ol>'
+                    + '<p class="install-manual">თუ ვერ იპოვე — <button type="button" class="install-link install-open">გახსენი Safari-ში</button></p>'
+                    + fallback
                 : '<ol class="install-steps">'
                     + '<li>ეკრანის ბოლოში დააჭირე გაზიარების ღილაკს ' + shareIcon + ' — კვადრატი ისრით</li>'
                     + '<li>ჩამონათვალი ჩამოქაჩე და აირჩიე „Add to Home Screen“</li>'
@@ -1236,7 +1251,13 @@ window.efcIsName = function (value, minLetters) {
             close();
         });
 
-        const go = bar.querySelector('.install-go');
+        const openBtnEl = bar.querySelector('.install-open');
+        if (openBtnEl) openBtnEl.addEventListener('click', () => openInBrowser(bar));
+
+        const copyBtn = bar.querySelector('.install-copy');
+        if (copyBtn) copyBtn.addEventListener('click', () => copyLink(copyBtn));
+
+        const go = bar.querySelector('.install-go:not(.install-open)');
         if (go) {
             go.addEventListener('click', () => {
                 close();
@@ -1258,6 +1279,63 @@ window.efcIsName = function (value, minLetters) {
                     .catch(() => { deferred = null; });
             });
         }
+    }
+
+    // ── გარე ბრაუზერში გახსნა ───────────────────────────────────────
+    // iOS 17+ „x-safari-https://“ სქემას Safari-ში ხსნის, Android-ზე
+    // intent:// Chrome-ს იძახებს. ორივე არადოკუმენტირებულია და ზოგი
+    // შიდა ბრაუზერი ბლოკავს — თუ გვერდი 1.5 წამში ფონზე არ გადავიდა,
+    // ესე იგი არ გაიხსნა და კოპირების გზას ვაჩვენებთ.
+    function openInBrowser(bar) {
+        const here = location.href;
+        let left = false;
+        const onHide = () => { left = true; };
+        const onVis = () => { if (document.hidden) left = true; };
+        document.addEventListener('visibilitychange', onVis);
+        window.addEventListener('pagehide', onHide);
+        window.addEventListener('blur', onHide);
+
+        location.href = isAndroid
+            ? 'intent://' + here.replace(/^https?:\/\//, '')
+                + '#Intent;scheme=https;package=com.android.chrome;end'
+            : 'x-safari-' + here;
+
+        setTimeout(() => {
+            document.removeEventListener('visibilitychange', onVis);
+            window.removeEventListener('pagehide', onHide);
+            window.removeEventListener('blur', onHide);
+            if (window.efcTrack) efcTrack('install_open_browser', { opened: left ? 'yes' : 'no' });
+            if (left) return;
+            const fb = bar.querySelector('.install-fallback');
+            if (fb) fb.hidden = false;
+        }, 1500);
+    }
+
+    function copyLink(btn) {
+        const url = location.href;
+        const done = () => {
+            const label = btn.querySelector('span');
+            if (label) label.textContent = 'დაკოპირდა ✓';
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(done, () => legacyCopy(url, done));
+        } else {
+            legacyCopy(url, done);
+        }
+    }
+
+    // ძველი შიდა ბრაუზერები Clipboard API-ს არ იძლევიან.
+    function legacyCopy(text, done) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        ta.setSelectionRange(0, text.length);
+        try { if (document.execCommand('copy')) done(); } catch (e) { /* ვერ მოხერხდა */ }
+        ta.remove();
     }
 
     // ── ფუტერის ღილაკი ──────────────────────────────────────────────

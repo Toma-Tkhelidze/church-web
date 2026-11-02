@@ -17,7 +17,7 @@
 // ქვემოთ fetch-ის ლოგიკა სხვა დომენებს ისედაც არ ეხება.
 importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
 
-const VERSION = 'v5';
+const VERSION = 'v6';
 const SHELL_CACHE = 'efck-shell-' + VERSION;
 const RUNTIME_CACHE = 'efck-runtime-' + VERSION;
 

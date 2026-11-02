@@ -4969,6 +4969,41 @@ a.next-service .ns-where, .next-service a.ns-where {
 
 /* ── დახურვა ──────────────────────────────────────────────────────── */
 .install-close {
+/* ხელით გზა — მკრთალი, რომ ღილაკად არ აღიქვან */
+.install-manual {
+    margin: 10px 0 0;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.78rem;
+    line-height: 1.5;
+}
+
+.install-link {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--gold);
+    font: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+}
+
+.install-copy {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    padding: 9px 18px;
+    border: 1px solid rgba(170, 149, 79, 0.6);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--gold);
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
     flex: 0 0 auto;
     width: 30px;
     height: 30px;
