@@ -134,6 +134,21 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 30px;
+            white-space: nowrap;
+        }
+
+        /* style.css ტელეფონზე ყველა img-ს width: 100%-ს აძლევს — ლოგო ბეჯის მთელ
+           სიგანეზე იჭიმებოდა და წარწერა სამ ხაზად იშლებოდა */
+        .tbc-brand-badge img {
+            display: block;
+            height: 18px;
+            width: auto !important;
+            max-width: none !important;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 359px) {
+            .tbc-brand-badge { font-size: 0.72rem; letter-spacing: 0.3px; padding: 6px 12px; gap: 6px; }
         }
 
         .copy-field-group { margin-bottom: 25px; text-align: left; }
@@ -348,7 +363,7 @@
 
                     <div class="bank-details-card">
                         <div class="tbc-brand-badge">
-                            <img src="images/tbc_logo.svg" alt="თიბისი ბანკის ლოგო" style="height: 16px; width: auto; display: inline-block;"> TBC Bank / თიბისი ბანკი
+                            <img src="images/tbc_logo.svg" alt="თიბისი ბანკის ლოგო"> TBC Bank / თიბისი ბანკი
                         </div>
                         <p class="bank-how">შესაწირავის გაღება საბანკო გადარიცხვით შეგიძლიათ: დააკოპირეთ მონაცემები და ჩასვით თქვენი ბანკის აპლიკაციაში.</p>
 
