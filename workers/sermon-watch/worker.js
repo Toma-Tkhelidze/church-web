@@ -171,9 +171,16 @@ export default {
     console.log(await checkAll(env, minute % 5 === 0));
   },
 
-  // ხელით შემოწმება ბრაუზერიდან: ვორკერის მისამართი გახსენი და
-  // ნახავ, რას ხედავს. ვერაფერს გააფუჭებს — იგივე შემოწმებაა.
+  // ხელით შემოწმება ბრაუზერიდან: …workers.dev/?key=<CHECK_KEY> გახსენი და
+  // ნახავ, რას ხედავს. ვერაფერს გააფუჭებს — იგივე შემოწმებაა. გასაღების
+  // გარეშე მისამართი არაფერს აკეთებს: თორემ ვინც გაიგებდა, ხშირი გახსნით
+  // YouTube-ის დღიურ კვოტას და GitHub-ის ლიმიტს ამოწურავდა.
   async fetch(request, env) {
+    const expected = (env.CHECK_KEY || '').trim();
+    const given = new URL(request.url).searchParams.get('key') || '';
+    if (!expected || given !== expected) {
+      return new Response('Not found\n', { status: 404, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+    }
     try {
       return new Response(await checkAll(env) + '\n', { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
     } catch (err) {

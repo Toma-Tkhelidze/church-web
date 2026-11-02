@@ -2,11 +2,15 @@ const PROJECT_ID = 'f9j6xr69';
 const DATASET = 'production';
 const API_VERSION = 'v2021-10-21';
 
+// YouTube-ის ID ზუსტად 11 სიმბოლოა: ასო, ციფრი, „_“ ან „-“. სხვა რამე
+// (ბრჭყალი, „<“) iframe-ის მისამართიდან HTML-ში გადმოვიდოდა.
+const YOUTUBE_ID = /^[A-Za-z0-9_-]{11}$/;
+
 function getYouTubeId(url) {
   if (!url) return null;
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
   const match = url.match(regExp);
-  return (match && match[2].length === 11) ? match[2] : null;
+  return (match && YOUTUBE_ID.test(match[2])) ? match[2] : null;
 }
 
 function getVideoDetails(url) {
@@ -14,7 +18,7 @@ function getVideoDetails(url) {
   // YouTube
   const ytRegExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
   const ytMatch = url.match(ytRegExp);
-  if (ytMatch && ytMatch[2].length === 11) {
+  if (ytMatch && YOUTUBE_ID.test(ytMatch[2])) {
     return { platform: 'youtube', id: ytMatch[2] };
   }
   // Vimeo
@@ -276,6 +280,13 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
+// CMS-ის ბმული href-ში მხოლოდ http(s)-ით გავიდეს: escapeHtml
+// „javascript:…“-ს ვერ აჩერებს, ის კი დაჭერისას კოდს გაუშვებდა.
+function safeHref(url) {
+  const value = String(url == null ? '' : url).trim();
+  return /^https?:\/\//i.test(value) ? value : '#';
+}
+
 // რეგისტრაციის ბარათში ბანაკის აღწერა იხსენიებს თიზერს — ეს სიტყვები
 // ბმულად ვაქციოთ, რომელიც ბანაკის გვერდზე ვიდეოსთან მიდის.
 const CAMP_TEASER_PAGES = { 'youth-camp': 'youth.html#camp', 'kids-camp': 'kids.html#camp' };
@@ -311,7 +322,7 @@ function renderFamilyGroups(groups) {
       location: group.location,
       type: group.groupType,
       description: window.GROUP_DESCRIPTION || group.description,
-      map: group.mapUrl
+      map: safeHref(group.mapUrl)
     };
 
     return `
@@ -328,7 +339,7 @@ function renderFamilyGroups(groups) {
                             <i class="fa-regular fa-clock"></i> ${escapeHtml(group.cardTime)}
                         </div>
                         <div class="group-meta-info">
-                            <a href="${escapeHtml(group.mapUrl)}" target="_blank"
+                            <a href="${escapeHtml(safeHref(group.mapUrl))}" target="_blank"
                                 rel="noopener noreferrer">
                                 <i class="fa-solid fa-location-dot"></i> მისამართი (ნახვა რუკაზე)
                             </a>

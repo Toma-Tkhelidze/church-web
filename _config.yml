@@ -1,0 +1,15 @@
+# GitHub Pages საიტს Jekyll-ით აწყობს. ამ ფაილში მხოლოდ ის წერია,
+# რა უნდა მოხვდეს efckutaisi.ge-ზე და რა — არა.
+
+# სერვერის მხარის კოდი (GitHub Actions-ის სკრიპტები, Cloudflare-ის
+# ვორკერი, Sanity Studio) საიტს არ სჭირდება. რეპოში ისევ რჩება და
+# იქიდან მუშაობს — უბრალოდ efckutaisi.ge/scripts/… აღარ გაიხსნება.
+exclude:
+  - scripts
+  - workers
+  - sanity-studio
+
+# Jekyll „_“-ით დაწყებულ ფაილს მალავს. YouTube-ის ID კი ხშირად ასე
+# იწყება — s/_AquonxVSO8.html და მისთანები ამის გამო 404-ს აბრუნებდა.
+include:
+  - "_*.html"

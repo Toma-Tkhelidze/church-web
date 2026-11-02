@@ -1,8 +1,4 @@
 User-agent: *
 Allow: /
-Disallow: /scratch/
-Disallow: /sanity-studio/
-Disallow: /workers/
-Disallow: /scripts/
 
 Sitemap: https://efckutaisi.ge/sitemap.xml
