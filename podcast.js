@@ -606,6 +606,8 @@ let coverUrl = '';
         dlog('play() შეცდომა: ' + (err && err.name));
         // ბრაუზერმა თავად აკრძალა (მომხმარებლის დაჭერის გარეშე) — არაფერს ვცვლით.
         if (err && err.name === 'NotAllowedError') return;
+        // ჩატვირთვისას პაუზა დაეჭირა ან ვიდეო ჩაირთო — ხელახლა არ ვრთავთ.
+        if (err && err.name === 'AbortError') return;
         reattach();
         sound.play().then(() => watchStuck(2)).catch(() => {});
       });
@@ -763,6 +765,14 @@ let coverUrl = '';
     pausedAt = 0;
     setPlaybackState('playing');
     paintPlayState();
+    document.dispatchEvent(new CustomEvent('efc:media-play', { detail: { source: 'audio' } }));
+  });
+  // ვიდეო ქადაგება ჩაირთო — აუდიო ჩერდება (sanity-fetch.js აკეთებს პირიქითაც).
+  document.addEventListener('efc:media-play', event => {
+    if (event.detail && event.detail.source !== 'audio' && !sound.paused) {
+      dlog('ვიდეო ჩაირთო: პაუზა');
+      sound.pause();
+    }
   });
   sound.addEventListener('pause', () => {
     pausedAt = Date.now();

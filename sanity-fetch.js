@@ -1476,7 +1476,35 @@ let ytWantsPlay = false;
 let ytPollTimer = null;
 let ytPendingTitle = '';
 
+// აუდიო ჩაირთო, სანამ YouTube-ის პლეერი მზად იყო — მზადყოფნისას ვაჩერებთ.
+let ytPauseWhenReady = false;
+
 function sermonFrame() { return document.getElementById('mainSermonPlayer'); }
+
+// ვიდეო და აუდიო ქადაგება ერთად არ უნდა უკრავდეს: ვინც ჩაირთვება, ამას
+// აცხადებს და მეორე ჩერდება. podcast.js იმავე მოვლენას იყენებს.
+function announceVideoPlay() {
+  document.dispatchEvent(new CustomEvent('efc:media-play', { detail: { source: 'video' } }));
+}
+
+function pauseSermonVideo() {
+  ytWantsPlay = false;
+  if (ytPlayer && ytPlayer.pauseVideo) {
+    try { ytPlayer.pauseVideo(); } catch (e) { /* პლეერი უკვე გაქრა */ }
+    return;
+  }
+  const frame = sermonFrame();
+  if (!frame || !frame.getAttribute('src')) return;
+  ytPauseWhenReady = true;
+  // API ჯერ არ მოსულა, ვიდეო კი შეიძლება უკვე უკრავს — ჩარჩოს პირდაპირ ვეუბნებით.
+  try {
+    frame.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'pauseVideo', args: [] }), '*');
+  } catch (e) { /* ჩარჩო ჯერ არ ჩატვირთულა */ }
+}
+
+document.addEventListener('efc:media-play', event => {
+  if (event.detail && event.detail.source !== 'video') pauseSermonVideo();
+});
 
 function playingVideoId() {
   if (ytPlayer && ytPlayer.getVideoData) {
@@ -1507,6 +1535,8 @@ function onSermonStateChange(event) {
   const YTS = window.YT && YT.PlayerState;
   if (!YTS) return;
   if (event.data === YTS.PLAYING) {
+    // YouTube-ის საკუთარ ღილაკზე დაჭერაც აქ ჩანს.
+    announceVideoPlay();
     stopWatchPoll();
     ytPollTimer = setInterval(recordWatchNow, 5000);
   } else {
@@ -1531,6 +1561,11 @@ window.onYouTubeIframeAPIReady = function () {
     events: {
       onReady: function (event) {
         refreshWatchUI();
+        if (ytPauseWhenReady) {
+          ytPauseWhenReady = false;
+          try { event.target.pauseVideo(); } catch (e) { /* ვიდეო არ უკრავს */ }
+          return;
+        }
         // ვიზიტორმა დაკვრა უკვე ითხოვა — თუ ბრაუზერმა ავტომატური
         // გაშვება არ დაუშვა, აქ ვასწორებთ.
         if (ytWantsPlay && event && event.target && event.target.playVideo) {
@@ -1579,6 +1614,9 @@ function loadYouTubeApi() {
 function playSermon(videoId, title) {
   const frame = sermonFrame();
   if (!videoId || !frame) return;
+
+  ytPauseWhenReady = false;
+  announceVideoPlay();
 
   // წინა ვიდეოს პროგრესი გადართვამდე უნდა შევინახოთ.
   recordWatchNow();
