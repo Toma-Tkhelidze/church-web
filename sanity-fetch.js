@@ -1478,6 +1478,10 @@ let ytPendingTitle = '';
 
 // აუდიო ჩაირთო, სანამ YouTube-ის პლეერი მზად იყო — მზადყოფნისას ვაჩერებთ.
 let ytPauseWhenReady = false;
+// ტელეფონზე ყდის უკან წინასწარ მომზადებული ვიდეო (იხ. primeSermonPlayer).
+let ytPrimedId = null;
+// მომზადება არ დასრულებულა და ვიზიტორმა უკვე დააჭირა — აქედან დაიწყება.
+let ytStartAt = 0;
 
 function sermonFrame() { return document.getElementById('mainSermonPlayer'); }
 
@@ -1514,6 +1518,8 @@ function playingVideoId() {
 }
 
 function recordWatchNow() {
+  // მომზადებული პლეერი 0 წამზე დგას — შენახულ ადგილს არ უნდა გადააწეროს.
+  if (ytPrimedId) return;
   if (!ytPlayer || !ytPlayer.getCurrentTime || !ytPlayer.getDuration) return;
   let t, d;
   try { t = ytPlayer.getCurrentTime(); d = ytPlayer.getDuration(); } catch (e) { return; }
@@ -1569,7 +1575,11 @@ window.onYouTubeIframeAPIReady = function () {
         // ვიზიტორმა დაკვრა უკვე ითხოვა — თუ ბრაუზერმა ავტომატური
         // გაშვება არ დაუშვა, აქ ვასწორებთ.
         if (ytWantsPlay && event && event.target && event.target.playVideo) {
-          try { event.target.playVideo(); } catch (e) { /* ბრაუზერმა უარი თქვა */ }
+          try {
+            if (ytStartAt) event.target.seekTo(ytStartAt, true);
+            event.target.playVideo();
+          } catch (e) { /* ბრაუზერმა უარი თქვა */ }
+          ytStartAt = 0;
         }
       },
       onStateChange: onSermonStateChange
@@ -1590,6 +1600,10 @@ function setSermonFacade(videoId) {
   if (img && !same) img.src = 'https://img.youtube.com/vi/' + encodeURIComponent(videoId) + '/maxresdefault.jpg';
   currentSermonId = videoId;
   renderPlayerActions();
+  // ყდა შეიცვალა — ყდის უკან მომზადებული პლეერიც მას უნდა მიჰყვეს.
+  if (ytPrimedId && ytPrimedId !== videoId && ytPlayer && ytPlayer.cueVideoById) {
+    try { ytPlayer.cueVideoById(videoId); ytPrimedId = videoId; } catch (e) { /* playSermon ჩატვირთავს */ }
+  }
 }
 
 /** სურათს პლეერით ვცვლით. */
@@ -1597,7 +1611,44 @@ function revealSermonPlayer() {
   const facade = document.getElementById('sermonFacade');
   const frame = sermonFrame();
   if (facade) facade.hidden = true;
-  if (frame) frame.hidden = false;
+  if (frame) {
+    frame.hidden = false;
+    frame.removeAttribute('tabindex');
+  }
+}
+
+/**
+ * ტელეფონზე პლეერი ყდის უკან წინასწარ მზადდება. თუ ის მხოლოდ დაჭერის
+ * შემდეგ იტვირთება, ტელეფონი დაკვრას ვიზიტორის დაჭერად აღარ თვლის და
+ * YouTube-ის თავის ღილაკს აჩენს — ორჯერ დაჭერა უწევდათ. მზა პლეერს კი
+ * playVideo() იმავე დაჭერაში ჩართავს. `hidden` აქ არ გამოდგება: დამალულ
+ * ჩარჩოს iPhone დაჭერის ნებართვას არ აძლევს, ამიტომ ყდა მას ზემოდან ფარავს.
+ */
+function primeSermonPlayer() {
+  const frame = sermonFrame();
+  const facade = document.getElementById('sermonFacade');
+  if (!frame || !facade || facade.hidden || frame.getAttribute('src')) return;
+  const videoId = facade.dataset.videoId;
+  if (!videoId) return;
+  ytPrimedId = videoId;
+  facade.style.zIndex = '1';
+  frame.tabIndex = -1;                             // ყდის უკან კლავიატურა არ უნდა მოხვდეს
+  frame.hidden = false;
+  frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(videoId) +
+    '?rel=0&modestbranding=1&playsinline=1&enablejsapi=1&vq=hd1080';
+  loadYouTubeApi();
+}
+
+/** კომპიუტერზე ერთი დაჭერა ისედაც საკმარისია — მეგაბაიტს იქ არ ვტვირთავთ. */
+function primeSermonPlayerOnPhones() {
+  if (!window.matchMedia || !matchMedia('(pointer: coarse)').matches) return;
+  if (navigator.connection && navigator.connection.saveData) return;
+  const later = () => {
+    if (window.requestIdleCallback) requestIdleCallback(primeSermonPlayer, { timeout: 1500 });
+    else setTimeout(primeSermonPlayer, 500);
+  };
+  if (document.readyState === 'complete') later();
+  else window.addEventListener('load', later, { once: true });
 }
 
 /** YouTube-ის API მხოლოდ პირველი დაკვრისას გვჭირდება. */
@@ -1637,8 +1688,20 @@ function playSermon(videoId, title) {
     });
   }
 
-  if (ytPlayer && ytPlayer.loadVideoById) {
+  const primed = ytPrimedId;
+  ytPrimedId = null;
+  if (primed) revealSermonPlayer();
+
+  if (primed === videoId && ytPlayer && ytPlayer.playVideo) {
+    // ეს ვიდეო პლეერში უკვე დგას — იმავე დაჭერაში ვრთავთ.
+    if (start) ytPlayer.seekTo(start, true);
+    ytPlayer.playVideo();
+  } else if (ytPlayer && ytPlayer.loadVideoById) {
     ytPlayer.loadVideoById({ videoId: videoId, startSeconds: start });
+  } else if (primed === videoId) {
+    // პლეერი ჯერ მზადდება — მზადყოფნისას onReady ჩართავს.
+    ytWantsPlay = true;
+    ytStartAt = start;
   } else {
     // playsinline=1 — ამის გარეშე iPhone ვიდეოს სრულ ეკრანზე ითხოვს და
     // ავტომატურ დაკვრას ბლოკავს: ხალხს YouTube-ის თავისი play-ღილაკის
@@ -2212,6 +2275,7 @@ function initSermonWatch() {
       const id = facade.dataset.videoId;
       if (id) playSermon(id, '');
     });
+    primeSermonPlayerOnPhones();
   }
 
   const box = document.getElementById('resumeBar');
