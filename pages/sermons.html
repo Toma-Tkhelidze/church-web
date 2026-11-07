@@ -136,6 +136,10 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        /* [hidden]-ს display: flex გადაფარავდა: ყდა პლეერზე დარჩებოდა და
+           ვიდეოს ნაცვლად მხოლოდ ხმა ისმოდა. */
+        .player-facade[hidden] { display: none; }
+
         .player-facade__thumb {
             position: absolute;
             inset: 0;

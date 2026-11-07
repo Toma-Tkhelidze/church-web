@@ -1610,7 +1610,10 @@ function setSermonFacade(videoId) {
 function revealSermonPlayer() {
   const facade = document.getElementById('sermonFacade');
   const frame = sermonFrame();
-  if (facade) facade.hidden = true;
+  if (facade) {
+    facade.hidden = true;
+    facade.style.zIndex = '';                      // primeSermonPlayer-მა პლეერზე მაღლა დააყენა
+  }
   if (frame) {
     frame.hidden = false;
     frame.removeAttribute('tabindex');
