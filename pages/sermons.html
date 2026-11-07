@@ -140,6 +140,22 @@
            ვიდეოს ნაცვლად მხოლოდ ხმა ისმოდა. */
         .player-facade[hidden] { display: none; }
 
+        /* ტელეფონზე, მზა პლეერზე: ყდა დაჭერას პირდაპირ YouTube-ს ატარებს, რომ
+           ვიდეო ერთი დაჭერით ჩაირთოს. ზედა და ქვედა ზოლი ჩვენია: იქ YouTube-ის
+           ბმულებია და ვიზიტორს საიტიდან გაიყვანდა. */
+        .player-facade.is-see-through { pointer-events: none; }
+        .player-facade.is-see-through::before,
+        .player-facade.is-see-through::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 28%;
+            pointer-events: auto;
+        }
+        .player-facade.is-see-through::before { top: 0; }
+        .player-facade.is-see-through::after { bottom: 0; }
+
         .player-facade__thumb {
             position: absolute;
             inset: 0;

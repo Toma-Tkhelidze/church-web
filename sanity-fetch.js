@@ -1540,7 +1540,12 @@ function stopWatchPoll() {
 function onSermonStateChange(event) {
   const YTS = window.YT && YT.PlayerState;
   if (!YTS) return;
+  // ტელეფონზე დაჭერა ყდაში გაივლის და პირდაპირ პლეერს ხვდება (იხ.
+  // primeSermonPlayer): ჩატვირთვისას ყდას ვხსნით, დაკვრისას კი playSermon()
+  // აკეთებს დანარჩენს — შენახული ადგილი, სტატისტიკა, მონიშვნა.
+  if (ytPrimedId && event.data === YTS.BUFFERING) revealSermonPlayer();
   if (event.data === YTS.PLAYING) {
+    if (ytPrimedId) playSermon(ytPrimedId, '');
     // YouTube-ის საკუთარ ღილაკზე დაჭერაც აქ ჩანს.
     announceVideoPlay();
     stopWatchPoll();
@@ -1567,6 +1572,8 @@ window.onYouTubeIframeAPIReady = function () {
     events: {
       onReady: function (event) {
         refreshWatchUI();
+        // ტელეფონზე პლეერი მზადაა — დაჭერა ამიერიდან ყდაში გაივლის.
+        if (ytPrimedId) document.getElementById('sermonFacade').classList.add('is-see-through');
         if (ytPauseWhenReady) {
           ytPauseWhenReady = false;
           try { event.target.pauseVideo(); } catch (e) { /* ვიდეო არ უკრავს */ }
@@ -1582,7 +1589,9 @@ window.onYouTubeIframeAPIReady = function () {
           ytStartAt = 0;
         }
       },
-      onStateChange: onSermonStateChange
+      onStateChange: onSermonStateChange,
+      // შეცდომის შეტყობინებას ყდა არ უნდა ფარავდეს.
+      onError: revealSermonPlayer
     }
   });
 };
@@ -1621,11 +1630,12 @@ function revealSermonPlayer() {
 }
 
 /**
- * ტელეფონზე პლეერი ყდის უკან წინასწარ მზადდება. თუ ის მხოლოდ დაჭერის
- * შემდეგ იტვირთება, ტელეფონი დაკვრას ვიზიტორის დაჭერად აღარ თვლის და
- * YouTube-ის თავის ღილაკს აჩენს — ორჯერ დაჭერა უწევდათ. მზა პლეერს კი
- * playVideo() იმავე დაჭერაში ჩართავს. `hidden` აქ არ გამოდგება: დამალულ
- * ჩარჩოს iPhone დაჭერის ნებართვას არ აძლევს, ამიტომ ყდა მას ზემოდან ფარავს.
+ * ტელეფონზე კოდიდან გაშვებულ ვიდეოს ბრაუზერი ხშირად ბლოკავს და YouTube-ის
+ * ღილაკს აჩენს — ორჯერ დაჭერა უწევდათ. ერთი დაჭერისთვის ის პირდაპირ პლეერს
+ * უნდა მოხვდეს, ამიტომ პლეერი ყდის უკან წინასწარ იტვირთება და მზადყოფნისას
+ * ყდა დაჭერას ატარებს (.is-see-through, onReady). ყდა მაინც რჩება: YouTube-ის
+ * ყდაზე ზოლებში ბმულებია და ვიზიტორს საიტიდან გაიყვანდა. `hidden` აქ არ
+ * გამოდგება: დამალულ ჩარჩოს iPhone დაჭერის ნებართვას არ აძლევს.
  */
 function primeSermonPlayer() {
   const frame = sermonFrame();
@@ -1637,6 +1647,11 @@ function primeSermonPlayer() {
   facade.style.zIndex = '1';
   frame.tabIndex = -1;                             // ყდის უკან კლავიატურა არ უნდა მოხვდეს
   frame.hidden = false;
+  // დაჭერა პლეერს მოხვდა, ვიდეო კი არ დაიწყო — ყდა მის ღილაკებს არ უნდა ფარავდეს.
+  window.addEventListener('blur', () => {
+    if (!ytPrimedId || document.activeElement !== frame) return;
+    setTimeout(() => { if (ytPrimedId) revealSermonPlayer(); }, 2000);
+  });
   frame.src = 'https://www.youtube-nocookie.com/embed/' + encodeURIComponent(videoId) +
     '?rel=0&modestbranding=1&playsinline=1&enablejsapi=1&vq=hd1080';
   loadYouTubeApi();
