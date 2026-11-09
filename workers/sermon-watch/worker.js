@@ -36,7 +36,11 @@ const REMINDERS = {
 };
 
 async function github(env, path, init = {}) {
-  return fetch('https://api.github.com/repos/' + REPO + path, {
+  return githubApi(env, '/repos/' + REPO + path, init);
+}
+
+async function githubApi(env, path, init = {}) {
+  return fetch('https://api.github.com' + path, {
     ...init,
     headers: {
       // ჩასმისას ბოლოში ხშირად ახალი ხაზი მიჰყვება — სათაურში ის შეცდომაა.
@@ -149,6 +153,34 @@ async function checkRegistrations(env) {
   return 'რეგისტრაცია: ' + changed.map(e => e.eventId + ' → ' + e.status).join(', ') + ' — workflow გაშვებულია';
 }
 
+// GitHub-ის ტოკენის მდგომარეობა: მუშაობს თუ არა და როდის გასდის ვადა.
+// 2026-11-08-ს ტოკენს ვადა ჩუმად გაუვიდა და ქადაგება საიტზე არ გამოჩნდა —
+// ამიტომ ყოველდღიური შემოწმება (scripts/check-sermon-watch.js) ამას
+// /health-ით კითხულობს და ვადის გასვლამდე 14 დღით ადრე გვაფრთხილებს.
+// /rate_limit GitHub-ის ლიმიტს არ ხარჯავს, YouTube-ს კი საერთოდ არ
+// ვეკითხებით — ამიტომ ამ მისამართს გასაღები არ სჭირდება.
+async function tokenStatus(env) {
+  const res = await githubApi(env, '/rate_limit', { headers: { Accept: 'application/vnd.github+json' } });
+  const expires = parseExpiry(res.headers.get('github-authentication-token-expiration'));
+  return {
+    ok: res.ok,
+    status: res.status,
+    expiresAt: expires ? expires.toISOString() : null,
+    daysLeft: expires ? Math.floor((expires.getTime() - Date.now()) / 86400000) : null
+  };
+}
+
+// GitHub ვადას ასე წერს: „2027-11-09 21:30:00 UTC“ ან „… +0400“.
+function parseExpiry(value) {
+  const m = /^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2}:\d{2})\s*(UTC|Z|[+-]\d{2}:?\d{2})?/.exec((value || '').trim());
+  if (!m) return null;
+  let zone = m[3] || 'Z';
+  if (zone === 'UTC') zone = 'Z';
+  else if (/^[+-]\d{4}$/.test(zone)) zone = zone.slice(0, 3) + ':' + zone.slice(3);
+  const date = new Date(m[1] + 'T' + m[2] + zone);
+  return isNaN(date) ? null : date;
+}
+
 // ორი შემოწმება ერთმანეთისგან დამოუკიდებელია: YouTube-ის ჩავარდნამ
 // რეგისტრაცია არ უნდა შეაჩეროს და პირიქით. ქადაგება ყოველ წუთს
 // მოწმდება, რეგისტრაცია — ყოველ მე-5 წუთს (მას სისწრაფე არ სჭირდება).
@@ -176,8 +208,16 @@ export default {
   // გარეშე მისამართი არაფერს აკეთებს: თორემ ვინც გაიგებდა, ხშირი გახსნით
   // YouTube-ის დღიურ კვოტას და GitHub-ის ლიმიტს ამოწურავდა.
   async fetch(request, env) {
+    const url = new URL(request.url);
+    if (url.pathname === '/health') {
+      const token = await tokenStatus(env).catch(err => ({ ok: false, error: err.message }));
+      return new Response(JSON.stringify({ github: token }) + '\n', {
+        headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }
+      });
+    }
+
     const expected = (env.CHECK_KEY || '').trim();
-    const given = new URL(request.url).searchParams.get('key') || '';
+    const given = url.searchParams.get('key') || '';
     if (!expected || given !== expected) {
       return new Response('Not found\n', { status: 404, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
     }

@@ -16,16 +16,29 @@
    Fine-grained tokens → Generate new token:
    - Repository access: *Only select repositories* → `church-web`
    - Permissions: **Actions — Read and write**, **Contents — Read-only**
-   - Expiration: მაქსიმუმი 1 წელია — ვადის გასვლამდე განაახლე!
+   - Expiration: **No expiration**, თუ ეს არჩევანი ჩანს, თორემ ყველაზე
+     გრძელი ვადა. ნაგულისხმევი 30 დღეა: 2026-10-09-ის ტოკენს 2026-11-08-ს
+     ჩუმად გაუვიდა ვადა და ქადაგება საიტზე თავისით აღარ ჩნდებოდა.
 3. ამ საქაღალდიდან:
 
    ```bash
    npx wrangler login
    npx wrangler deploy
-   npx wrangler secret put GITHUB_TOKEN
    ```
 
-   ბოლო ბრძანება ტოკენს გთხოვს — ჩასვი და Enter.
+4. ტოკენის ჩასმა: დააკოპირე ტოკენი (`github_pat_…`) და ორჯერ დააჭირე
+   `set-github-token.cmd`-ს. Ctrl+V-ით `wrangler secret put` ტოკენს
+   ვერ იღებს (მხოლოდ 1 სიმბოლო ინახება), ეს ფაილი კი ბუფერიდან კითხულობს
+   და ამოწმებს, რომ იქ ნამდვილად ტოკენია.
+
+## ვადის გაფრთხილება
+
+`…workers.dev/health` აჩვენებს, მუშაობს თუ არა ტოკენი და როდის გასდის
+ვადა. გასაღები არ სჭირდება: YouTube-ს არ ეკითხება და GitHub-ის ლიმიტს
+არ ხარჯავს. ყოველდღიური „ფორმების შემოწმება“ (check-forms.yml →
+`scripts/check-sermon-watch.js`) მას კითხულობს და ვარდება, თუ ტოკენი არ
+მუშაობს, ვადამდე 14 დღეზე ნაკლებია ან YouTube-ის ქადაგება საათზე მეტია
+არქივში ვერ მოხვდა. ჩავარდნისას GitHub მეილს აგზავნის.
 
 ## შემოწმება
 
