@@ -9,7 +9,8 @@
  *   1. ვორკერის ტოკენი მუშაობს (…workers.dev/health);
  *   2. ტოკენის ვადის გასვლამდე 14 დღეზე მეტია;
  *   3. YouTube-ის სიაში არ არის ქადაგება, რომელიც საათზე მეტია გამოჩნდა
- *      და არქივში მაინც არ ჩაწერილა (ვორკერი საერთოდ თუ გაჩერდა).
+ *      და არქივში მაინც არ ჩაწერილა (ვორკერი საერთოდ თუ გაჩერდა);
+ *   4. ბოლო ქადაგებას საიტზე მქადაგებელი უწერია.
  *
  * შეცდომისას სამუშაო ვარდება და GitHub ელფოსტას აგზავნის.
  * ტოკენის განახლება: workers/sermon-watch/README.md.
@@ -18,6 +19,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { parseFeed, preacherFrom, feedUrl } = require('./youtube-feed');
 
 const HEALTH = 'https://efck-sermon-watch.sermon-watch.workers.dev/health';
 const ARCHIVE = path.join(__dirname, '..', 'data', 'sermon-archive.json');
@@ -58,23 +60,19 @@ async function checkMissed(errors, notes) {
   if (!playlist) { errors.push('არქივში დასაკრავი სიები არ წერია'); return; }
   const known = new Set(Object.values(archive.years || {}).flat().map(v => v.id));
 
-  let xml;
+  let feed;
   try {
-    const res = await fetch('https://www.youtube.com/feeds/videos.xml?playlist_id=' + playlist.id);
+    const res = await fetch(feedUrl(playlist.id));
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    xml = await res.text();
+    feed = parseFeed(await res.text());
   } catch (err) {
-    notes.push('YouTube-ის ფიდი ვერ წავიკითხე (' + err.message + ') — გამოტოვებული ქადაგება ვერ შემოწმდა.');
+    notes.push('YouTube-ის ფიდი ვერ წავიკითხე (' + err.message + ') — გამოტოვებული ქადაგება და მქადაგებელი ვერ შემოწმდა.');
     return;
   }
 
-  const late = [...xml.matchAll(/<entry>([\s\S]*?)<\/entry>/g)]
-    .map(m => ({
-      id: (/<yt:videoId>([^<]+)</.exec(m[1]) || [])[1],
-      title: (/<title>([^<]*)</.exec(m[1]) || [])[1] || '',
-      published: Date.parse((/<published>([^<]+)</.exec(m[1]) || [])[1])
-    }))
-    .filter(v => v.id && !known.has(v.id) && Date.now() - v.published > LATE_MINUTES * 60000);
+  checkLatestPreacher(archive, feed, errors, notes);
+
+  const late = feed.filter(v => !known.has(v.id) && Date.now() - v.published > LATE_MINUTES * 60000);
 
   if (late.length) {
     errors.push('YouTube-ზე საათზე მეტია ჩანს, საიტზე კი არა: ' + late.map(v => '„' + v.title + '“ (' + v.id + ')').join(', ') +
@@ -82,6 +80,23 @@ async function checkMissed(errors, notes) {
   } else {
     notes.push('YouTube-ის სიის ყველა ქადაგება არქივშია.');
   }
+}
+
+// საიტზე ქადაგების ბარათს მქადაგებელი არქივიდან ეწერება, არქივს კი ის
+// YouTube-ის აღწერიდან („მქადაგებელი - სახელი გვარი“) ხვდება.
+function checkLatestPreacher(archive, feed, errors, notes) {
+  const year = archive.playlists[0].year;
+  const latest = ((archive.years || {})[year] || [])[0];
+  if (!latest) return;
+  if (latest.preacher) {
+    notes.push('ბოლო ქადაგების მქადაგებელი: ' + latest.preacher + '.');
+    return;
+  }
+  const inFeed = feed.find(v => v.id === latest.id);
+  const onYouTube = inFeed && preacherFrom(inFeed.description);
+  errors.push('ბოლო ქადაგებას („' + latest.title + '“) საიტზე მქადაგებელი არ უწერია. ' + (onYouTube
+    ? 'YouTube-ის აღწერაში წერია („' + onYouTube + '“), არქივში კი ვერ მოხვდა — Actions → ქადაგებების არქივის განახლება → Run workflow.'
+    : 'YouTube-ზე ვიდეოს აღწერაში დაამატე სტრიქონი „მქადაგებელი - სახელი გვარი“ — საიტი რამდენიმე საათში თავად განახლდება.'));
 }
 
 (async () => {

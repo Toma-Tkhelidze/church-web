@@ -19,6 +19,7 @@
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
+const { parseFeed, preacherFrom, feedUrl } = require('./youtube-feed');
 
 const CHANNEL_PLAYLISTS_URL = 'https://www.youtube.com/@EFC-Kutaisi/playlists';
 // მხოლოდ წლიური სიები გვაინტერესებს; სახელიანი სერიები Sanity-შია.
@@ -185,7 +186,27 @@ async function readPlaylist(pl) {
 }
 
 /**
- * მქადაგებელი ვიდეოს აღწერიდან: „მქადაგებელი - სპარტაკ ჭანკვეტაძე“.
+ * ვიდეოების აღწერები წლიური სიების RSS ფიდებიდან: { videoId: აღწერა }.
+ * თითო ფიდში სიის ბოლო 15 ვიდეოა — ახალი ქადაგება ყოველთვის იქ ხვდება.
+ * ვიდეოს გვერდისგან განსხვავებით ფიდი GitHub-ის სერვერიდანაც იკითხება
+ * (იხ. youtube-feed.js). ჩავარდნილ ფიდს ვტოვებთ — ვიდეოს გვერდს ვცდით.
+ */
+async function feedDescriptions(playlists) {
+  const out = {};
+  for (const pl of playlists) {
+    try {
+      parseFeed(await get(feedUrl(pl.id))).forEach(v => {
+        if (v.description !== null) out[v.id] = v.description;
+      });
+    } catch (e) {
+      console.log('ფიდი ვერ წავიკითხე (' + pl.year + '): ' + e.message);
+    }
+  }
+  return out;
+}
+
+/**
+ * მქადაგებელი ვიდეოს გვერდის აღწერიდან — თუ ფიდში ვიდეო აღარ ჩანს.
  * '' — აღწერაში ასეთი სტრიქონი არ არის; null — გვერდი ვერ წავიკითხე.
  */
 async function readPreacher(id) {
@@ -203,8 +224,7 @@ async function readPreacher(id) {
       if (c === '"') { desc = JSON.parse(html.slice(start, i + 1)); break; }
     }
     if (desc === null) return null;
-    const m = /მქადაგებელი\s*[-–—:]\s*([^\n]+)/.exec(desc);
-    return m ? m[1].trim().replace(/[.,;]+$/, '') : '';
+    return preacherFrom(desc);
   } catch (e) {
     return null;
   }
@@ -223,19 +243,29 @@ function previousPreachers() {
   return known;
 }
 
-async function addPreachers(years) {
+async function addPreachers(years, descriptions) {
   const known = previousPreachers();
-  let fetched = 0;
+  let fetched = 0, missing = [];
   for (const list of Object.values(years)) {
     for (const v of list) {
-      if (v.id in known) { v.preacher = known[v.id]; continue; }
-      const p = await readPreacher(v.id);
-      fetched++;
-      // ვერ წაკითხულს ველს არ ვაძლევთ — შემდეგ გაშვებაზე თავიდან ვცდით.
-      if (p !== null) v.preacher = p;
+      // ფიდში მყოფ ვიდეოს აღწერას ყოველ ჯერზე თავიდან ვკითხულობთ: თუ
+      // მქადაგებელი აღწერაში მოგვიანებით ჩაწერეს ან გაასწორეს, საიტიც
+      // გასწორდება. ცარიელი აღწერა ხელით ჩაწერილ სახელს არ შლის.
+      const fromFeed = v.id in descriptions ? preacherFrom(descriptions[v.id]) : null;
+      if (fromFeed) v.preacher = fromFeed;
+      else if (v.id in known) v.preacher = known[v.id];
+      else if (fromFeed === '') v.preacher = '';
+      else {
+        const p = await readPreacher(v.id);
+        fetched++;
+        // ვერ წაკითხულს ველს არ ვაძლევთ — შემდეგ გაშვებაზე თავიდან ვცდით.
+        if (p !== null) v.preacher = p;
+      }
+      if (!v.preacher && v.id in descriptions) missing.push(v.id);
     }
   }
-  if (fetched) console.log('მქადაგებელი ვეძებე ' + fetched + ' ახალ ვიდეოში');
+  if (fetched) console.log('მქადაგებელი ვიდეოს გვერდზე ვეძებე ' + fetched + ' ვიდეოში');
+  if (missing.length) console.log('აღწერაში მქადაგებელი არ წერია: ' + missing.join(', '));
 }
 
 (async () => {
@@ -270,7 +300,7 @@ async function addPreachers(years) {
     }
   }
 
-  await addPreachers(years);
+  await addPreachers(years, await feedDescriptions(playlists));
 
   const total = Object.values(years).reduce((n, v) => n + v.length, 0);
 
