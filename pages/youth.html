@@ -24,12 +24,15 @@
     <link rel="preload" href="../fonts/FiraGO-Medium.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="../fonts/FiraGO-Bold.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="../fonts/FiraGO-MediumItalic.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="../fonts/NotoSansGeorgian-Medium.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../fonts/NotoSansGeorgian-VF-georgian.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="../fonts/fa/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="../fonts/fa/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin>
     <!-- ხატულები: Font Awesome მხოლოდ საიტზე გამოყენებული ხატულებით (scripts/build-icons.js) -->
     <link rel="stylesheet" href="../icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Sans+Georgian:wght@100..900&family=Playfair+Display:wght@300;400;700&display=swap" rel="stylesheet">
+    <!-- Noto Sans Georgian საიტზევე დევს (style.css). Montserrat და Playfair მხოლოდ ლათინურ ასოებსა და
+         ციფრებს ეხება — დახატვას აღარ ბლოკავს: ჯერ print-ად იტვირთება, მერე ირთვება. -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@300;400;700&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@300;400;700&display=swap"></noscript>
     <link rel="stylesheet" href="../style.css">
     <link rel="icon" type="image/svg+xml" href="../pages/images/logo.svg">
     <link rel="manifest" href="../manifest.json">
@@ -1136,9 +1139,24 @@
                 (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.platform));
             const inviteHint = document.getElementById("inviteHint");
             const showInviteHint = text => { inviteHint.textContent = text; inviteHint.hidden = false; };
-            const copyText = text => navigator.clipboard
-                ? navigator.clipboard.writeText(text).then(() => true, () => false)
-                : Promise.resolve(false);
+            // შიდა ბრაუზერები (Instagram, Facebook) Clipboard API-ს ხშირად არ
+            // იძლევიან — მაშინ ძველი ხერხით ვცდით. აბრუნებს: დაკოპირდა თუ არა.
+            const legacyCopy = text => {
+                const ta = document.createElement("textarea");
+                ta.value = text;
+                ta.setAttribute("readonly", "");
+                ta.style.cssText = "position:fixed;top:0;left:0;opacity:0;";
+                document.body.appendChild(ta);
+                ta.select();
+                ta.setSelectionRange(0, text.length);
+                let ok = false;
+                try { ok = document.execCommand("copy"); } catch (err) { /* ვერ მოხერხდა */ }
+                ta.remove();
+                return ok;
+            };
+            const copyText = text => navigator.clipboard && navigator.clipboard.writeText
+                ? navigator.clipboard.writeText(text).then(() => true, () => legacyCopy(text))
+                : Promise.resolve(legacyCopy(text));
             // სოც. ქსელებისთვის მთლიანი მოსაწვევი, „ბმულის კოპირებისთვის“ — მხოლოდ ბმული
             const inviteFull = inviteText + "\n" + inviteUrl;
 
@@ -1162,6 +1180,14 @@
                     : "მოსაწვევი დაკოპირდა ✓ Instagram-ის პირად მიმოწერაში გახსენი მეგობრის ჩატი და ჩასვი (Ctrl+V)."
             };
 
+            // კოპირება ვერ მოხერხდა — ტექსტს თავად ვაჩვენებთ, რომ ხელით დააკოპიროს.
+            const inviteFailHints = {
+                messenger: "ტექსტი ვერ დაკოპირდა. მეგობარს მისწერე: " + inviteFull,
+                instagram: igShare
+                    ? "სიიდან აირჩიე Instagram, მერე — მეგობარი."
+                    : "ტექსტი ვერ დაკოპირდა. მეგობარს მისწერე: " + inviteFull
+            };
+
             document.querySelectorAll("[data-invite]").forEach(btn => {
                 const method = btn.dataset.invite;
                 if (inviteLinks[method]) btn.href = inviteLinks[method];
@@ -1171,8 +1197,8 @@
                 btn.addEventListener("click", e => {
                     if (window.efcTrack) efcTrack("youth_invite", { method: method });
                     if (method === "messenger" || method === "instagram") {
-                        copyText(inviteFull);
-                        showInviteHint(inviteHints[method]);
+                        // „დაკოპირდა ✓“ მხოლოდ მაშინ, როცა მართლა დაკოპირდა.
+                        copyText(inviteFull).then(ok => showInviteHint(ok ? inviteHints[method] : inviteFailHints[method]));
                         if (method === "instagram" && igShare) {
                             e.preventDefault();
                             navigator.share({ text: inviteText, url: inviteUrl }).catch(() => {});

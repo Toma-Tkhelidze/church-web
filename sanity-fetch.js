@@ -518,7 +518,21 @@ function applyCampRegistrationStatus(events) {
 }
 
 function updatePageContent() {
-  const groqQuery = `{
+  // ეს ფაილი ყველა გვერდზეა ჩართული, მონაცემი კი ყველას არ სჭირდება.
+  // ადრე ბიბლიის ან „გაეცი“ გვერდიც ყველა სერიას, გუნდსა და ჯგუფს
+  // ითხოვდა. ახლა მხოლოდ იმას ვითხოვთ, რისი ადგილიც გვერდზე არსებობს.
+  const has = selector => !!document.querySelector(selector);
+  const need = {
+    site: has('[id^="sanity-"]:not(#sanity-elders-wrap):not([id^="sanity-pastor"]), #building-video-container, .building-video-wrap, #sermonFacade, #outlineBtn'),
+    events: has('#openEvents, .event-card[data-event], #openCampModal'),
+    groups: has('.groups-grid'),
+    team: has('[id^="sanity-pastor"], #sanity-elders-wrap'),
+    sermons: has('.series-grid, #seriesFallback, #sermonFacade'),
+    latest: has('#sanity-latest-sermon, #sermonFacade, [data-latest-sermon-link]')
+  };
+
+  const parts = [];
+  if (need.site) parts.push(`
     "siteContent": *[_type == "siteContent"][0]{
       title,
       youtubeUrl,
@@ -540,7 +554,8 @@ function updatePageContent() {
       weeklyVerseText,
       weeklyVerseRef,
       "weeklyVersePdf": weeklyVersePdf.asset->{url, originalFilename, size, _createdAt}
-    },
+    }`);
+  if (need.events) parts.push(`
     "events": *[_type == "registrationEvent"] | order(_createdAt asc) {
       eventId,
       title,
@@ -549,7 +564,8 @@ function updatePageContent() {
       detailsText,
       description,
       "imageUrl": imageUrl.asset->url
-    },
+    }`);
+  if (need.groups) parts.push(`
     "familyGroups": *[_type == "familyGroup"] | order(order asc) {
       title,
       leader,
@@ -562,7 +578,8 @@ function updatePageContent() {
       excerpt,
       description,
       mapUrl
-    },
+    }`);
+  if (need.team) parts.push(`
     "teamMembers": *[_type == "teamMember"] | order(order asc) {
       _id,
       name,
@@ -574,7 +591,8 @@ function updatePageContent() {
       email,
       photoUrl,
       "photoAssetUrl": photo.asset->url
-    },
+    }`);
+  if (need.sermons) parts.push(`
     "sermons": *[_type == "sermonSeries"] | order(order asc, _createdAt desc) {
       title,
       subtitle,
@@ -588,14 +606,21 @@ function updatePageContent() {
         youtubeUrl,
         duration
       }
-    }
-  }`;
-
-  const url = `https://${PROJECT_ID}.apicdn.sanity.io/${API_VERSION}/data/query/${DATASET}?query=${encodeURIComponent(groqQuery)}`;
+    }`);
 
   // Runs in parallel with the Sanity query; both paths update the page.
-  const latestVideoIdPromise = fetchLatestPlaylistVideoId();
+  // ბოლო ქადაგება მხოლოდ იმ გვერდებს სჭირდება, სადაც მისი ბლოკია.
+  const latestVideoIdPromise = need.latest ? fetchLatestPlaylistVideoId() : Promise.resolve(null);
   latestVideoIdPromise.then(applyLatestSermonId);
+
+  // ამ გვერდს Sanity-დან არაფერი სჭირდება — მოთხოვნას საერთოდ არ ვაგზავნით.
+  if (!parts.length) {
+    renderDailyVerse();
+    return;
+  }
+
+  const groqQuery = '{' + parts.join(',') + '\n  }';
+  const url =`https://${PROJECT_ID}.apicdn.sanity.io/${API_VERSION}/data/query/${DATASET}?query=${encodeURIComponent(groqQuery)}`;
 
   fetch(url)
     .then(response => response.json())
@@ -853,7 +878,12 @@ function updatePageContent() {
 
         if (events && events.length > 0) {
           events.forEach(evt => {
-            const card = document.querySelector(`.event-card[data-event="${evt.eventId}"]`);
+            // eventId CMS-იდან მოდის: ბრჭყალიანი მნიშვნელობა სელექტორს ტეხდა,
+            // შეცდომა კი ქვემოთ ქადაგებების სიის დახატვასაც აჩერებდა.
+            const card = Array.prototype.find.call(
+              document.querySelectorAll('.event-card[data-event]'),
+              el => el.getAttribute('data-event') === evt.eventId
+            );
             if (card) {
               const isActive = evt.status === 'active';
               const statusText = isActive ? 'ღიაა' : 'დასრულდა';
@@ -1066,7 +1096,10 @@ function splitSermonTitle(raw, pubDate) {
   return { title: text, date: formatFeedDate(pubDate) };
 }
 
-function weeklySermonCard(item, showYear) {
+// laterIds — „შემდეგში საყურებლის“ ID-ები (Set). სიის დამხატავი ერთხელ
+// კითხულობს და ყველა ბარათს გადასცემს: ადრე ყოველი ბარათი localStorage-ს
+// თავიდან კითხულობდა — ძებნისას 77-ჯერ ყოველ აკრეფილ ასოზე.
+function weeklySermonCard(item, showYear, laterIds) {
   // feed-ის ჩანაწერს pubDate აქვს, არქივისას — date.
   const parts = splitSermonTitle(item.title, item.pubDate || item.date);
   // ძებნისას წლები ერევა, ამიტომ თითოეულს წელს ვაწერთ.
@@ -1074,7 +1107,7 @@ function weeklySermonCard(item, showYear) {
     ? `<span class="weekly-year-badge">${escapeHtml(item.year)}</span>`
     : '';
   // სანიშნე ბარათის გვერდითაა და არა შიგნით — ღილაკში ღილაკი არ შეიძლება.
-  const saved = isLater(item.id);
+  const saved = laterIds ? laterIds.has(item.id) : isLater(item.id);
   return `
     <div class="weekly-card">
     <button type="button" class="weekly-item" data-video-id="${escapeHtml(item.id)}">
@@ -1679,6 +1712,9 @@ function loadYouTubeApi() {
   document.head.appendChild(tag);
 }
 
+// ბოლოს ჩართული ქადაგება — სიის თავიდან დახატვისას მონიშვნა რომ არ დაიკარგოს.
+let markedSermonId = null;
+
 /** ქადაგების გახსნა მთავარ პლეერში, შენახული წუთიდან. */
 function playSermon(videoId, title) {
   const frame = sermonFrame();
@@ -1734,6 +1770,7 @@ function playSermon(videoId, title) {
     loadYouTubeApi();
   }
 
+  markedSermonId = videoId;
   document.querySelectorAll('.weekly-item, .episode-item').forEach(el => {
     el.classList.toggle('is-playing', el.getAttribute('data-video-id') === videoId);
   });
@@ -2358,12 +2395,14 @@ function renderWeeklySermons() {
   function paint() {
     const q = query();
     if (searchClear) searchClear.hidden = !q;
+    const laterIds = new Set(readLater().map(e => e.id));
 
     if (!q) {
       if (foundLine) foundLine.hidden = true;
       list.innerHTML = yearItems.length
-        ? yearItems.map(item => weeklySermonCard(item, false)).join('')
+        ? yearItems.map(item => weeklySermonCard(item, false, laterIds)).join('')
         : '<p class="weekly-state">ამ წლის ქადაგებები ვერ ჩაიტვირთა. სცადეთ ცოტა ხანში.</p>';
+      markRedrawnCards();
       return;
     }
 
@@ -2376,9 +2415,20 @@ function renderWeeklySermons() {
       foundLine.textContent = 'ნაპოვნია ' + hits.length + ' ქადაგება ყველა წელს შორის';
     }
     list.innerHTML = hits.length
-      ? hits.map(item => weeklySermonCard(item, true)).join('')
+      ? hits.map(item => weeklySermonCard(item, true, laterIds)).join('')
       : '<p class="weekly-state">„' + escapeHtml(searchInput.value.trim()) + '“ — ვერაფერი მოიძებნა. სცადე სხვა სიტყვა ან თარიღი.</p>';
-    // ბარათები ახლად აიგო — ნიშნები თავიდან უნდა დაეხატოს.
+    markRedrawnCards();
+  }
+
+  // ბარათები ახლად აიგო — პროგრესის ზოლი, „ნანახია“ და მიმდინარე
+  // ქადაგების მონიშვნა თავიდან უნდა დაეხატოს. წლის სიაზეც, არა მხოლოდ
+  // ძებნაზე: თორემ წლის შეცვლისას ნიშნები ქრებოდა.
+  function markRedrawnCards() {
+    if (markedSermonId) {
+      list.querySelectorAll('.weekly-item').forEach(el => {
+        el.classList.toggle('is-playing', el.getAttribute('data-video-id') === markedSermonId);
+      });
+    }
     refreshWatchUI();
   }
 

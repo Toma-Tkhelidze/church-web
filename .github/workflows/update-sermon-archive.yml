@@ -90,6 +90,7 @@ jobs:
         run: echo "id=$(node scripts/send-sermon-email.js --print-latest)" >> "$GITHUB_OUTPUT"
 
       - name: ცვლილების ჩაწერა
+        id: commit
         if: steps.check.outputs.new == 'true'
         run: |
           # s/-ში ახალი ფაილები untracked-ია — git diff მათ ვერ ხედავს,
@@ -129,8 +130,11 @@ jobs:
       # იგივე ტრიგერი, მეორე არხი: ვინც აპლიკაციაში შეტყობინებები ჩართო.
       # ჩამრთველი ცალკეა (SERMON_PUSH_ENABLED), რომ ფოსტისგან
       # დამოუკიდებლად ჩაირთოს და გამოირთოს.
+      # !cancelled(): ფოსტის ჩავარდნამ push არ უნდა გააჩეროს — თორემ ქადაგება
+      # შეუტყობინებელი რჩებოდა (მეორე გაშვება აღარ ცდის: არქივი უკვე ჩაწერილია).
+      # commit-ის შემოწმება კი იმისთვისაა, რომ ჩაუწერელ არქივზე არ გაიგზავნოს.
       - name: შეტყობინება აპლიკაციაში
-        if: steps.check.outputs.new == 'true' && steps.after.outputs.id != '' && (steps.before.outputs.id != steps.after.outputs.id || inputs.force_send)
+        if: ${{ !cancelled() && steps.commit.outcome == 'success' && steps.check.outputs.new == 'true' && steps.after.outputs.id != '' && (steps.before.outputs.id != steps.after.outputs.id || inputs.force_send) }}
         env:
           ONESIGNAL_APP_ID: ${{ vars.ONESIGNAL_APP_ID }}
           ONESIGNAL_REST_API_KEY: ${{ secrets.ONESIGNAL_REST_API_KEY }}

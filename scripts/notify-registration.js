@@ -96,6 +96,27 @@ function buildMail(evt) {
   };
 }
 
+// ღონისძიება გაგზავნამდე ინიშნება (--claim), ამიტომ ჩავარდნილ გაგზავნას
+// შემდეგი გაშვება აღარ გაიმეორებს. წამიერი ხარვეზი (ქსელი, 5xx) რომ
+// შეტყობინებას არ კარგავდეს, აქვე ვცდით კიდევ ორჯერ.
+// გასაღების ან მონაცემის შეცდომას (4xx) გამეორება ვერ უშველის.
+const RETRY_WAITS = [5000, 20000];
+
+async function retry(label, fn) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      // სტატუსი შეტყობინებაში ასე წერია: „OneSignal 400: …“, „POST /… → 400 …“.
+      const status = (/(?:OneSignal |→ )(\d{3})\b/.exec(err.message) || [])[1];
+      const permanent = /^4/.test(status || '') && status !== '408' && status !== '429';
+      if (permanent || attempt >= RETRY_WAITS.length) throw err;
+      console.error('  ' + label + ': ' + err.message + ' — ვცდი თავიდან ' + RETRY_WAITS[attempt] / 1000 + ' წამში');
+      await new Promise(r => setTimeout(r, RETRY_WAITS[attempt]));
+    }
+  }
+}
+
 async function send(ids, dryRun) {
   const all = await events();
   for (const id of ids) {
@@ -117,13 +138,13 @@ async function send(ids, dryRun) {
     }
     // ერთი არხის ჩავარდნამ მეორე არ უნდა შეაჩეროს.
     try {
-      console.log('  push გაიგზავნა: ' + (await sendPush(push)).id);
+      console.log('  push გაიგზავნა: ' + (await retry('push', () => sendPush(push))).id);
     } catch (err) {
       console.error('  push ვერ გაიგზავნა: ' + err.message);
       process.exitCode = 1;
     }
     try {
-      console.log('  წერილი გაიგზავნა, კამპანია ' + await sendCampaign(mail));
+      console.log('  წერილი გაიგზავნა, კამპანია ' + await retry('წერილი', () => sendCampaign(mail)));
     } catch (err) {
       console.error('  წერილი ვერ გაიგზავნა: ' + err.message);
       process.exitCode = 1;

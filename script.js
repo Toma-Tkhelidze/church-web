@@ -1405,10 +1405,21 @@ window.efcIsName = function (value, minLetters) {
             resolve(OneSignal);
         });
     });
-    const sdk = document.createElement('script');
-    sdk.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js';
-    sdk.defer = true;
-    document.head.appendChild(sdk);
+    // SDK ყველა გვერდზე ყველასთვის აღარ იტვირთება. მაშინვე — მხოლოდ მათთვის,
+    // ვინც შეტყობინებები უკვე ჩართო ან აპლიკაცია დააყენა (მათ ზოლი ელით).
+    // დანარჩენებისთვის — როცა ფუტერს მიუახლოვდებიან, სადაც ჩართვის ღილაკია:
+    // ღილაკი SDK-ის მზადყოფნამდე ისედაც დამალულია, ამიტომ დაჭერის მომენტში
+    // SDK უკვე ადგილზეა და ნებართვის კითხვა დაჭერაშივე ხდება.
+    let sdkRequested = false;
+    function loadSdk() {
+        if (sdkRequested) return;
+        sdkRequested = true;
+        const sdk = document.createElement('script');
+        sdk.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js';
+        sdk.defer = true;
+        document.head.appendChild(sdk);
+    }
+    if (Notification.permission === 'granted' || installed) loadSdk();
 
     let sdkReady = false;
     ready.then(() => { sdkReady = true; refresh(); });
@@ -1443,6 +1454,16 @@ window.efcIsName = function (value, minLetters) {
         });
         strip.insertBefore(btn, strip.querySelector('.footer-social'));
         refresh();
+
+        // ფუტერი ეკრანს უახლოვდება — SDK-ს ახლა ვტვირთავთ (იხ. loadSdk).
+        if (sdkRequested) return;
+        if (!('IntersectionObserver' in window)) { loadSdk(); return; }
+        const near = new IntersectionObserver(entries => {
+            if (!entries.some(entry => entry.isIntersecting)) return;
+            near.disconnect();
+            loadSdk();
+        }, { rootMargin: '800px 0px' });
+        near.observe(strip);
     }
 
     function refresh() {

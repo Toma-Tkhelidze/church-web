@@ -214,7 +214,11 @@ function fetchFeed() {
       if (!items.length) return cached ? cached.items : [];
       // anchor.fm ხანდახან ძველ ასლს აბრუნებს (9 ეპიზოდით) — შემცირებულ
       // ლენტას ბოლო ნაცნობ, უფრო სრულ სიას არ ვაჩანაცვლებინებთ.
-      if (cached && cached.items.length > items.length) return cached.items;
+      // ძველ ასლს ახალი ეპიზოდი აკლია; თუ ბოლო ნაცნობი ეპიზოდი ლენტაშია,
+      // სია მართლა შემცირდა (ეპიზოდი წაიშალა) და ლენტას ვენდობით — თორემ
+      // წაშლილი ეპიზოდი ამ ბრაუზერში სამუდამოდ რჩებოდა.
+      if (cached && cached.items.length > items.length
+        && !items.some(ep => String(ep.id) === String(cached.items[0].id))) return cached.items;
       // გარეკანს ლენტიდან ვიღებთ (არხის itunes:image).
       const channel = xml.getElementsByTagName('channel')[0];
       const showArt = channel && Array.from(channel.children)
@@ -383,8 +387,10 @@ let coverUrl = '';
   // ბარათი ვიდეოს ბარათის (weekly-*) მარკაპითაა, რომ ორივე ჩანართი
   // ერთნაირად გამოიყურებოდეს: 16:9 სურათი, სათაური, მქადაგებელი, თარიღი.
   // ხანგრძლივობა ბარათზე განზრახ არ წერია — მხოლოდ პლეერში ჩანს.
-  function card(ep, showYear) {
-    const state = readListened()[ep.id];
+  // listened — მოსმენის ჩანაწერები; paintList ერთხელ კითხულობს და ყველა
+  // ბარათს გადასცემს (ადრე ყოველი ბარათი localStorage-ს თავიდან კითხულობდა).
+  function card(ep, showYear, listened) {
+    const state = listened[ep.id];
     const done = state && state.done;
     const started = state && !state.done && state.t > 0;
     const classes = 'weekly-item audio-item'
@@ -419,7 +425,8 @@ let coverUrl = '';
     }
     // ძებნისას წლები ერევა — ვიდეოს მსგავსად თითოეულს წელს ვაწერთ.
     const searching = !!el.search.value.trim();
-    el.list.innerHTML = shown.map(ep => card(ep, searching)).join('');
+    const listened = readListened();
+    el.list.innerHTML = shown.map(ep => card(ep, searching, listened)).join('');
   }
 
   // ── წლები — ვიდეოების მსგავსად, თითო წელს თავისი ჩანართი ──────

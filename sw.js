@@ -73,16 +73,26 @@ function networkFirst(request, fallbackUrl, key) {
       }
       return response;
     })
-    .catch(() => caches.match(key).then(cached => {
+    .catch(() => lookup(key).then(cached => {
       if (cached) return cached;
-      if (fallbackUrl) return caches.match(fallbackUrl);
+      if (fallbackUrl) return lookup(fallbackUrl);
       return Response.error();
     }));
 }
 
+// ქეშში ძებნა: ჯერ ბოლოს ნანახი ასლი (RUNTIME), მერე ინსტალაციის დროინდელი
+// (SHELL). caches.match ქეშებს შექმნის რიგით ათვალიერებს და SHELL-ს პირველს
+// პოულობდა — ოფლაინში ინსტალაციის დღის index.html/style.css/script.js
+// იხსნებოდა, ლოგო და ხატულა კი VERSION-ის შეცვლამდე საერთოდ არ ახლდებოდა.
+function lookup(key) {
+  return caches.open(RUNTIME_CACHE)
+    .then(cache => cache.match(key))
+    .then(hit => hit || caches.match(key));
+}
+
 // ჯერ ქეში, პარალელურად ფონურად ვანახლებთ — შემდეგი შემოსვლისთვის.
 function cacheFirst(request) {
-  return caches.match(request).then(cached => {
+  return lookup(request).then(cached => {
     const network = fetch(request)
       .then(response => {
         if (response && response.ok) {
