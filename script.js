@@ -281,6 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         window.addEventListener('mouseup', () => {
+            if (!isDragging) return;
             isDragging = false;
             snapToNearest();
         });
@@ -466,8 +467,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         el.addEventListener('click', () => {
             const iframe = document.createElement('iframe');
+            // ატრიბუტებს დაჭერის მომენტში ვკითხულობთ: sanity-fetch.js მათ
+            // ჩატვირთვის შემდეგ ცვლის.
+            const activeVideoId = el.getAttribute('data-video-id') || videoId;
+            const activePlatform = el.getAttribute('data-video-platform') || platform;
 
-            if (platform === 'vimeo') {
+            if (activePlatform === 'vimeo') {
                 iframe.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share');
                 iframe.setAttribute('allowfullscreen', 'true');
                 iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
@@ -493,8 +498,6 @@ document.addEventListener('DOMContentLoaded', () => {
             // Append container to the DOM first so the navigation is linked to the active user gesture
             el.appendChild(videoContainer);
 
-            const activeVideoId = el.getAttribute('data-video-id') || videoId;
-            const activePlatform = el.getAttribute('data-video-platform') || platform;
             if (window.efcTrack) {
                 // მთავარი გვერდის „ბოლო ქადაგება“ ცალკე ითვლება, რომ
                 // ქადაგებების გვერდის მთვლელს შეუერთდეს.

@@ -39,7 +39,8 @@ function get(url) {
     }, res => {
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
         res.resume();
-        return resolve(get(res.headers.location));
+        // Location შეიძლება ფარდობითი იყოს („/watch?…“).
+        return resolve(get(new URL(res.headers.location, url).href));
       }
       if (res.statusCode !== 200) {
         res.resume();

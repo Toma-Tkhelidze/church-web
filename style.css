@@ -2384,27 +2384,18 @@ video {
         padding: 0 10px;
     }
 
-    /* 💻 კომპიუტერებისა და დიდ ეკრანებისთვის */
+    /* 📱 ეს ბლოკი უკვე 768px-მდე ეკრანებისაა. ადრე აქ „კომპიუტერის“ წესი და
+       მასში ჩაბუდებული მეორე @media იდო — ერთ წესად გაერთიანდა, შედეგი იგივეა. */
     .hero-content h1 {
         font-family: 'FiraGoBold', sans-serif !important;
-        font-size: clamp(2.2rem, 5vw, 3.5rem) !important;
-        /* 🌟 ფლუიდური ზომა, რომელიც ეკრანს თავად ერგება */
-        white-space: nowrap !important;
-        /* 🌟 კომპიუტერზე მკაცრად ერთ ხაზზე რჩება */
+        font-size: clamp(1.6rem, 7vw, 2.2rem) !important;
+        /* 🌟 ტელეფონისთვის შესაბამისი კომპაქტური ზომა */
+        white-space: normal !important;
+        /* 🌟 მობილურზე ტექსტი ლამაზად გადავა ორ ხაზზე */
         line-height: 1.2 !important;
-    }
-
-    /* 📱 მობილური ტელეფონებისა და ტაბლეტებისთვის (768px-ზე მცირე ეკრანები) */
-    @media (max-width: 768px) {
-        .hero-content h1 {
-            font-size: clamp(1.6rem, 7vw, 2.2rem) !important;
-            /* 🌟 ტელეფონისთვის შესაბამისი კომპაქტური ზომა */
-            white-space: normal !important;
-            /* 🌟 მობილურზე ტექსტი ლამაზად გადავა ორ ხაზზე */
-            text-align: center !important;
-            /* 🌟 ინარჩუნებს მკაცრ ცენტრირებას */
-            display: block !important;
-        }
+        text-align: center !important;
+        /* 🌟 ინარჩუნებს მკაცრ ცენტრირებას */
+        display: block !important;
     }
 
     .cursive-text {

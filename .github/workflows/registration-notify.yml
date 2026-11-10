@@ -42,7 +42,10 @@ jobs:
 
       - name: რომელი ღონისძიება გაიხსნა
         id: claim
-        run: echo "ids=$(node scripts/notify-registration.js --claim)" >> "$GITHUB_OUTPUT"
+        # ცალკე ხაზზე: echo "…$(node …)" სკრიპტის შეცდომას მალავდა.
+        run: |
+          ids=$(node scripts/notify-registration.js --claim)
+          echo "ids=$ids" >> "$GITHUB_OUTPUT"
 
       # ჯერ ჩანიშვნა და მერე გაგზავნა: თუ ფუში ჩავარდა, არაფერი
       # გაიგზავნება და შემდეგი გაშვება თავიდან ცდის.

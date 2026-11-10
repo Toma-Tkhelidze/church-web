@@ -787,6 +787,8 @@
 
     document.addEventListener('keydown', function (e) {
       if (e.target.matches('input, select, textarea') || e.altKey || e.ctrlKey || e.metaKey) return;
+      // გახსნილი სიის ან გაზიარების ფურცლის ქვეშ გვერდი არ უნდა გადაიფურცლოს.
+      if (openDropdown || (sheet.root && !sheet.root.hidden)) return;
       if (e.key === 'ArrowLeft') stepPage(-1);
       if (e.key === 'ArrowRight') stepPage(1);
     });

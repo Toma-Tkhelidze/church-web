@@ -121,7 +121,9 @@
     els.play.setAttribute('aria-label', playing ? 'პაუზა' : 'დაკვრა');
     els.play.title = playing ? 'პაუზა' : 'დაკვრა';
     root.classList.toggle('is-playing', playing);
-    els.prev.disabled = !prevOf(track);
+    // წინა ჩანაწერი რომც არ იყოს (დაბადება 1, მათე 1), ღილაკი თავის
+    // დასაწყისზე აბრუნებს — ამიტომ მხოლოდ ცარიელ პლეერზე ითიშება.
+    els.prev.disabled = !track;
     els.next.disabled = !nextOf(track);
     els.miniPlay.innerHTML = els.play.innerHTML;
     els.miniPlay.setAttribute('aria-label', els.play.getAttribute('aria-label'));
@@ -269,8 +271,9 @@
     });
     els.prev.addEventListener('click', function () {
       // ჩანაწერის დასაწყისიდან შორს — ჯერ თავიდან, როგორც ყველა პლეერში.
-      if (els.audio.currentTime > 5) { els.audio.currentTime = 0; return; }
-      step(prevOf(track));
+      const prev = prevOf(track);
+      if (els.audio.currentTime > 5 || !prev) { els.audio.currentTime = 0; return; }
+      step(prev);
     });
     els.next.addEventListener('click', function () { step(nextOf(track)); });
     els.rate.addEventListener('click', function () {

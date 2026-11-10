@@ -332,7 +332,8 @@ function handleRegistrationSubmit(e) {
       form.style.display = 'none';
       if (toast) toast.style.display = 'block';
       if (window.efcTrack) efcTrack('registration_submit', { event_id: regCurrentEvent });
-      setTimeout(closeRegistrationModal, config.closeAfter || 2500);
+      clearTimeout(regCloseTimer);
+      regCloseTimer = setTimeout(closeRegistrationModal, config.closeAfter || 2500);
     })
     .catch(err => {
       console.error('რეგისტრაციის გაგზავნა ვერ მოხერხდა:', err);
@@ -343,7 +344,12 @@ function handleRegistrationSubmit(e) {
     });
 }
 
+// წარმატების შემდეგ ავტომატური დახურვის ტაიმერი. ხელით დახურვისას
+// ვაუქმებთ — თორემ მაშინვე ხელახლა გახსნილ ფორმას ის დახურავდა.
+let regCloseTimer = 0;
+
 function closeRegistrationModal() {
+  clearTimeout(regCloseTimer);
   if (!regModalEl) return;
   regModalEl.classList.remove('modal-active');
   if (typeof window.unlockBodyScroll === 'function') window.unlockBodyScroll();

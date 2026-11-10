@@ -66,7 +66,10 @@ jobs:
       - name: ბოლო ქადაგების ID — განახლებამდე
         if: steps.check.outputs.new == 'true'
         id: before
-        run: echo "id=$(node scripts/send-sermon-email.js --print-latest)" >> "$GITHUB_OUTPUT"
+        # ცალკე ხაზზე: echo "…$(node …)" სკრიპტის შეცდომას მალავდა.
+        run: |
+          id=$(node scripts/send-sermon-email.js --print-latest)
+          echo "id=$id" >> "$GITHUB_OUTPUT"
 
       - name: არქივის შედგენა
         if: steps.check.outputs.new == 'true'
@@ -87,7 +90,10 @@ jobs:
       - name: ბოლო ქადაგების ID — განახლების შემდეგ
         if: steps.check.outputs.new == 'true'
         id: after
-        run: echo "id=$(node scripts/send-sermon-email.js --print-latest)" >> "$GITHUB_OUTPUT"
+        # ცალკე ხაზზე: echo "…$(node …)" სკრიპტის შეცდომას მალავდა.
+        run: |
+          id=$(node scripts/send-sermon-email.js --print-latest)
+          echo "id=$id" >> "$GITHUB_OUTPUT"
 
       - name: ცვლილების ჩაწერა
         id: commit
@@ -103,6 +109,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "chore: ქადაგებების არქივის ავტომატური განახლება"
+          # გაშვების განმავლობაში main-ზე სხვა ჩანაწერი შეიძლება მოხვდეს.
+          git pull --rebase origin main
           git push
 
       # GitHub Pages ფაილს push-იდან ერთ-ორ წუთში აქვეყნებს. შეტყობინება

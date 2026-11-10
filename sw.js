@@ -15,7 +15,11 @@
 // Push შეტყობინებები (OneSignal): ეს სკრიპტი ვორკერს push-ისა და
 // შეტყობინებაზე დაჭერის დამუშავებას ამატებს. ქეშირებას ხელს არ უშლის —
 // ქვემოთ fetch-ის ლოგიკა სხვა დომენებს ისედაც არ ეხება.
-importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
+// try/catch: რეკლამის ბლოკერი ამ მისამართს ხშირად კეტავს — მაშინ push არ
+// იმუშავებს, მაგრამ ვორკერი მაინც დაყენდება და ოფლაინ ქეში დარჩება.
+try {
+  importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
+} catch (e) { /* push-ის გარეშე ვაგრძელებთ */ }
 
 const VERSION = 'v7';
 const SHELL_CACHE = 'efck-shell-' + VERSION;
@@ -116,7 +120,10 @@ self.addEventListener('fetch', event => {
 
   // გვერდიდან გვერდზე გადასვლა.
   if (request.mode === 'navigate') {
-    event.respondWith(networkFirst(request, new URL('offline.html', BASE).href));
+    // „/“ და „/index.html“ ერთი გვერდია — ერთ გასაღებზე ვინახავთ, რომ
+    // ოფლაინში ორივე ბმულმა ბოლოს ნანახი ასლი გახსნას.
+    const navKey = url.pathname.endsWith('/') ? url.origin + url.pathname + 'index.html' : request;
+    event.respondWith(networkFirst(request, new URL('offline.html', BASE).href, navKey));
     return;
   }
 
