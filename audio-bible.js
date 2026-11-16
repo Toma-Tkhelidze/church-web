@@ -433,7 +433,11 @@
     try { saved = JSON.parse(localStorage.getItem(POS_KEY)); } catch (e) { /* private mode */ }
     // პირველად მოსულს იოანეს სახარება ხვდება — როგორც ბიბლიის გვერდზე.
     const start = (saved && trackAt(saved.book, saved.index)) || trackAt(43, 0);
-    showBook(start.book, false);
+    // გვერდი ყოველთვის ახალი აღთქმით იხსნება. ძველი აღთქმის ბოლოს მოსმენილი
+    // თავი პლეერში რჩება, მაგრამ მისი თავების ბადეს არ ვხსნით — ახალი
+    // აღთქმის ჩანართის ქვეშ ძველის თავები დააბნევდა.
+    if (start.book >= NT_START) showBook(start.book, false);
+    else { testament = 'NT'; renderBooks(); }
     loadTrack(start, { at: saved && saved.book === start.book && saved.index === start.index ? saved.time : 0 });
     root.classList.remove('is-loading');
   }
