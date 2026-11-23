@@ -741,6 +741,9 @@
     els.text.addEventListener('contextmenu', function (e) {
       const verse = e.target.closest('.bible-verse');
       if (!verse) return;
+      // ტექსტი მონიშნულია (დესკტოპზე მაუსით) — ბრაუზერის „Copy“ მენიუ დავტოვოთ
+      const sel = window.getSelection && window.getSelection();
+      if (sel && !sel.isCollapsed && els.text.contains(sel.anchorNode)) return;
       e.preventDefault();
       openSheet(Number(verse.id.slice(1)));
     });

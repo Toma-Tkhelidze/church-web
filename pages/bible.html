@@ -418,7 +418,10 @@
         .bible-credit a { color: var(--gold); text-decoration: none; }
         .bible-credit a:hover { text-decoration: underline; }
         /* მუხლზე ხანგრძლივი დაჭერა ჩვენი მენიუა — ტელეფონის საკუთარი ამოვარდნა არ გვინდა */
-        .bible-verse { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+        /* მხოლოდ სენსორულ ეკრანზე — დესკტოპზე მაუსით მონიშვნა და Ctrl+C უნდა მუშაობდეს */
+        @media (hover: none) and (pointer: coarse) {
+            .bible-verse { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+        }
         .bible-sheet { position: fixed; inset: 0; z-index: 1200; }
         .bible-sheet__backdrop {
             position: absolute;
