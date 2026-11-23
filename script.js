@@ -433,7 +433,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // როცა YouTube-ის feed-იც და Sanity-ის სარეზერვო ველიც მიუწვდომელია.
         // ახალი ქადაგების ატვირთვისას განახლება არ არის სავალდებულო, მაგრამ
         // სასურველია: ის განსაზღვრავს, რას ხედავს ინკოგნიტო ვიზიტორი feed-ის ჩავარდნისას.
-        const videoId = el.getAttribute('data-video-id') || 'QyFs2GDJnVg';
+        const videoId = el.getAttribute('data-video-id') || '46LeWY9CEKs';
         const platform = el.getAttribute('data-video-platform') || (videoId.match(/^\d+$/) ? 'vimeo' : 'youtube');
 
         if (platform === 'vimeo') {
