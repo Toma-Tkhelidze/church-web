@@ -1210,7 +1210,7 @@ window.efcIsName = function (value, minLetters) {
                     + '</ol>'
                 : '<ol class="install-steps">'
                     + '<li>ეკრანის ბოლოში დააჭირე გაზიარების ღილაკს ' + shareIcon + ' — კვადრატი ისრით</li>'
-                    + '<li>ჩამონათვალი ჩამოქაჩე და აირჩიე „Add to Home Screen“</li>'
+                    + '<li>ჩამონათვალში იპოვე და აირჩიე „Add to Home Screen“</li>'
                     + '</ol>';
         } else {
             action = '<button type="button" class="install-go">'
