@@ -3818,6 +3818,18 @@ a.next-service .ns-where, .next-service a.ns-where {
     /* ტელეფონზე ბანერს ქვედა ზოლის ადგილიც სჭირდება (.mobile-tabbar) */
     /* html-ით უფრო ძლიერია, ვიდრე ფაილის ბოლოს მდგომი ტელეფონის !important წესი */
     html #sanity-main-image.hero-section { padding-bottom: calc(var(--tabbar-space, 80px) + 110px) !important; }
+
+    /* ფოტო ბრაუზერის ქვედა პანელის ქვეშაც გრძელდება. 100svh პანელამდე
+       მთავრდება, iPhone-ის Safari კი გვერდს პანელის ქვეშაც ხატავს — იქ
+       ზოლის ცარიელი მუქი ფონი თეთრი კიდეებით ჩანდა, სანამ ზოლი გამოჩნდებოდა.
+       100lvh ამ არესაც ფარავს; padding-bottom იმავე სხვაობით იზრდება, რომ
+       სათაური და ზოლი იქ დარჩეს, სადაც იყო. */
+    @supports (height: 100lvh) {
+        html #sanity-main-image.hero-section {
+            height: 100lvh;
+            padding-bottom: calc(var(--tabbar-space, 80px) + 110px + 100lvh - 100svh) !important;
+        }
+    }
 }
 
 @media (max-width: 480px) {

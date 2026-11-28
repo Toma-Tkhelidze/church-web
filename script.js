@@ -53,12 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const welcomeBanner = document.querySelector('.welcome-banner.floating-banner, .welcome-band');
 
     if (welcomeBanner) {
-        // ზღვარი 1px იყო, მაგრამ iPhone-ის Safari გვერდს თავისით რამდენიმე
-        // პიქსელით აჩოჩებს (შეხება, ზამბარისებრი უკუსვლა, ქვედა ზოლის
-        // შეკუმშვა) — ზოლი სქროლამდე ჩნდებოდა. ახლა მხოლოდ ნამდვილ სქროლზე.
-        const REVEAL_AT = 48;
         const revealBanner = () => {
-            if (window.scrollY > REVEAL_AT) {
+            if (window.scrollY > 1) {
                 welcomeBanner.classList.add('banner-visible');
                 window.removeEventListener('scroll', revealBanner);
             }
