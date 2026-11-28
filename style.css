@@ -3830,6 +3830,24 @@ a.next-service .ns-where, .next-service a.ns-where {
             padding-bottom: calc(var(--tabbar-space, 80px) + 110px + 100lvh - 100svh) !important;
         }
     }
+
+    /* iPhone-ის Safari 100lvh-ის მიღმაც ხატავს (პანელის ქვეშ, ეკრანის ძირამდე,
+       ~60pt) — იქ ისევ თეთრი კიდეები და ზოლის ცარიელი ფონი ჩანდა. ამიტომ
+       ფოტოს ქვემოთ პირველი 120px ფოტოს ძირის ფერითაა (#111 0.88-ზე ≈ #151515),
+       თეთრი კიდეები კი მის ქვემოთ იწყება — ფოტო უბრალოდ მუქად გრძელდება. */
+    .welcome-stage {
+        background:
+            linear-gradient(#151515, #151515) top / 100% 120px no-repeat,
+            linear-gradient(var(--white), var(--white)) top / 100% calc(100% - 40px) no-repeat;
+    }
+
+    /* ზოლის მუქი ფონიც (dark-800) იმავე 120px-ზე ფოტოს ძირის ფერშია,
+       რომ ცარიელი ყუთის კონტური არ გამოჩნდეს */
+    .welcome-stage::before {
+        background:
+            linear-gradient(#151515, #151515) top / 100% 120px no-repeat,
+            var(--dark-800);
+    }
 }
 
 @media (max-width: 480px) {
