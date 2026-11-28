@@ -3635,9 +3635,15 @@ a.next-service .ns-where, .next-service a.ns-where {
     opacity: 0;
     transform: translateY(40px);
     pointer-events: none;
+    /* Safari (iOS) backdrop-filter-ს opacity: 0-ზეც ხატავს — ზოლი უხილავია,
+       მაგრამ ფოტოს ქვედა ნახევარი ბუნდოვანი და მუქი ჩანს. visibility: hidden
+       ხატვას საერთოდ აჩერებს; გამოჩენისას ის მაშინვე ირთვება (0s), opacity
+       კი ჩვეულებრივ ნელა მოდის. */
+    visibility: hidden;
     transition:
         opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
-        transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+        transform 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+        visibility 0s;
 }
 
 /* backdrop-filter-ის გარეშე (ძველი ბრაუზერები) მინა უფრო მუქი უნდა იყოს */
@@ -3649,6 +3655,7 @@ a.next-service .ns-where, .next-service a.ns-where {
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
+    visibility: visible;
 }
 
 .welcome-band > * {
